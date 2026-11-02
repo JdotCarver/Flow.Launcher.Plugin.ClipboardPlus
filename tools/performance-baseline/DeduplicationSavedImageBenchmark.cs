@@ -63,7 +63,8 @@ internal static class DeduplicationSavedImageBenchmark
                     started.Wait();
                     if (!job.IsCompleted) overlap++;
                     var queue = Stopwatch.StartNew();
-                    database.GetCacheReferencesAsync().GetAwaiter().GetResult();
+                    var references = typeof(SqliteDatabase).GetMethod("GetCacheReferencesAsync")!;
+                    ((Task<IReadOnlyList<string>>)references.Invoke(database, null)!).GetAwaiter().GetResult();
                     queue.Stop();
                     var result = job.GetAwaiter().GetResult();
                     timer.Stop();
