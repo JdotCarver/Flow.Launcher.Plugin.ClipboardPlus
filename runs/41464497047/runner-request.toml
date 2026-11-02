@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "143d3d93-c10e-4b5b-b161-a1af6cfa426c"
+request_id = "9e6123ff-31d9-4375-9086-19bf6d6ac896"
 target = "local-windows"
-job_name = "ClipboardPlus Baseline"
+job_name = "Synthetic Image Investigation"
