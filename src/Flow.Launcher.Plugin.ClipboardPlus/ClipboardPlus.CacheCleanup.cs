@@ -72,10 +72,11 @@ public partial class ClipboardPlus
         }
     }
 
-    private async Task<CleanupReport> CleanupRemovedWindowsCacheAsync()
+    private async Task<CleanupReport> CleanupRemovedWindowsCacheAsync(bool allowImages)
     {
         var paths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         while (removedWindowsCachePaths.TryDequeue(out var path)) paths.Add(path);
+        if (!allowImages) return new CleanupReport(0, 0, 0, paths.Count, 0);
         var total = default(CleanupReport);
         foreach (var path in paths)
         {

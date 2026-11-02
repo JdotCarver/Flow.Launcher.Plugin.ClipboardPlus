@@ -126,11 +126,15 @@ internal static class DuplicatePluginIntegration
             var queue = (ConcurrentQueue<string>)typeof(Plugin).GetField("removedWindowsCachePaths", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(plugin)!;
             var process = typeof(Plugin).GetMethod("CleanupRemovedWindowsCacheAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
             queue.Enqueue(windowsFile);
-            ((Task<CleanupReport>)process.Invoke(plugin, null)!).GetAwaiter().GetResult();
+            ((Task<CleanupReport>)process.Invoke(plugin, [true])!).GetAwaiter().GetResult();
             if (!File.Exists(windowsFile)) throw new InvalidOperationException("Disabled automatic cleanup deleted Windows cache");
             settings.AutomaticCleanup = true;
             queue.Enqueue(windowsFile);
-            report = ((Task<CleanupReport>)process.Invoke(plugin, null)!).GetAwaiter().GetResult();
+            report = ((Task<CleanupReport>)process.Invoke(plugin, [false])!).GetAwaiter().GetResult();
+            if (!File.Exists(windowsFile) || report.CacheFilesRemoved != 0)
+                throw new InvalidOperationException("Best-effort cleanup verified an image cache file");
+            queue.Enqueue(windowsFile);
+            report = ((Task<CleanupReport>)process.Invoke(plugin, [true])!).GetAwaiter().GetResult();
             if (report.CacheFilesRemoved != 1 || File.Exists(windowsFile) || !File.Exists(keep))
                 throw new InvalidOperationException("Synthetic Windows-removal cache cleanup failed");
         }
