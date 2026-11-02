@@ -172,10 +172,14 @@ internal static class DuplicatePluginIntegration
             var second = Create("synthetic-image-two");
             var secondMs = timer.Elapsed.TotalMilliseconds;
             timer.Restart();
+            var safeFile = FileUtils.SaveNewImageCache(first, root, "synthetic-safe-benchmark", out var measuredOwnership);
+            var safeFileMs = timer.Elapsed.TotalMilliseconds;
+            timer.Restart();
             var legacy = FileUtils.SaveImageCache(first, root, "synthetic-legacy-benchmark");
             var legacyMs = timer.Elapsed.TotalMilliseconds;
-            if (string.IsNullOrEmpty(legacy)) throw new InvalidOperationException("Synthetic legacy cache benchmark failed");
-            Console.WriteLine($"dedup optout image cache safe first/repeat {firstMs:F2}/{secondMs:F2} ms; legacy single {legacyMs:F2} ms");
+            if (string.IsNullOrEmpty(legacy) || string.IsNullOrEmpty(safeFile) || measuredOwnership is null)
+                throw new InvalidOperationException("Synthetic cache benchmark failed");
+            Console.WriteLine($"dedup optout full image capture first/repeat {firstMs:F2}/{secondMs:F2} ms; safe/legacy file write {safeFileMs:F2}/{legacyMs:F2} ms");
             if (string.IsNullOrEmpty(first.CachedImagePath) || first.CachedImagePath == second.CachedImagePath ||
                 !File.Exists(first.CachedImagePath) || !File.Exists(second.CachedImagePath) ||
                 settings.OwnedCacheFiles.Count != 2 || settings.OwnedCacheFiles.Any(item => item.WindowsAssociated))
