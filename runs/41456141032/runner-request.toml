@@ -1,0 +1,5 @@
+# runner-request.toml
+# Written by tools/github_actions_runner/request_run.sh.
+request_id = "143d3d93-c10e-4b5b-b161-a1af6cfa426c"
+target = "local-windows"
+job_name = "ClipboardPlus Baseline"
