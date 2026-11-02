@@ -57,3 +57,23 @@ and query work, so they are not sufficient to finalize a best-effort threshold.
 The same run measured four noisy images at 569.41 ms median for thorough
 verification, reinforcing that this work must not hold a responsiveness-critical
 lock.
+
+## Verified in-memory database transactions 41503177038
+
+A [local run](https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41503177038)
+measured the real saved-record verification/deletion method against isolated
+in-memory SQLite. Each sample creates its own database and populates synthetic,
+unencrypted text before timing, then times sequential transactions. Each
+transaction re-reads and compares both records and removes the duplicate and
+asset. Three measured repetitions follow one warmup.
+
+| Sample | Total min / median / max (ms) | Median per pair (ms) |
+| --- | ---: | ---: |
+| 50 pairs, 4,096 characters | 4.21 / 4.46 / 6.81 | 0.09 |
+| 20 pairs, 65,536 characters | 6.41 / 6.90 / 9.72 | 0.35 |
+| 4 pairs, 1,048,576 characters | 22.43 / 23.98 / 24.22 | 6.00 |
+
+These totals are not tail latency or a real disk benchmark. They omit encryption,
+snapshotting, images, cache, Windows history, and concurrent query/capture;
+they also do not measure lock hold times in an integrated cleanup. Do not treat
+them as proof that any threshold is safe on other machines.
