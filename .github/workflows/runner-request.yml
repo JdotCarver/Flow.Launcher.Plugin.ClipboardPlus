@@ -154,6 +154,11 @@ jobs:
             if ($LASTEXITCODE -ne 0) {
               $names = @(Get-Content "$env:RUNNER_TEMP\clipboardplus-build.log" | Select-String -Pattern 'Failed (Flow\.Launcher\.Plugin\.ClipboardPlus\.[A-Za-z0-9_.]+)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
               if ($names.Count -gt 0) { Write-Host ("Failed synthetic test names: " + ($names -join ', ')) }
+              foreach ($testClass in @('SerialAsyncQueueTests', 'VerifiedDuplicateDatabaseTests', 'BulkInsertTests', 'ImagePersistenceTests', 'ImagePinTests', 'DatabaseHelperTest')) {
+                dotnet test Flow.Launcher.Plugin.ClipboardPlus.sln --configuration Release --no-build --filter "FullyQualifiedName~$testClass" *> "$env:RUNNER_TEMP\clipboardplus-filtered.log"
+                Write-Host "Synthetic test class $testClass exit code: $LASTEXITCODE"
+              }
+              Remove-Item "$env:RUNNER_TEMP\clipboardplus-filtered.log" -ErrorAction SilentlyContinue
               throw "Tests failed (details suppressed for privacy)"
             }
             Write-Host "Solution build and tests passed."
@@ -253,6 +258,8 @@ jobs:
               if ($exitCode -ne 0 -or $measurement.Count -ne 1) {
                 $codes = @(Get-Content $diagnostic | Select-String -Pattern 'error (CS[0-9]+)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
                 if ($codes.Count -gt 0) { Write-Host ("Compiler error codes: " + ($codes -join ', ')) }
+                $exceptions = @(Get-Content $diagnostic | Select-String -Pattern '(System\.[A-Za-z.]+Exception)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
+                if ($exceptions.Count -gt 0) { Write-Host ("Exception types: " + ($exceptions -join ', ')) }
                 throw "Image capture A/B failed (details suppressed for privacy)"
               }
               Write-Host "$variant $($measurement[0])"
