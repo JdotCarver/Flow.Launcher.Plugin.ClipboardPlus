@@ -1,6 +1,9 @@
 // DuplicatePluginIntegration.cs
 // Exercises the plugin cleanup against synthetic records and in-memory SQLite.
 using System.Globalization;
+using System.Collections.Concurrent;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Reflection;
 using System.Windows.Controls;
 using CommunityToolkit.Mvvm.DependencyInjection;
@@ -96,6 +99,40 @@ internal static class DuplicatePluginIntegration
             if (report.CacheFilesRemoved != 1 || report.Errors != 0 || File.Exists(owned) ||
                 !File.Exists(keep) || !File.Exists(unknown))
                 throw new InvalidOperationException("Synthetic cache scan safety failed");
+
+            var windowsFile = Path.Combine(root, "windows-associated.png");
+            using (var stream = new FileStream(windowsFile, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None))
+            {
+                stream.Write(new byte[] { 4, 5, 6 }); stream.Flush();
+                var identity = ManagedCacheFile.IdentifyNewFile(root, windowsFile, stream)
+                    ?? throw new InvalidOperationException("Synthetic Windows cache ownership unavailable");
+                settings.OwnedCacheFiles.Add(identity with { WindowsAssociated = true });
+            }
+            report = ((Task<CleanupReport>)scan.Invoke(plugin, null)!).GetAwaiter().GetResult();
+            if (!File.Exists(windowsFile) || report.CacheFilesRemoved != 0)
+                throw new InvalidOperationException("Manual scan must preserve Windows-associated cache");
+
+            var image = BitmapSource.Create(1, 1, 96, 96, PixelFormats.Bgra32, null, new byte[] { 1, 2, 3, 255 }, 4);
+            image.Freeze();
+            var surviving = new ClipboardData(image, DataType.Image, false)
+            {
+                HashId = "synthetic-survivor", SenderApp = "synthetic", InitScore = 1,
+                CreateTime = new DateTime(2026, 1, 1), CachedImagePath = keep, Saved = false, Pinned = false
+            };
+            var list = new LinkedList<ClipboardDataPair>();
+            list.AddFirst(new ClipboardDataPair { ClipboardData = surviving,
+                PreviewPanel = new Lazy<UserControl>(() => throw new InvalidOperationException("Preview must stay lazy")) });
+            SetField(plugin, "RecordsList", list);
+            var queue = (ConcurrentQueue<string>)typeof(Plugin).GetField("removedWindowsCachePaths", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(plugin)!;
+            var process = typeof(Plugin).GetMethod("CleanupRemovedWindowsCacheAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            queue.Enqueue(windowsFile);
+            ((Task<CleanupReport>)process.Invoke(plugin, null)!).GetAwaiter().GetResult();
+            if (!File.Exists(windowsFile)) throw new InvalidOperationException("Disabled automatic cleanup deleted Windows cache");
+            settings.AutomaticCleanup = true;
+            queue.Enqueue(windowsFile);
+            report = ((Task<CleanupReport>)process.Invoke(plugin, null)!).GetAwaiter().GetResult();
+            if (report.CacheFilesRemoved != 1 || File.Exists(windowsFile) || !File.Exists(keep))
+                throw new InvalidOperationException("Synthetic Windows-removal cache cleanup failed");
         }
         finally
         {
