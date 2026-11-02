@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "cfbd9a6f-8253-4d9f-ba8f-eb8b041f048c"
+request_id = "c29bc3c6-4b97-4b16-974c-3eb62b9d66b1"
 target = "local-windows"
-job_name = "Cleanup Shutdown Validation"
+job_name = "Cleanup Contention Measurements"
