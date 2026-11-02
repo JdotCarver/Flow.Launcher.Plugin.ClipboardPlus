@@ -1086,7 +1086,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
         try
         {
             // get clipboard data
-            var clipboardData = GetClipboardDataItem(e.Content, e.DataType, StringUtils.GetGuid(), DateTime.Now, e.SourceApplication, clipboardMonitor.ClipboardText, clipboardMonitor.ClipboardRtfText, out var encodedImage);
+            var clipboardData = GetClipboardDataItem(e.Content, e.DataType, StringUtils.GetGuid(), DateTime.Now, e.SourceApplication, clipboardMonitor.ClipboardText, clipboardMonitor.ClipboardRtfText, true, out var encodedImage);
 
             // add clipboard data
             if (!clipboardData.IsNull())
@@ -1101,9 +1101,9 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
     }
 
     public ClipboardData GetClipboardDataItem(object? content, DataType dataType, string hashId, DateTime createTime, SourceApplication source, string clipboardText, string clipboardRtfText) =>
-        GetClipboardDataItem(content, dataType, hashId, createTime, source, clipboardText, clipboardRtfText, out _);
+        GetClipboardDataItem(content, dataType, hashId, createTime, source, clipboardText, clipboardRtfText, false, out _);
 
-    private ClipboardData GetClipboardDataItem(object? content, DataType dataType, string hashId, DateTime createTime, SourceApplication source, string clipboardText, string clipboardRtfText, out string? encodedImage)
+    private ClipboardData GetClipboardDataItem(object? content, DataType dataType, string hashId, DateTime createTime, SourceApplication source, string clipboardText, string clipboardRtfText, bool filterConsecutive, out string? encodedImage)
     {
         encodedImage = null;
         if (content is null || dataType == DataType.Other)
@@ -1133,7 +1133,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
         if (!saved) encodedImage = null;
 
         // filter duplicate data
-        if (RecordsList.Count != 0 && RecordsList.First().ClipboardData.DataEquals(clipboardData))
+        if (filterConsecutive && RecordsList.Count != 0 && RecordsList.First().ClipboardData.DataEquals(clipboardData))
         {
             encodedImage = null;
             return ClipboardData.NULL;
