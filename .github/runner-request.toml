@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "22460447-dd36-4ef1-94bb-c8172970bc69"
+request_id = "f18c4bef-c1e0-4116-aa95-bfc7895e71bd"
 target = "local-windows"
-job_name = "Synthetic Integration Baseline"
+job_name = "Synthetic Contention Baseline"
