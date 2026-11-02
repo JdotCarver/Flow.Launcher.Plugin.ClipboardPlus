@@ -150,6 +150,7 @@ internal static class DuplicatePluginIntegration
         var plugin = new Plugin();
         var settings = new Settings { AutomaticCleanup = true };
         SetField(plugin, "Settings", settings);
+        SetField(plugin, "Context", new PluginInitContext(null, Ioc.Default.GetRequiredService<IPublicAPI>()));
         var helper = typeof(Plugin).GetField("WindowsClipboardHelper", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(plugin)!;
         typeof(WindowsClipboardHelper).GetField("pinStateTrusted", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(helper, true);
         var image = BitmapSource.Create(1, 1, 96, 96, PixelFormats.Bgra32, null, new byte[] { 21, 22, 23, 255 }, 4);
@@ -166,11 +167,18 @@ internal static class DuplicatePluginIntegration
         var keeper = new ClipboardDataPair { ClipboardData = Image("synthetic-image-keeper", 2),
             PreviewPanel = new Lazy<UserControl>(() => throw new InvalidOperationException("Preview must stay lazy")) };
         SetField(plugin, "RecordsList", new LinkedList<ClipboardDataPair>([keeper, windows]));
+        var pinEvent = typeof(Plugin).GetMethod("WindowsClipboardHelper_OnHistoryItemPinUpdated", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        pinEvent.Invoke(plugin, [null, ("synthetic-windows-image", true)]);
+        pinEvent.Invoke(plugin, [null, ("synthetic-windows-image", false)]);
+        if (windows.ClipboardData.Pinned || !windows.ClipboardData.FromWindowsClipboardHistory() ||
+            DuplicateRecordPlanner.Plan([keeper.ClipboardData, windows.ClipboardData], true).Count != 0)
+            throw new InvalidOperationException("Synthetic pin events lost Windows origin");
+        var generation = (long)typeof(Plugin).GetField("windowsEvidenceGeneration", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(plugin)!;
         var refresh = typeof(Plugin).GetMethod("RefreshWindowsEvidenceAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var hidden = typeof(Plugin).GetMethod("IsWindowsSuppressed", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        ((Task<CleanupReport>)refresh.Invoke(plugin, [CleanupWork.ManualThorough, true, 0L])!).GetAwaiter().GetResult();
+        ((Task<CleanupReport>)refresh.Invoke(plugin, [CleanupWork.ManualThorough, true, generation])!).GetAwaiter().GetResult();
         if (!(bool)hidden.Invoke(plugin, [windows])!) throw new InvalidOperationException("Manual synthetic image was not suppressed");
-        ((Task<CleanupReport>)refresh.Invoke(plugin, [CleanupWork.AutomaticBestEffort, false, 0L])!).GetAwaiter().GetResult();
+        ((Task<CleanupReport>)refresh.Invoke(plugin, [CleanupWork.AutomaticBestEffort, false, generation])!).GetAwaiter().GetResult();
         if (!(bool)hidden.Invoke(plugin, [windows])!) throw new InvalidOperationException("Best effort discarded valid manual image evidence");
         windows.TogglePinned();
         if ((bool)hidden.Invoke(plugin, [windows])!) throw new InvalidOperationException("Pinned synthetic Windows item was hidden");
