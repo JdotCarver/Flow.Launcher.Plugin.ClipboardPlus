@@ -63,7 +63,7 @@ public partial class ClipboardPlus
     private Result CreateCleanupAction(List<Result> results, Query query, CancellationToken token, long generation)
     {
         Result action = null!;
-        void Publish() => _ = PublishLiveResultsAsync(new CleanupResultView(results, query, token, generation));
+        void Publish() => _ = PublishLiveResultsAsync(new CleanupResultView(results, query, token, generation), true);
         var finished = false;
         async Task CompleteAsync(Task<CleanupReport> task)
         {
@@ -145,7 +145,9 @@ public partial class ClipboardPlus
             var windowsOnly = await RefreshWindowsEvidenceAsync(work, true, Interlocked.Increment(ref windowsEvidenceGeneration));
             windowsOnly += await CleanupRemovedWindowsCacheAsync(true);
             cleanupCoordinator.ReportProgress(windowsOnly);
-            return windowsOnly + await ScanOrphanCacheDuplicatesAsync(scan => cleanupCoordinator.ReportProgress(windowsOnly + scan));
+            var report = windowsOnly + await ScanOrphanCacheDuplicatesAsync(scan => cleanupCoordinator.ReportProgress(windowsOnly + scan));
+            await PublishCurrentResultsAsync();
+            return report;
         }
         var automatic = work is CleanupWork.AutomaticBestEffort or CleanupWork.AutomaticThorough;
         var thorough = work is CleanupWork.AutomaticThorough or CleanupWork.ManualThorough;
