@@ -69,6 +69,7 @@ internal static class DuplicatePluginIntegration
             var longer = plugin.QueryAsync(QueryFor("cleanup extra"), CancellationToken.None).GetAwaiter().GetResult();
             if (exact.Count != 1 || exact[0].Score != int.MaxValue || longer.Count != 0 || list.Count != 3)
                 throw new InvalidOperationException("Synthetic cleanup query validation failed");
+            TestUnloadedSavedKeeper();
             TestCapacityProtection(plugin);
             TestDisabledEvidenceRefresh(plugin);
             TestManualImageEvidenceRetention();
@@ -80,6 +81,37 @@ internal static class DuplicatePluginIntegration
         {
             database.DisposeAsync().AsTask().GetAwaiter().GetResult();
         }
+    }
+
+    private static void TestUnloadedSavedKeeper()
+    {
+        var database = new SqliteDatabase("synthetic-unloaded-keeper", new ClipboardPlus(), SqliteCacheMode.Private, SqliteOpenMode.Memory);
+        try
+        {
+            database.InitializeDatabaseAsync().GetAwaiter().GetResult();
+            var keeper = Record("unloaded-keeper", 4, true);
+            var duplicate = Record("loaded-duplicate", 3, true);
+            database.AddRecordsAsync([keeper, duplicate], true).GetAwaiter().GetResult();
+            var list = new LinkedList<ClipboardDataPair>([new ClipboardDataPair
+            {
+                ClipboardData = duplicate,
+                PreviewPanel = new Lazy<UserControl>(() => throw new InvalidOperationException("Preview must remain lazy"))
+            }]);
+            var plugin = new Plugin();
+            SetField(plugin, "ClipboardMonitor", null);
+            SetField(plugin, "Context", new PluginInitContext(null, Ioc.Default.GetRequiredService<IPublicAPI>()));
+            SetField(plugin, "Settings", new Settings());
+            SetField(plugin, "CultureInfo", CultureInfo.GetCultureInfo("en-US"));
+            SetField(plugin, "ScoreHelper", new ScoreHelper(10000));
+            SetField(plugin, "Database", database);
+            SetField(plugin, "RecordsList", list);
+            var cleanup = typeof(Plugin).GetMethod("RunCleanupWorkAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            var report = ((Task<CleanupReport>)cleanup.Invoke(plugin, [CleanupWork.ManualThorough])!).GetAwaiter().GetResult();
+            var survivors = database.GetAllRecordsAsync(false).GetAwaiter().GetResult();
+            if (report.RecordsRemoved != 1 || list.Count != 0 || survivors.Count != 1 || survivors[0].HashId != keeper.HashId)
+                throw new InvalidOperationException("Synthetic unloaded saved keeper was not preserved");
+        }
+        finally { database.DisposeAsync().AsTask().GetAwaiter().GetResult(); }
     }
 
     private static void TestCapacityProtection(Plugin plugin)
