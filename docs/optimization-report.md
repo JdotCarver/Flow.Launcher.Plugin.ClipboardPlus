@@ -63,7 +63,7 @@ For 10,000 all-match records, matcher-only allocated 13.73 MiB (median); full se
 
 The same run's actual `QueryAsync` all-match scenario at 10,000 records had a 20.16 ms median and 23.82 MiB median allocation; a deliberately overlapping capture-like record-lock wait had an 11.47 ms median. Reducing lock scope requires a safe ownership/lifetime design for mutable or disposed records and stale results, not merely copying the list. Real Flow settings, scheduling, actual clipboard events and UI latency remain unmeasured.
 
-## Investigated: image pin/unpin (no production change)
+## Implemented: image pin/unpin hash reuse
 
 [Windows run 41468518387](https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41468518387) measured the existing `ClipboardDataPair.TogglePinned` method on generated opaque frozen bitmaps. Five measured toggles followed a warmup; the test checked pin state, hash, ID and underlying data identity. It excludes the plugin's lock, database updates, forced GC, UI and Windows history.
 
@@ -74,7 +74,16 @@ The same run's actual `QueryAsync` all-match scenario at 10,000 records had a 20
 | 1024×1024 noisy image | 91.78 ms | 28.90 MiB |
 | Text control | under 0.01 ms | under 0.01 MiB |
 
-Pinning currently calls `ClipboardData.Clone(bool)`, which constructs a record and recomputes the image's PNG-based hash. Reusing a hash for an unchanged frozen image is a candidate, but it has not been implemented or validated against the full pin path. Mutable image data, metadata, hash identity, cloning with a new ID, disposal and Windows-history behavior need explicit coverage before any change.
+**Change:** pin/unpin clones reuse the existing hash only if the image was frozen at the time it was originally hashed. Images frozen after possible mutation are rehashed, and `Clone()` with a new identity remains unchanged. The optimization does not retain encoded images. Commit: `cd7f232`.
+
+**Production-path A/B:** [Windows run 41469695763](https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41469695763) used the real plugin pin method, a synthetic saved frozen 1024×1024 noisy image, and a temporary database. Five samples followed one warmup; variants were run sequentially and the before copy used pre-change `ClipboardData.cs` from `537ba8c`. The measurement includes the record lock, database queue completion and forced GC, but excludes UI and Windows clipboard history.
+
+| Variant | Minimum | Median | Maximum | Median managed allocation |
+| --- | ---: | ---: | ---: | ---: |
+| Before | 99.12 ms | 100.46 ms | 101.57 ms | 28.90 MiB |
+| After | 3.93 ms | 4.01 ms | 4.55 ms | under 0.01 MiB |
+
+The solution build and tests passed on the local Windows runner. New tests check pin/unpin state and record metadata, hash identity for initially frozen images, rehashing after mutation and subsequent freezing, and `Clone()` with a new ID. This does not validate UI or Windows-history integration, native allocations, or real-world image distributions.
 
 ## Deduplication considerations (discussion only)
 
