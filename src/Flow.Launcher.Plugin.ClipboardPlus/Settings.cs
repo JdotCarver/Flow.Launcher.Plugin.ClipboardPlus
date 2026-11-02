@@ -1,4 +1,5 @@
-﻿using Flow.Launcher.Plugin.ClipboardPlus.Core.Data.AppInfo;
+﻿// Settings.cs
+using Flow.Launcher.Plugin.ClipboardPlus.Core.Data.AppInfo;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,6 +13,8 @@ public class Settings : ISettings
 {
     public string ClearKeyword { get; set; } = "clear";
 
+    public string CleanupKeyword { get; set; } = "cleanup";
+
     public int MaxRecords { get; set; } = 10000;
 
     public RecordOrder RecordOrder { get; set; } = RecordOrder.CreateTime;
@@ -19,6 +22,18 @@ public class Settings : ISettings
     public bool ActionTop { get; set; } = true;
 
     public bool ShowNotification { get; set; } = true;
+
+    public bool UseRelativeTime { get; set; } = false;
+
+    public bool AutomaticCleanup { get; set; } = false;
+
+    public bool AutomaticCleanupThorough { get; set; } = false;
+
+    public bool RememberWindowsSuppression { get; set; } = false;
+
+    public List<WindowsSuppressionEntry> SuppressedWindowsItems { get; set; } = [];
+
+    public List<OwnedCacheFile> OwnedCacheFiles { get; set; } = [];
 
     public bool SyncWindowsClipboardHistory { get; set; } = false;
 

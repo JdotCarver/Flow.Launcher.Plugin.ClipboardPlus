@@ -145,9 +145,22 @@ jobs:
             dotnet restore Flow.Launcher.Plugin.ClipboardPlus.sln --source https://api.nuget.org/v3/index.json *> "$env:RUNNER_TEMP\clipboardplus-build.log"
             if ($LASTEXITCODE -ne 0) { throw "Restore failed" }
             dotnet build Flow.Launcher.Plugin.ClipboardPlus.sln --configuration Release --no-restore *> "$env:RUNNER_TEMP\clipboardplus-build.log"
-            if ($LASTEXITCODE -ne 0) { throw "Build failed" }
+            if ($LASTEXITCODE -ne 0) {
+              $codes = @(Get-Content "$env:RUNNER_TEMP\clipboardplus-build.log" | Select-String -Pattern 'error (CS[0-9]+)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
+              if ($codes.Count -gt 0) { Write-Host ("Compiler error codes: " + ($codes -join ', ')) }
+              throw "Build failed"
+            }
             dotnet test Flow.Launcher.Plugin.ClipboardPlus.sln --configuration Release --no-build *> "$env:RUNNER_TEMP\clipboardplus-build.log"
-            if ($LASTEXITCODE -ne 0) { throw "Tests failed (details suppressed for privacy)" }
+            if ($LASTEXITCODE -ne 0) {
+              $names = @(Get-Content "$env:RUNNER_TEMP\clipboardplus-build.log" | Select-String -Pattern 'Failed (Flow\.Launcher\.Plugin\.ClipboardPlus\.[A-Za-z0-9_.]+)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
+              if ($names.Count -gt 0) { Write-Host ("Failed synthetic test names: " + ($names -join ', ')) }
+              foreach ($testClass in @('SerialAsyncQueueTests', 'VerifiedDuplicateDatabaseTests', 'BulkInsertTests', 'ImagePersistenceTests', 'ImagePinTests', 'DatabaseHelperTest')) {
+                dotnet test Flow.Launcher.Plugin.ClipboardPlus.sln --configuration Release --no-build --filter "FullyQualifiedName~$testClass" *> "$env:RUNNER_TEMP\clipboardplus-filtered.log"
+                Write-Host "Synthetic test class $testClass exit code: $LASTEXITCODE"
+              }
+              Remove-Item "$env:RUNNER_TEMP\clipboardplus-filtered.log" -ErrorAction SilentlyContinue
+              throw "Tests failed (details suppressed for privacy)"
+            }
             Write-Host "Solution build and tests passed."
           } finally {
             Set-Location $env:RUNNER_TEMP
@@ -172,7 +185,7 @@ jobs:
             # Only publish recognized synthetic measurement lines, never arbitrary
             # build diagnostics, exceptions, environment values or file paths.
             Get-Content "$env:RUNNER_TEMP\clipboardplus-benchmark.log" | Where-Object {
-              $_ -match '^(text create and display|image hashing only|image construct and serialize|two forced collections and finalizer wait|SQLite disk bulk insert and read|SQLite reopen and materialize|10000 live synthetic text records|plugin query|plugin synthetic text add|plugin repeated query managed heap delta|plugin capture lock wait during query|SQLite transaction experiment|image experiment|query experiment|image pin)[A-Za-z0-9 ,.;/():=+\-]*$'
+              $_ -match '^(text create and display|image hashing only|image construct and serialize|two forced collections and finalizer wait|SQLite disk bulk insert and read|SQLite reopen and materialize|10000 live synthetic text records|plugin query|plugin synthetic text add|plugin repeated query managed heap delta|plugin capture lock wait during query|dedup planner|dedup database|dedup plugin|dedup integrated|dedup optout|dedup saved images|SQLite transaction experiment|image experiment|query experiment|image pin)[A-Za-z0-9 ,.;/():=+\-]*$'
             } | ForEach-Object { Write-Host $_ }
             if ($exitCode -ne 0) {
               $codes = @(Get-Content "$env:RUNNER_TEMP\clipboardplus-benchmark.log" | Select-String -Pattern 'error (CS[0-9]+)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
@@ -204,6 +217,16 @@ jobs:
               tar -xf "$scratch\snapshot.tar" -C "$scratch\$variant" *>> $diagnostic
               if ($LASTEXITCODE -ne 0) { throw "Snapshot extraction failed" }
             }
+            # The historical caller is not partial and cannot include the new
+            # cleanup integration in the before snapshot.
+            Remove-Item "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus\ClipboardPlus.Cleanup.cs" -ErrorAction SilentlyContinue
+            Remove-Item "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus\ClipboardPlus.WindowsSuppression.cs" -ErrorAction SilentlyContinue
+            Remove-Item "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus\ClipboardPlus.CacheCleanup.cs" -ErrorAction SilentlyContinue
+            # The historical ClipboardData lacks the newer origin marker.
+            Remove-Item "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus.Core.Test\WindowsOriginPinTests.cs" -ErrorAction SilentlyContinue
+            git show be98be6:src/Flow.Launcher.Plugin.ClipboardPlus.Core/Helpers/ClipboardCleanupSnapshot.cs 2>> $diagnostic |
+              Set-Content -Encoding utf8 "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus.Core\Helpers\ClipboardCleanupSnapshot.cs"
+            if ($LASTEXITCODE -ne 0) { throw "Historical snapshot helper unavailable" }
             git show 077bf9c:src/Flow.Launcher.Plugin.ClipboardPlus.Core/Data/Models/Database/SqliteDatabase.cs 2>> $diagnostic |
               Set-Content -Encoding utf8 "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus.Core\Data\Models\Database\SqliteDatabase.cs"
             if ($LASTEXITCODE -ne 0) { throw "Baseline source unavailable" }
@@ -242,14 +265,41 @@ jobs:
               dotnet run --project tools/performance-baseline/PerformanceBaseline.csproj --configuration Release --no-restore -- --image-capture-only *> $diagnostic
               $exitCode = $LASTEXITCODE
               $measurement = @(Get-Content $diagnostic | Where-Object { $_ -match '^actual image capture save 1024 noise: ms min/median/max=[0-9,./]+$' })
-              if ($exitCode -ne 0 -or $measurement.Count -ne 1) { throw "Image capture A/B failed (details suppressed for privacy)" }
+              if ($exitCode -ne 0 -or $measurement.Count -ne 1) {
+                $codes = @(Get-Content $diagnostic | Select-String -Pattern 'error (CS[0-9]+)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
+                if ($codes.Count -gt 0) { Write-Host ("Compiler error codes: " + ($codes -join ', ')) }
+                $exceptions = @(Get-Content $diagnostic | Select-String -Pattern '(System\.[A-Za-z.]+Exception)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
+                if ($exceptions.Count -gt 0) { Write-Host ("Exception types: " + ($exceptions -join ', ')) }
+                throw "Image capture A/B failed (details suppressed for privacy)"
+              }
               Write-Host "$variant $($measurement[0])"
             }
+            # The pin baseline uses the current partial caller and database.
+            Set-Location "${drive}:\"
+            git show HEAD:src/Flow.Launcher.Plugin.ClipboardPlus/ClipboardPlus.Cleanup.cs 2>> $diagnostic |
+              Set-Content -Encoding utf8 "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus\ClipboardPlus.Cleanup.cs"
+            if ($LASTEXITCODE -ne 0) { throw "Cleanup caller source unavailable" }
+            git show HEAD:src/Flow.Launcher.Plugin.ClipboardPlus/ClipboardPlus.WindowsSuppression.cs 2>> $diagnostic |
+              Set-Content -Encoding utf8 "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus\ClipboardPlus.WindowsSuppression.cs"
+            if ($LASTEXITCODE -ne 0) { throw "Suppression caller source unavailable" }
+            git show HEAD:src/Flow.Launcher.Plugin.ClipboardPlus/ClipboardPlus.CacheCleanup.cs 2>> $diagnostic |
+              Set-Content -Encoding utf8 "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus\ClipboardPlus.CacheCleanup.cs"
+            if ($LASTEXITCODE -ne 0) { throw "Cache caller source unavailable" }
             # Pinning baseline differs only in the record implementation.
             Set-Location "${drive}:\"
-            git show 537ba8c:src/Flow.Launcher.Plugin.ClipboardPlus.Core/Data/Models/Clipboard/ClipboardData.cs 2>> $diagnostic |
-              Set-Content -Encoding utf8 "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus.Core\Data\Models\Clipboard\ClipboardData.cs"
-            if ($LASTEXITCODE -ne 0) { throw "Pin baseline source unavailable" }
+            foreach ($relative in @(
+              'src/Flow.Launcher.Plugin.ClipboardPlus.Core/Data/Models/Clipboard/ClipboardData.cs',
+              'src/Flow.Launcher.Plugin.ClipboardPlus.Core/Helpers/ClipboardCleanupSnapshot.cs'
+            )) {
+              git show "HEAD:$relative" 2>> $diagnostic | Set-Content -Encoding utf8 "$scratch\before\$relative"
+              if ($LASTEXITCODE -ne 0) { throw "Pin baseline source unavailable" }
+            }
+            # Isolate the old pinning cost without discarding newer safety metadata.
+            $pinSource = "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus.Core\Data\Models\Clipboard\ClipboardData.cs"
+            $pinText = Get-Content -Raw $pinSource
+            $oldPinText = $pinText.Replace('new ClipboardData(Data, DataType, EncryptData, CanReuseImageHash ? DataMd5 : null)', 'new ClipboardData(Data, DataType, EncryptData)')
+            if ($pinText -eq $oldPinText) { throw "Pin baseline transformation unavailable" }
+            Set-Content -Encoding utf8 $pinSource $oldPinText
             # Restore the current image-capture implementation in the before
             # tree, so that only the hash-reuse change differs.
             foreach ($relative in @(

@@ -52,14 +52,13 @@ internal static class ImageCaptureBenchmark
             var args = new ClipboardChangedEventArgs(image, DataType.Image, SourceApplication.NULL);
             var handler = typeof(Plugin).GetMethod("ClipboardMonitor_OnClipboardChanged", BindingFlags.Instance | BindingFlags.NonPublic)!;
             var recordsLock = (SemaphoreSlim)typeof(Plugin).GetField("RecordsLock", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(plugin)!;
-            var queueGate = (SemaphoreSlim)typeof(SqliteDatabase).GetField("_queueSemaphore", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(database)!;
+            var waitForDatabase = typeof(SqliteDatabase).GetMethod("WaitTaskQueueAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
             var timer = Stopwatch.StartNew();
             handler.Invoke(plugin, [sender, args]);
             // The event acquires this lock before starting the database write.
             recordsLock.Wait();
             recordsLock.Release();
-            queueGate.Wait();
-            queueGate.Release();
+            ((Task)waitForDatabase.Invoke(database, null)!).GetAwaiter().GetResult();
             timer.Stop();
             if (database.Connection.ExecuteScalar<int>("SELECT COUNT(*) FROM record") != 1 ||
                 database.Connection.ExecuteScalar<int>("SELECT COUNT(*) FROM asset") != 1)

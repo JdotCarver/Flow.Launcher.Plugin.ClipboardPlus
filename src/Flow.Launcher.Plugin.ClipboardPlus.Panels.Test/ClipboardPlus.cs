@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.DependencyInjection;
+﻿// ClipboardPlus.cs
+using CommunityToolkit.Mvvm.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -59,6 +60,8 @@ internal class ClipboardPlus : IClipboardPlus, IAsyncDisposable
     {
         await Task.CompletedTask;
     }
+
+    public ManualCleanupRequest RequestManualCleanup(IProgress<CleanupReport>? progress = null) => new(false, Task.FromResult(default(CleanupReport)));
 
     public ISettings LoadSettingJsonStorage()
     {

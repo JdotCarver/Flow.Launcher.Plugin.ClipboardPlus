@@ -1,8 +1,34 @@
 <?xml version="1.0" ?>
+<!-- en.xaml -->
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_time_setting">Show relative timestamps</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_just_now">Just now</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_minute">{0} minute ago</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_minutes">{0} minutes ago</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_today">Today at {0}</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_yesterday">Yesterday at {0}</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_weekday">{0} at {1}</system:String>
+
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_keyword">Cleanup keyword</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_automatic">Automatically consolidate duplicates</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_thorough">Use thorough automatic verification</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_action">Clean duplicate records</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_running">Cleanup is running…</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_already_running">Cleanup is already running…</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_counts">Removed {0} records, {1} cache files; hid {2} Windows items.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_skipped">Skipped: {0}.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_errors">Errors: {0}.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_keyword_invalid">Use a single keyword different from the clear keyword.</system:String>
+
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_action_subtitle">Verify and consolidate duplicate clipboard records</system:String>
+
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_windows_lifetime">Windows suppression lifetime</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_windows_session">Session only</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_windows_remember">Remember across reloads</system:String>
 
     <!--  General  -->
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_name">Clipboard+</system:String>

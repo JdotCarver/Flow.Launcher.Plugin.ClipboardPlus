@@ -172,12 +172,14 @@ internal static class PluginScenarios
 public class SyntheticHost : DispatchProxy
 {
     public static Action? BeforeFirstMatch;
+    public static int SettingsSaveCalls;
     public static Flow.Launcher.Infrastructure.StringMatcher Matcher = null!;
 
     protected override object? Invoke(MethodInfo? method, object?[]? args)
     {
         if (method == null) throw new InvalidOperationException("Host method missing");
-        if (method.Name.StartsWith("Log", StringComparison.Ordinal)) return null;
+        if (method.Name.StartsWith("Log", StringComparison.Ordinal) || method.Name == "ReQuery") return null;
+        if (method.Name == "SaveSettingJsonStorage") { Interlocked.Increment(ref SettingsSaveCalls); return null; }
         if (method.Name == "GetTranslation") return "synthetic";
         if (method.Name == "FuzzySearch")
         {

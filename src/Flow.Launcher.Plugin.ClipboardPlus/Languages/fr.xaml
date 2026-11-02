@@ -1,8 +1,34 @@
 <?xml version="1.0" ?>
+<!-- fr.xaml -->
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_time_setting">Afficher les dates relatives</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_just_now">À l’instant</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_minute">Il y a {0} minute</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_minutes">Il y a {0} minutes</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_today">Aujourd’hui à {0}</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_yesterday">Hier à {0}</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_weekday">{0} à {1}</system:String>
+
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_keyword">Mot-clé de nettoyage</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_automatic">Regrouper automatiquement les doublons</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_thorough">Vérification automatique approfondie</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_action">Nettoyer les doublons</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_running">Nettoyage en cours…</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_already_running">Le nettoyage est déjà en cours…</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_counts">{0} entrées et {1} fichiers de cache supprimés ; {2} éléments Windows masqués.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_skipped">Éléments ignorés : {0}.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_errors">Erreurs : {0}.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_keyword_invalid">Utilisez un mot-clé unique différent du mot-clé de suppression.</system:String>
+
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_action_subtitle">Vérifier et regrouper les entrées du presse-papiers en double</system:String>
+
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_windows_lifetime">Durée du masquage Windows</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_windows_session">Session uniquement</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_windows_remember">Mémoriser après rechargement</system:String>
 
     <!--  General  -->
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_name">Clipboard+</system:String>

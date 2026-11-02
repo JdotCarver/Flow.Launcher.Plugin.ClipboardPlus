@@ -1,11 +1,11 @@
-﻿// Copyright (c) 2025 Jack251970
+﻿// WindowsClipboardHelper.cs
+// Copyright (c) 2025 Jack251970
 // Licensed under the Apache License. See the LICENSE.
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
@@ -90,80 +90,17 @@ public class WindowsClipboardHelper : IDisposable
 
     #region Pinned Items Helper
 
-    private static readonly JsonSerializerOptions _jsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true
-    };
+    private volatile bool pinStateTrusted;
 
-    /// <summary>
-    /// Represents the metadata.json structure for pinned clipboard items
-    /// </summary>
-    private class PinnedClipboardMetadata
-    {
-        public Dictionary<string, PinnedItemInfo>? Items { get; set; }
-    }
+    /// <summary>False means pin state could not be verified and suppression must fail open.</summary>
+    public bool IsPinStateTrusted => pinStateTrusted;
 
-    private class PinnedItemInfo
-    {
-        public string? Timestamp { get; set; }
-        public string? Source { get; set; }
-    }
-
-    /// <summary>
-    /// Gets the set of pinned clipboard item IDs from Windows clipboard pinned folder
-    /// </summary>
-    /// <returns>HashSet of pinned item IDs (in lowercase)</returns>
     private HashSet<string> GetPinnedClipboardItemIds()
     {
-        var pinnedIds = new HashSet<string>();
-
-        try
-        {
-            // https://superuser.com/questions/1778831/where-is-the-file-that-contains-pinned-items-in-windows-10-clipboard
-            var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            var clipboardPinnedPath = Path.Combine(localAppData, "Microsoft", "Windows", "Clipboard", "Pinned");
-
-            if (!Directory.Exists(clipboardPinnedPath))
-            {
-                return pinnedIds;
-            }
-
-            // Enumerate all GUID directories under Pinned
-            var guidDirs = Directory.GetDirectories(clipboardPinnedPath);
-            foreach (var guidDir in guidDirs)
-            {
-                var metadataPath = Path.Combine(guidDir, "metadata.json");
-                if (File.Exists(metadataPath))
-                {
-                    try
-                    {
-                        var jsonContent = File.ReadAllText(metadataPath);
-                        var metadata = JsonSerializer.Deserialize<PinnedClipboardMetadata>(jsonContent, _jsonOptions);
-                        
-                        if (metadata?.Items != null)
-                        {
-                            foreach (var itemId in metadata.Items.Keys)
-                            {
-                                // Convert to lowercase to match ClipboardHistoryItem.Id format
-                                pinnedIds.Add(itemId.ToLower());
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        // Log error but continue processing other metadata files
-                        _context.LogException(ClassName, $"Failed to read metadata file: {metadataPath}", ex, "GetPinnedClipboardItemIds");
-                    }
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            // Log error accessing the pinned folder
-            _context.LogException(ClassName, "Failed to access Windows clipboard pinned folder", ex, "GetPinnedClipboardItemIds");
-        }
-
-        return pinnedIds;
+        var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "Microsoft", "Windows", "Clipboard", "Pinned");
+        pinStateTrusted = PinnedHistorySnapshotReader.TryRead(folder, out var ids);
+        return ids;
     }
 
     #endregion
@@ -211,6 +148,7 @@ public class WindowsClipboardHelper : IDisposable
 
     public event EventHandler<ClipboardData>? OnHistoryItemAdded;
     public event EventHandler<string[]>? OnHistoryItemRemoved;
+    public event EventHandler<string[]>? OnHistoryReadCompleted;
     public event EventHandler<(string HashId, bool Pinned)>? OnHistoryItemPinUpdated;
 
     public event EventHandler<bool>? OnHistoryEnabledChanged;
@@ -262,6 +200,8 @@ public class WindowsClipboardHelper : IDisposable
                         _clipboardHistoryItems.Add(item);
                         _clipboardHistoryItemsIds.Add(GetHashId(item));
                     }
+                    // Only a successful complete raw Windows read can prune IDs.
+                    OnHistoryReadCompleted?.Invoke(this, _clipboardHistoryItemsIds.ToArray());
                 }
             }
             finally
@@ -301,8 +241,10 @@ public class WindowsClipboardHelper : IDisposable
             async Task<bool> UpdatedPinnedItemsAsync(IReadOnlyList<ClipboardHistoryItem> items)
             {
                 // Get current pinned item IDs from Windows clipboard metadata
+                var previouslyTrusted = pinStateTrusted;
                 var currentPinnedIds = GetPinnedClipboardItemIds();
-                
+                if (!pinStateTrusted) return false;
+
                 // Find items whose pin status changed
                 var itemsWithChangedPinStatus = new List<(ClipboardHistoryItem Item, bool IsPinned)>();
                 
@@ -313,7 +255,7 @@ public class WindowsClipboardHelper : IDisposable
                     var wasPinnedBefore = _previousPinnedItemIds.Contains(itemId);
                     
                     // Check if pin status changed
-                    if (isPinnedNow != wasPinnedBefore)
+                    if (!previouslyTrusted || isPinnedNow != wasPinnedBefore)
                     {
                         itemsWithChangedPinStatus.Add((item, isPinnedNow));
                     }
@@ -463,7 +405,8 @@ public class WindowsClipboardHelper : IDisposable
         // Get hash id & create time & pinned list
         var hashId = GetHashId(item);
         var createTime = item.Timestamp.DateTime;
-        var pinned = currentPinnedIds.Contains(hashId);
+        // Unknown pin state is treated as pinned, so it cannot be hidden.
+        var pinned = !pinStateTrusted || currentPinnedIds.Contains(hashId);
 
         // Determines whether a file/files have been cut/copied.
         if (_clipboardPlus.ObservableDataFormats.Images && ClipboardHandleWin.IsDataImage(dataObj))
@@ -618,6 +561,7 @@ public class WindowsClipboardHelper : IDisposable
             DisableClipboardHistory();
             OnHistoryItemAdded = null;
             OnHistoryItemRemoved = null;
+            OnHistoryReadCompleted = null;
             OnHistoryItemPinUpdated = null;
             _historyItemLock.Dispose();
             _disposed = true;

@@ -16,7 +16,7 @@ using Clipboard = System.Windows.Clipboard;
 
 namespace Flow.Launcher.Plugin.ClipboardPlus;
 
-public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPluginI18n,
+public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPluginI18n,
     IResultUpdated, ISavable, ISettingProvider, IClipboardPlus, IAsyncDisposable
 {
     #region Fields
@@ -123,6 +123,7 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
 
     public ClipboardPlus()
     {
+        cleanupCoordinator = new CleanupRunCoordinator(RunCleanupWorkAsync);
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 10240))
         {
             ClipboardMonitor = new ClipboardMonitorWin()
@@ -161,6 +162,7 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
     public async Task<List<Result>> Query(Query query, CancellationToken token)
     {
         var results = new List<Result>();
+        var queryGeneration = Interlocked.Increment(ref cleanupQueryGeneration);
         if (query.FirstSearch == Settings.ClearKeyword)
         {
             // clean windows clipboard history actions
@@ -357,6 +359,11 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
         else
         {
             var querySearch = query.Search;
+            if (CleanupKeywordValidator.Validate(Settings.CleanupKeyword, Settings.ClearKeyword) == CleanupKeywordValidation.Valid &&
+                CleanupKeywordValidator.IsExactQuery(querySearch, Settings.CleanupKeyword))
+            {
+                results.Add(CreateCleanupAction(results, query, token, queryGeneration));
+            }
             if (string.IsNullOrWhiteSpace(querySearch))
             {
                 // clean action
@@ -502,12 +509,18 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
 
                     Context.LogDebug(ClassName, $"Searched {querySearch} and added {results.Count} records successfully");
                 }
+                // Publish the view before releasing the history lock so a
+                // concurrent cleanup can never miss the just-built result list.
+                if (Interlocked.Read(ref cleanupQueryGeneration) == queryGeneration && !token.IsCancellationRequested)
+                    Volatile.Write(ref currentResultView, new CleanupResultView(results, query, token, queryGeneration));
             }
             finally
             {
                 RecordsLock.Release();
             }
         }
+        if (Interlocked.Read(ref cleanupQueryGeneration) == queryGeneration && !token.IsCancellationRequested)
+            Volatile.Write(ref currentResultView, new CleanupResultView(results, query, token, queryGeneration));
         return results;
     }
 
@@ -522,6 +535,7 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
 
         // init settings
         Settings = context.API.LoadSettingJsonStorage<Settings>();
+        InitializeWindowsSuppression();
         Context.LogDebug(ClassName, $"Init: {Settings}");
 
         // init encrypt key
@@ -579,6 +593,8 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
                 EnableWindowsClipboardHelper(true);
             }
         }
+
+        RefreshAutomaticCleanup();
 
         // init excluded apps
         if (ClipboardMonitor != null && Settings.ExcludedApps != null && Settings.ExcludedApps.Count > 0)
@@ -1076,7 +1092,7 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
         try
         {
             // get clipboard data
-            var clipboardData = GetClipboardDataItem(e.Content, e.DataType, StringUtils.GetGuid(), DateTime.Now, e.SourceApplication, clipboardMonitor.ClipboardText, clipboardMonitor.ClipboardRtfText, out var encodedImage);
+            var clipboardData = GetClipboardDataItem(e.Content, e.DataType, StringUtils.GetGuid(), DateTime.Now, e.SourceApplication, clipboardMonitor.ClipboardText, clipboardMonitor.ClipboardRtfText, true, out var encodedImage);
 
             // add clipboard data
             if (!clipboardData.IsNull())
@@ -1091,9 +1107,9 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
     }
 
     public ClipboardData GetClipboardDataItem(object? content, DataType dataType, string hashId, DateTime createTime, SourceApplication source, string clipboardText, string clipboardRtfText) =>
-        GetClipboardDataItem(content, dataType, hashId, createTime, source, clipboardText, clipboardRtfText, out _);
+        GetClipboardDataItem(content, dataType, hashId, createTime, source, clipboardText, clipboardRtfText, false, out _);
 
-    private ClipboardData GetClipboardDataItem(object? content, DataType dataType, string hashId, DateTime createTime, SourceApplication source, string clipboardText, string clipboardRtfText, out string? encodedImage)
+    private ClipboardData GetClipboardDataItem(object? content, DataType dataType, string hashId, DateTime createTime, SourceApplication source, string clipboardText, string clipboardRtfText, bool filterConsecutive, out string? encodedImage)
     {
         encodedImage = null;
         if (content is null || dataType == DataType.Other)
@@ -1123,7 +1139,7 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
         if (!saved) encodedImage = null;
 
         // filter duplicate data
-        if (RecordsList.Count != 0 && RecordsList.First().ClipboardData.DataEquals(clipboardData))
+        if (filterConsecutive && RecordsList.Count != 0 && RecordsList.First().ClipboardData.DataEquals(clipboardData))
         {
             encodedImage = null;
             return ClipboardData.NULL;
@@ -1136,8 +1152,9 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
                 string.IsNullOrEmpty(clipboardData.SenderApp) ?
                 Localize.flowlauncher_plugin_clipboardplus_unknown() :
                 clipboardData.SenderApp);
-            var imagePath = FileUtils.SaveImageCache(clipboardData, PathHelper.ImageCachePath, imageName);
+            var imagePath = FileUtils.SaveNewImageCache(clipboardData, PathHelper.ImageCachePath, imageName, out var ownership);
             clipboardData.CachedImagePath = imagePath;
+            if (ownership is not null) RememberOwnedCacheFile(ownership with { WindowsAssociated = !filterConsecutive });
         }
         if (dataType == DataType.RichText)
         {
@@ -1155,10 +1172,14 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
         return clipboardData;
     }
 
+    private long captureGeneration;
+
     private void AddClipboardDataItem(ClipboardData clipboardData) => AddClipboardDataItem(clipboardData, null);
 
     private void AddClipboardDataItem(ClipboardData clipboardData, string? encodedImage)
     {
+        // Called under RecordsLock. An in-flight cleanup must not trim a newer capture.
+        captureGeneration++;
         // add to list and database if no repeat
         RecordsList.AddFirst(new ClipboardDataPair()
         {
@@ -1183,12 +1204,14 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
         }
 
         // remove last record if needed
-        if (RecordsList.Count >= Settings.MaxRecords)
+        if (!Settings.AutomaticCleanup && RecordsList.Count >= Settings.MaxRecords)
         {
             RecordsList.Last?.Value.Dispose();
             RecordsList.RemoveLast();
         }
 
+        if (Settings.AutomaticCleanup) EnforceCaptureOverflowLimit();
+        ScheduleAutomaticCleanup();
         // collect garbage
         GarbageCollect();
     }
@@ -1196,6 +1219,8 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
     private void AddClipboardDataItem(List<ClipboardData> clipboardDataList)
     {
         var removeCount = RecordsList.Count + clipboardDataList.Count - Settings.MaxRecords;
+        if (clipboardDataList.Count > 0) captureGeneration++;
+        var trimmedOverflow = false;
 
         foreach (var clipboardData in clipboardDataList)
         {
@@ -1216,10 +1241,12 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
             {
                 Context.LogDebug(ClassName, $"Record {clipboardData.HashId} added to list");
             }
+            if (Settings.AutomaticCleanup) trimmedOverflow |= EnforceCaptureOverflowLimit(false);
         }
 
+        if (trimmedOverflow) NotifyCaptureOverflowTrimmed();
         // remove last record if needed
-        for (int i = 0; i < removeCount; i++)
+        for (int i = 0; !Settings.AutomaticCleanup && i < removeCount; i++)
         {
             if (RecordsList.Count >= Settings.MaxRecords)
             {
@@ -1228,6 +1255,7 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
             }
         }
 
+        ScheduleAutomaticCleanup();
         // collect garbage
         GarbageCollect();
     }
@@ -1255,6 +1283,7 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
             WindowsClipboardHelper.OnHistoryItemAdded += WindowsClipboardHelper_OnHistoryItemAdded;
         }
         WindowsClipboardHelper.OnHistoryItemRemoved += WindowsClipboardHelper_OnHistoryItemRemoved;
+        WindowsClipboardHelper.OnHistoryReadCompleted += WindowsClipboardHelper_OnHistoryReadCompleted;
         WindowsClipboardHelper.OnHistoryItemPinUpdated += WindowsClipboardHelper_OnHistoryItemPinUpdated;
         WindowsClipboardHelper.OnHistoryEnabledChanged += WindowsClipboardHelper_OnHistoryEnabledChanged;
         WindowsClipboardHelper.EnableClipboardHistory();
@@ -1280,6 +1309,7 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
             WindowsClipboardHelper.OnHistoryItemAdded -= WindowsClipboardHelper_OnHistoryItemAdded;
         }
         WindowsClipboardHelper.OnHistoryItemRemoved -= WindowsClipboardHelper_OnHistoryItemRemoved;
+        WindowsClipboardHelper.OnHistoryReadCompleted -= WindowsClipboardHelper_OnHistoryReadCompleted;
         WindowsClipboardHelper.OnHistoryItemPinUpdated -= WindowsClipboardHelper_OnHistoryItemPinUpdated;
         WindowsClipboardHelper.OnHistoryEnabledChanged -= WindowsClipboardHelper_OnHistoryEnabledChanged;
         if (remove)
@@ -1296,21 +1326,35 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
         }
     }
 
-    private void WindowsClipboardHelper_OnHistoryItemAdded(object? sender, ClipboardData e)
+    private async void WindowsClipboardHelper_OnHistoryItemAdded(object? sender, ClipboardData e)
     {
-        AddClipboardDataItem(e);
+        await RecordsLock.WaitAsync();
+        try { AddClipboardDataItem(e); }
+        finally { RecordsLock.Release(); }
+        RequestWindowsEvidenceRefresh();
     }
 
     private async void WindowsClipboardHelper_OnHistoryItemRemoved(object? sender, string[] e)
     {
+        List<string> removedCachePaths = [];
         await RecordsLock.WaitAsync();
         try
         {
+            if (Settings.AutomaticCleanup)
+                removedCachePaths = RecordsList.Where(pair => pair.ClipboardData.FromWindowsClipboardHistory() &&
+                    e.Contains(pair.ClipboardData.HashId) && pair.ClipboardData.DataType == DataType.Image)
+                    .Select(pair => pair.ClipboardData.CachedImagePath).Where(path => !string.IsNullOrEmpty(path)).ToList();
             RemoveRecordsFromSystem(r => e.Contains(r.HashId));
         }
         finally
         {
             RecordsLock.Release();
+        }
+        RequestWindowsEvidenceRefresh();
+        if (removedCachePaths.Count > 0)
+        {
+            foreach (var path in removedCachePaths) removedWindowsCachePaths.Enqueue(path);
+            ScheduleAutomaticCleanup();
         }
     }
 
@@ -1339,6 +1383,8 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
         {
             RecordsLock.Release();
         }
+        RequestWindowsEvidenceRefresh();
+        Context?.ReQuery(false);
     }
 
     private async void WindowsClipboardHelper_OnHistoryEnabledChanged(object? sender, bool e)
@@ -1431,6 +1477,8 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
             RecordsLock.Release();
         }
 
+        ScheduleAutomaticCleanup();
+        RequestWindowsEvidenceRefresh();
         // collect garbage
         GarbageCollect();
 
@@ -1456,6 +1504,7 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
         {
             AddClipboardDataItem(historyItems);
         }
+        RequestWindowsEvidenceRefresh();
     }
 
     private void RemoveRecordsFromSystem(Func<ClipboardData, bool>? func = null)
@@ -1693,6 +1742,7 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
         try
         {
             var clipboardData = clipboardDataPair.ClipboardData;
+            if (IsWindowsSuppressed(clipboardDataPair)) return null;
 
             // Get score
             int score;
@@ -1723,7 +1773,17 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
             var limitedDisplayTitle = title.Length > MaxTitleToolTipCharacters ? string.Concat(title.AsSpan(0, MaxTitleToolTipCharacters), "...") : title;
             var titleText = clipboardData.GetText(CultureInfo);
             var limitedDisplayTitleText = titleText.Length > MaxTitleToolTipCharacters ? string.Concat(titleText.AsSpan(0, MaxTitleToolTipCharacters), "...") : titleText;
-            var subtitle = clipboardData.GetSubtitle(CultureInfo);
+            var subtitle = Settings.UseRelativeTime
+                ? clipboardData.GetSubtitleWithTimestamp(RelativeTimeFormatter.Format(
+                    clipboardData.CreateTime, DateTime.Now, CultureInfo,
+                    Localize.flowlauncher_plugin_clipboardplus_relative_just_now(),
+                    minutes => minutes == 1
+                        ? Localize.flowlauncher_plugin_clipboardplus_relative_minute(minutes)
+                        : Localize.flowlauncher_plugin_clipboardplus_relative_minutes(minutes),
+                    time => Localize.flowlauncher_plugin_clipboardplus_relative_today(time),
+                    time => Localize.flowlauncher_plugin_clipboardplus_relative_yesterday(time),
+                    (day, time) => Localize.flowlauncher_plugin_clipboardplus_relative_weekday(day, time)))
+                : clipboardData.GetSubtitle(CultureInfo);
             return new Result
             {
                 Title = limitedDisplayTitle,
@@ -2368,7 +2428,11 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
 
     public ISettings LoadSettingJsonStorage() => Settings;
 
-    public void SaveSettingJsonStorage() => Context!.API.SaveSettingJsonStorage<Settings>();
+    public void SaveSettingJsonStorage()
+    {
+        RefreshAutomaticCleanup();
+        Context!.API.SaveSettingJsonStorage<Settings>();
+    }
 
     CultureInfo IClipboardPlus.CultureInfo => CultureInfo;
 
@@ -2411,6 +2475,8 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
         if (disposing)
         {
             Context.LogDebug(ClassName, $"Enter dispose");
+
+            await cleanupCoordinator.StopAsync();
 
             if (Database != null)
             {

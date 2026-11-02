@@ -5,12 +5,11 @@
 using Dapper;
 using Microsoft.Data.Sqlite;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.IO;
 using System.Globalization;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Flow.Launcher.Plugin.ClipboardPlus.Core.Data.Models;
@@ -187,9 +186,7 @@ public class SqliteDatabase : IAsyncDisposable
 
     #region Queued Tasks
 
-    private readonly ConcurrentQueue<Func<Task>> _taskQueue = new();
-    private readonly SemaphoreSlim _queueSemaphore = new(1, 1);  // Semaphore to synchronize task queue processing
-    private bool _isProcessingQueue;
+    private readonly SerialAsyncQueue taskQueue = new();
 
     #endregion
 
@@ -434,6 +431,277 @@ public class SqliteDatabase : IAsyncDisposable
         });
     }
 
+    private const string SqlSelectDuplicateSnapshot = """
+        SELECT r.id as Id, a.data_b64 as DataMd5B64, r.sender_app as SenderApp,
+            r.cached_image_path as CachedImagePath, r.data_type as DataType,
+            r.encrypt_data as EncryptData, r.create_time as CreateTime,
+            r.datetime_score as DatetimeScore, r.pinned as Pinned,
+            r.hash_id as HashId, a.plain_text_b64 as PlainText,
+            r.encrypt_key_md5 as EncryptKeyMd5
+        FROM record r JOIN asset a ON r.hash_id = a.hash_id
+        WHERE r.hash_id = @HashId;
+        """;
+
+    /// <summary>
+    /// Prepares a saved-record deletion without holding the history lock. The
+    /// token contains transient database snapshots, never logs or persists them.
+    /// A caller must revalidate the live records and commit under its history lock.
+    /// </summary>
+    public async Task<PreparedDuplicateDeletion?> PrepareDuplicateDeletionAsync(ClipboardData keeper, ClipboardData duplicate, bool verifyImages)
+    {
+        if (!keeper.Saved || !duplicate.Saved || keeper.Pinned || duplicate.Pinned ||
+            keeper.FromWindowsClipboardHistory() || duplicate.FromWindowsClipboardHistory() ||
+            string.IsNullOrEmpty(keeper.HashId) || string.IsNullOrEmpty(duplicate.HashId) ||
+            keeper.HashId == duplicate.HashId || keeper.CreateTime < duplicate.CreateTime)
+        {
+            return null;
+        }
+        Record? keeperRecord = null;
+        Record? duplicateRecord = null;
+        await ProcessTaskQueueAsync(async () =>
+        {
+            keeperRecord = await Connection.QuerySingleOrDefaultAsync<Record>(SqlSelectDuplicateSnapshot, new { keeper.HashId });
+            duplicateRecord = await Connection.QuerySingleOrDefaultAsync<Record>(SqlSelectDuplicateSnapshot, new { duplicate.HashId });
+        });
+        if (keeperRecord is null || duplicateRecord is null || keeperRecord.Pinned || duplicateRecord.Pinned ||
+            (keeperRecord.EncryptData && keeperRecord.EncryptKeyMd5 != StringUtils.EncryptKeyMd5) ||
+            (duplicateRecord.EncryptData && duplicateRecord.EncryptKeyMd5 != StringUtils.EncryptKeyMd5))
+        {
+            return null;
+        }
+        try
+        {
+            var storedKeeper = ClipboardData.FromRecord(keeperRecord, 0);
+            var storedDuplicate = ClipboardData.FromRecord(duplicateRecord, 0);
+            if (!DuplicateSnapshotMetadataMatches(storedKeeper, keeper) ||
+                !DuplicateSnapshotMetadataMatches(storedDuplicate, duplicate) ||
+                ClipboardContentComparer.Compare(storedKeeper, keeper, verifyImages) != ClipboardContentComparison.Equal ||
+                ClipboardContentComparer.Compare(storedDuplicate, duplicate, verifyImages) != ClipboardContentComparison.Equal ||
+                ClipboardContentComparer.Compare(storedKeeper, storedDuplicate, verifyImages) != ClipboardContentComparison.Equal)
+            {
+                return null;
+            }
+            return new PreparedDuplicateDeletion(keeperRecord, duplicateRecord);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Commits a prepared deletion only if both database snapshots still match.
+    /// Callers must hold their history lock and validate both live snapshots.
+    /// </summary>
+    public async Task<bool> CommitPreparedDuplicateDeletionAsync(PreparedDuplicateDeletion prepared)
+    {
+        ArgumentNullException.ThrowIfNull(prepared);
+        var deleted = false;
+        await ProcessTaskQueueAsync(async () =>
+        {
+            using var transaction = Connection.BeginTransaction();
+            var currentKeeper = await Connection.QuerySingleOrDefaultAsync<Record>(SqlSelectDuplicateSnapshot,
+                new { prepared.Keeper.HashId }, transaction);
+            var currentDuplicate = await Connection.QuerySingleOrDefaultAsync<Record>(SqlSelectDuplicateSnapshot,
+                new { prepared.Duplicate.HashId }, transaction);
+            if (!SameStoredRecord(prepared.Keeper, currentKeeper) || !SameStoredRecord(prepared.Duplicate, currentDuplicate)) return;
+            var removed = await Connection.ExecuteAsync("DELETE FROM record WHERE hash_id = @HashId AND pinned = 0;",
+                new { prepared.Duplicate.HashId }, transaction);
+            if (removed != 1) return;
+            await Connection.ExecuteAsync(
+                "DELETE FROM asset WHERE hash_id = @HashId AND NOT EXISTS (SELECT 1 FROM record WHERE hash_id = @HashId);",
+                new { prepared.Duplicate.HashId }, transaction);
+            transaction.Commit();
+            deleted = true;
+        });
+        return deleted;
+    }
+
+    private static bool SameStoredRecord(Record expected, Record? actual) => actual is not null &&
+        expected.Id == actual.Id && expected.HashId == actual.HashId && expected.DataMd5B64 == actual.DataMd5B64 &&
+        expected.PlainText == actual.PlainText && expected.SenderApp == actual.SenderApp &&
+        expected.CachedImagePath == actual.CachedImagePath && expected.DataType == actual.DataType &&
+        expected.EncryptData == actual.EncryptData && expected.createTime == actual.createTime &&
+        expected.DatetimeScore == actual.DatetimeScore && expected.Pinned == actual.Pinned &&
+        expected.EncryptKeyMd5 == actual.EncryptKeyMd5;
+
+    /// <summary>
+    /// Deletes a saved duplicate only if both saved records still match the
+    /// supplied snapshots and each other inside one database transaction.
+    /// Callers must also hold the history lock and revalidate the live records.
+    /// This method does not delete cache files or Windows clipboard items.
+    /// </summary>
+    public async Task<bool> TryDeleteVerifiedDuplicateAsync(ClipboardData keeper, ClipboardData duplicate, bool verifyImages)
+    {
+        if (!keeper.Saved || !duplicate.Saved || keeper.Pinned || duplicate.Pinned ||
+            keeper.FromWindowsClipboardHistory() || duplicate.FromWindowsClipboardHistory() ||
+            string.IsNullOrEmpty(keeper.HashId) || string.IsNullOrEmpty(duplicate.HashId) || keeper.HashId == duplicate.HashId ||
+            keeper.CreateTime < duplicate.CreateTime)
+        {
+            return false;
+        }
+
+        var deleted = false;
+        await ProcessTaskQueueAsync(async () =>
+        {
+            using var transaction = Connection.BeginTransaction();
+            const string selectRecord = """
+                SELECT r.id as Id, a.data_b64 as DataMd5B64, r.sender_app as SenderApp,
+                    r.cached_image_path as CachedImagePath, r.data_type as DataType,
+                    r.encrypt_data as EncryptData, r.create_time as CreateTime,
+                    r.datetime_score as DatetimeScore, r.pinned as Pinned,
+                    r.hash_id as HashId, a.plain_text_b64 as PlainText,
+                    r.encrypt_key_md5 as EncryptKeyMd5
+                FROM record r JOIN asset a ON r.hash_id = a.hash_id
+                WHERE r.hash_id = @HashId;
+                """;
+            var keeperRecord = await Connection.QuerySingleOrDefaultAsync<Record>(selectRecord, new { keeper.HashId }, transaction);
+            var duplicateRecord = await Connection.QuerySingleOrDefaultAsync<Record>(selectRecord, new { duplicate.HashId }, transaction);
+            if (keeperRecord is null || duplicateRecord is null || keeperRecord.Pinned || duplicateRecord.Pinned)
+            {
+                return;
+            }
+
+            // Decrypt only records associated with the active key. Failed or
+            // uncertain reconstruction is a skip, never evidence for deletion.
+            if ((keeperRecord.EncryptData && keeperRecord.EncryptKeyMd5 != StringUtils.EncryptKeyMd5) ||
+                (duplicateRecord.EncryptData && duplicateRecord.EncryptKeyMd5 != StringUtils.EncryptKeyMd5))
+            {
+                return;
+            }
+            ClipboardData storedKeeper;
+            ClipboardData storedDuplicate;
+            try
+            {
+                storedKeeper = ClipboardData.FromRecord(keeperRecord, 0);
+                storedDuplicate = ClipboardData.FromRecord(duplicateRecord, 0);
+            }
+            catch (Exception)
+            {
+                return;
+            }
+
+            if (!DuplicateSnapshotMetadataMatches(storedKeeper, keeper) ||
+                !DuplicateSnapshotMetadataMatches(storedDuplicate, duplicate) ||
+                ClipboardContentComparer.Compare(storedKeeper, keeper, verifyImages) != ClipboardContentComparison.Equal ||
+                ClipboardContentComparer.Compare(storedDuplicate, duplicate, verifyImages) != ClipboardContentComparison.Equal ||
+                ClipboardContentComparer.Compare(storedKeeper, storedDuplicate, verifyImages) != ClipboardContentComparison.Equal)
+            {
+                return;
+            }
+
+            var removed = await Connection.ExecuteAsync(
+                "DELETE FROM record WHERE hash_id = @HashId AND pinned = 0;", new { duplicate.HashId }, transaction);
+            if (removed != 1)
+            {
+                return;
+            }
+            await Connection.ExecuteAsync(
+                "DELETE FROM asset WHERE hash_id = @HashId AND NOT EXISTS (SELECT 1 FROM record WHERE hash_id = @HashId);",
+                new { duplicate.HashId }, transaction);
+            transaction.Commit();
+            deleted = true;
+        });
+        return deleted;
+    }
+
+    private static bool DuplicateSnapshotMetadataMatches(ClipboardData stored, ClipboardData snapshot) =>
+        stored.HashId == snapshot.HashId && stored.CreateTime == snapshot.CreateTime &&
+        stored.DataType == snapshot.DataType && stored.Pinned == snapshot.Pinned &&
+        stored.SenderApp == snapshot.SenderApp && stored.CachedImagePath == snapshot.CachedImagePath &&
+        stored.EncryptData == snapshot.EncryptData && stored.EncryptKeyMd5 == snapshot.EncryptKeyMd5;
+
+    private sealed class CleanupRecordKey
+    {
+        public string HashId { get; set; } = string.Empty;
+        public string? ContentHash { get; set; }
+        public int DataType { get; set; }
+    }
+
+    /// <summary>
+    /// Fetches payloads only for unloaded records in possible saved duplicate
+    /// groups. Hash metadata is only a candidate filter, never equality proof.
+    /// </summary>
+    public async Task<(IReadOnlyList<ClipboardData> Records, int Skipped)> GetCleanupRecordsAsync(
+        bool thorough, IReadOnlyCollection<string> loadedIds)
+    {
+        var keys = new List<CleanupRecordKey>();
+        await ProcessTaskQueueAsync(async () =>
+        {
+            keys.AddRange(await Connection.QueryAsync<CleanupRecordKey>(
+                "SELECT hash_id AS HashId, data_md5_b64 AS ContentHash, data_type AS DataType FROM record WHERE pinned = 0;"));
+        });
+        var loaded = new HashSet<string>(loadedIds, StringComparer.Ordinal);
+        var candidates = keys.GroupBy(key => (key.DataType, key.ContentHash))
+            .Where(group => string.IsNullOrEmpty(group.Key.ContentHash) || group.Skip(1).Any())
+            .SelectMany(group => group).Where(key => !loaded.Contains(key.HashId))
+            .Select(key => key.HashId).Distinct(StringComparer.Ordinal).ToArray();
+        var result = new List<ClipboardData>();
+        var skipped = 0;
+        foreach (var batch in candidates.Chunk(128))
+        {
+            var rows = new List<Record>();
+            await ProcessTaskQueueAsync(async () =>
+            {
+                var sql = SqlSelectAllRecord.TrimEnd().TrimEnd(';') + " WHERE r.hash_id IN @Ids";
+                // Avoid materializing large payloads in best-effort mode.
+                if (!thorough)
+                    sql += " AND r.data_type <> @Image AND length(a.data_b64) <= @MaxEncoded AND length(COALESCE(a.plain_text_b64, '')) <= @MaxEncoded";
+                rows.AddRange(await Connection.QueryAsync<Record>(sql,
+                    new { Ids = batch, Image = (int)DataType.Image, MaxEncoded = 32768 }));
+            });
+            skipped += batch.Length - rows.Count;
+            // Decryption and image reconstruction happen outside the queue.
+            foreach (var row in rows)
+            {
+                try
+                {
+                    if (row.EncryptData && row.EncryptKeyMd5 != StringUtils.EncryptKeyMd5) { skipped++; continue; }
+                    var data = ClipboardData.FromRecord(row, 0);
+                    if (data.Data is null || (!thorough && !DuplicateVerificationPolicy.CanVerifyBestEffort(data))) { skipped++; continue; }
+                    result.Add(data);
+                }
+                catch (Exception) { skipped++; }
+            }
+            await Task.Yield();
+        }
+        return (result, skipped);
+    }
+
+    /// <summary>Returns cache references for planning; deletion must recheck them transactionally.</summary>
+    public async Task<IReadOnlyList<string>> GetCacheReferencesAsync()
+    {
+        var paths = new List<string>();
+        await ProcessTaskQueueAsync(async () =>
+        {
+            paths.AddRange(await Connection.QueryAsync<string>(
+                "SELECT cached_image_path FROM record WHERE cached_image_path IS NOT NULL AND cached_image_path <> '';"));
+        });
+        return paths;
+    }
+
+    /// <summary>
+    /// Executes a cache deletion callback only while an immediate transaction
+    /// confirms that no database record references the path. The caller must
+    /// also hold the history lock and revalidate in-memory references.
+    /// </summary>
+    public async Task<bool> TryDeleteUnreferencedCacheFileAsync(string path, Func<bool> delete)
+    {
+        if (!Path.IsPathFullyQualified(path)) return false;
+        var removed = false;
+        await ProcessTaskQueueAsync(async () =>
+        {
+            using var transaction = Connection.BeginTransaction();
+            var paths = await Connection.QueryAsync<string>(
+                "SELECT cached_image_path FROM record WHERE cached_image_path IS NOT NULL AND cached_image_path <> '';",
+                transaction: transaction);
+            if (!CacheReferenceSafety.IsUnreferenced(path, paths)) return;
+            removed = delete();
+            transaction.Commit();
+        });
+        return removed;
+    }
+
     public async Task DeleteRecordsAsync(IEnumerable<string> hashIds)
     {
         if (!hashIds.Any())
@@ -645,43 +913,9 @@ public class SqliteDatabase : IAsyncDisposable
 
     #region Extension functions
 
-    private async Task WaitTaskQueueAsync()
-    {
-        if (!_isProcessingQueue)
-        {
-            return;
-        }
+    private Task WaitTaskQueueAsync() => taskQueue.WaitForSubmittedAsync();
 
-        // wait for the current task queue to finish
-        await _queueSemaphore.WaitAsync();
-        _queueSemaphore.Release();
-    }
-
-    private async Task ProcessTaskQueueAsync(Func<Task> func)
-    {
-        _taskQueue.Enqueue(func);
-
-        if (_isProcessingQueue)
-        {
-            return;
-        }
-
-        _isProcessingQueue = true;
-        await _queueSemaphore.WaitAsync(); // Ensure only one task queue process at a time
-
-        try
-        {
-            while (_taskQueue.TryDequeue(out var task))
-            {
-                await task();
-            }
-        }
-        finally
-        {
-            _isProcessingQueue = false;
-            _queueSemaphore.Release();
-        }
-    }
+    internal Task ProcessTaskQueueAsync(Func<Task> operation) => taskQueue.ExecuteAsync(operation);
 
     #endregion
 

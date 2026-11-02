@@ -1,4 +1,5 @@
-﻿using System;
+﻿// ISettings.cs
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
@@ -10,6 +11,9 @@ public interface ISettings
     /// Action keyword to clear records
     /// </summary>
     public string ClearKeyword { get; set; }
+
+    /// <summary>Action keyword for manual duplicate cleanup.</summary>
+    public string CleanupKeyword { get; set; }
 
     /// <summary>
     /// Maximum number of records to keep
@@ -30,6 +34,24 @@ public interface ISettings
     /// Whether to show notification when copying
     /// </summary>
     public bool ShowNotification { get; set; }
+
+    /// <summary>Whether result timestamps use relative time.</summary>
+    public bool UseRelativeTime { get; set; }
+
+    /// <summary>Whether automatic duplicate cleanup is enabled.</summary>
+    public bool AutomaticCleanup { get; set; }
+
+    /// <summary>Whether automatic cleanup verifies expensive candidates.</summary>
+    public bool AutomaticCleanupThorough { get; set; }
+
+    /// <summary>Whether Windows suppression IDs persist across reloads.</summary>
+    public bool RememberWindowsSuppression { get; set; }
+
+    /// <summary>Windows item IDs and suppression origin, never clipboard content.</summary>
+    public List<WindowsSuppressionEntry> SuppressedWindowsItems { get; set; }
+
+    /// <summary>File identities of newly created plugin-owned cache images.</summary>
+    public List<OwnedCacheFile> OwnedCacheFiles { get; set; }
 
     /// <summary>
     /// Whether to sync with Windows clipboard history

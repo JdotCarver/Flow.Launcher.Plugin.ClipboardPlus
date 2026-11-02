@@ -1,3 +1,4 @@
+<!-- SettingsPanel.xaml -->
 <UserControl
     x:Class="Flow.Launcher.Plugin.ClipboardPlus.Panels.Views.SettingsPanel"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -42,6 +43,13 @@
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
 
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
@@ -563,6 +571,50 @@
             Grid.Row="27"
             Grid.ColumnSpan="2"
             Style="{StaticResource SettingPanelSeparatorStyle}" />
+
+        <!--  Relative timestamps  -->
+        <CheckBox
+            Grid.Row="29"
+            Grid.ColumnSpan="2"
+            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
+            Content="{DynamicResource flowlauncher_plugin_clipboardplus_relative_time_setting}"
+            IsChecked="{Binding UseRelativeTime, Mode=TwoWay}" />
+
+        <!--  Duplicate cleanup  -->
+        <TextBlock Grid.Row="30" Grid.Column="0"
+            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
+            VerticalAlignment="Center"
+            Text="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_keyword}" />
+        <TextBox Grid.Row="30" Grid.Column="1" MinWidth="120"
+            Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
+            HorizontalAlignment="Left" Text="{Binding CleanupKeyword, Mode=TwoWay}" />
+        <CheckBox Grid.Row="31" Grid.ColumnSpan="2"
+            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
+            Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_automatic}"
+            IsChecked="{Binding AutomaticCleanup, Mode=TwoWay}" />
+        <CheckBox Grid.Row="32" Grid.ColumnSpan="2"
+            Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
+            Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_thorough}"
+            IsChecked="{Binding AutomaticCleanupThorough, Mode=TwoWay}"
+            IsEnabled="{Binding AutomaticCleanup, Mode=OneWay}" />
+        <Button Grid.Row="33" Grid.ColumnSpan="2" HorizontalAlignment="Left"
+            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
+            Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_action}"
+            Command="{Binding CleanupCommand}" />
+        <TextBlock Grid.Row="34" Grid.ColumnSpan="2" TextWrapping="Wrap"
+            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
+            Text="{Binding CleanupFeedback, Mode=OneWay}" />
+
+        <TextBlock Grid.Row="35" Grid.Column="0"
+            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
+            VerticalAlignment="Center"
+            Text="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_windows_lifetime}" />
+        <ComboBox Grid.Row="35" Grid.Column="1"
+            Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
+            HorizontalAlignment="Left" SelectedIndex="{Binding WindowsSuppressionLifetimeIndex, Mode=TwoWay}">
+            <ComboBoxItem Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_windows_session}" />
+            <ComboBoxItem Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_windows_remember}" />
+        </ComboBox>
 
         <!--  Restore to Default  -->
         <Button

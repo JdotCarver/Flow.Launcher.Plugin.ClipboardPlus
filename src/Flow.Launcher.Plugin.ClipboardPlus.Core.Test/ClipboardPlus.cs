@@ -1,4 +1,5 @@
-﻿using Flow.Launcher.Plugin.ClipboardPlus.Core.Data.Contracts;
+﻿// ClipboardPlus.cs
+using Flow.Launcher.Plugin.ClipboardPlus.Core.Data.Contracts;
 using System.Globalization;
 
 namespace Flow.Launcher.Plugin.ClipboardPlus.Core.Test;
@@ -51,6 +52,8 @@ internal class ClipboardPlus : IClipboardPlus
     {
         await Task.CompletedTask;
     }
+
+    public ManualCleanupRequest RequestManualCleanup(IProgress<CleanupReport>? progress = null) => new(false, Task.FromResult(default(CleanupReport)));
 
     public ISettings LoadSettingJsonStorage()
     {

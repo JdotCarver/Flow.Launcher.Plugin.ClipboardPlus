@@ -1,4 +1,5 @@
-﻿using System;
+﻿// IClipboardPlus.cs
+using System;
 using System.Globalization;
 using System.Threading.Tasks;
 
@@ -23,6 +24,9 @@ public interface IClipboardPlus
     public void DisableWindowsClipboardHelper(bool remove);
 
     public ISettings Settings { get; }
+
+    public ManualCleanupRequest RequestManualCleanup(IProgress<CleanupReport>? progress = null) =>
+        new(false, Task.FromResult(new CleanupReport(0, 0, 0, 0, 1)));
 
     public ISettings LoadSettingJsonStorage();
 

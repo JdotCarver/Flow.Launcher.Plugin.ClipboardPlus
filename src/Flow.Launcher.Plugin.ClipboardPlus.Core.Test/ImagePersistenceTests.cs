@@ -1,7 +1,6 @@
 // ImagePersistenceTests.cs
 using Dapper;
 using Microsoft.Data.Sqlite;
-using System.Reflection;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Xunit;
@@ -25,18 +24,12 @@ public class ImagePersistenceTests
 
         await using var database = CreateDatabase();
         await database.InitializeDatabaseAsync();
-        var queueGate = (SemaphoreSlim)typeof(SqliteDatabase).GetField("_queueSemaphore", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(database)!;
-        await queueGate.WaitAsync();
-        Task write;
-        try
-        {
-            write = database.AddOneRecordWithEncodedImageAsync(captured, encoded!);
-            Assert.False(write.IsCompleted);
-        }
-        finally
-        {
-            queueGate.Release();
-        }
+        var releaseQueue = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var blocker = database.ProcessTaskQueueAsync(() => releaseQueue.Task);
+        var write = database.AddOneRecordWithEncodedImageAsync(captured, encoded!);
+        Assert.False(write.IsCompleted);
+        releaseQueue.SetResult();
+        await blocker;
         await write;
         Assert.Equal(encoded, database.Connection.QuerySingle<string>("SELECT data_b64 FROM asset WHERE hash_id='image'"));
         var loaded = Assert.Single(await database.GetAllRecordsAsync(true));

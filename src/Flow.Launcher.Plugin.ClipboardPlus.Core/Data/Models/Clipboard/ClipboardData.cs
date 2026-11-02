@@ -146,6 +146,9 @@ public partial struct ClipboardData : IEquatable<ClipboardData>, IDisposable
 
     internal ClipboardHistoryItem? ClipboardHistoryItem { get; set; } = null;
 
+    // Retain origin even when a clone or disposal no longer carries a WinRT object.
+    internal bool WindowsHistoryOrigin { get; set; } = false;
+
     #endregion
 
     #endregion
@@ -634,7 +637,9 @@ public partial struct ClipboardData : IEquatable<ClipboardData>, IDisposable
             CachedImagePath = CachedImagePath,
             Pinned = pinned,
             Saved = Saved,
-            PlainText = PlainText
+            PlainText = PlainText,
+            ClipboardHistoryItem = ClipboardHistoryItem,
+            WindowsHistoryOrigin = FromWindowsClipboardHistory()
         };
     }
 
@@ -698,7 +703,7 @@ public partial struct ClipboardData : IEquatable<ClipboardData>, IDisposable
 
     public readonly bool FromWindowsClipboardHistory()
     {
-        return ClipboardHistoryItem != null;
+        return WindowsHistoryOrigin || ClipboardHistoryItem != null;
     }
 
     public readonly bool IsNull()

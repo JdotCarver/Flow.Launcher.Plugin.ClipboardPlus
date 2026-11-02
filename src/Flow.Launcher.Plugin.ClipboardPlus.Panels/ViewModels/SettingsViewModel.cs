@@ -1,4 +1,5 @@
-﻿using System;
+﻿// SettingsViewModel.cs
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -145,9 +146,14 @@ public class SettingsViewModel : BaseModel
         RestoreKeepTimes();
 
         base.OnPropertyChanged(nameof(ClearKeyword));
+        base.OnPropertyChanged(nameof(CleanupKeyword));
+        base.OnPropertyChanged(nameof(AutomaticCleanup));
+        base.OnPropertyChanged(nameof(AutomaticCleanupThorough));
+        base.OnPropertyChanged(nameof(WindowsSuppressionLifetimeIndex));
         base.OnPropertyChanged(nameof(MaxRecords));
         base.OnPropertyChanged(nameof(ActionTop));
         base.OnPropertyChanged(nameof(ShowNotification));
+        base.OnPropertyChanged(nameof(UseRelativeTime));
 
         base.OnPropertyChanged(nameof(SyncWindowsClipboardHistory));
         base.OnPropertyChanged(nameof(UseWindowsClipboardHistoryOnly));
@@ -209,12 +215,93 @@ public class SettingsViewModel : BaseModel
                 ShowClearKeywordEmptyError();
                 return;
             }
+            if (CleanupKeywordValidator.Validate(Settings.CleanupKeyword, value) == CleanupKeywordValidation.ConflictsWithClear)
+            {
+                CleanupFeedback = Localize.flowlauncher_plugin_clipboardplus_cleanup_keyword_invalid();
+                base.OnPropertyChanged(nameof(ClearKeyword));
+                return;
+            }
             Settings.ClearKeyword = value;
             OnPropertyChanged();
         }
     }
 
     #endregion
+
+    public string CleanupKeyword
+    {
+        get => Settings.CleanupKeyword;
+        set
+        {
+            if (value == Settings.CleanupKeyword) return;
+            if (CleanupKeywordValidator.Validate(value, Settings.ClearKeyword) != CleanupKeywordValidation.Valid)
+            {
+                CleanupFeedback = Localize.flowlauncher_plugin_clipboardplus_cleanup_keyword_invalid();
+                base.OnPropertyChanged(nameof(CleanupKeyword));
+                return;
+            }
+            Settings.CleanupKeyword = value;
+            CleanupFeedback = string.Empty;
+            OnPropertyChanged();
+        }
+    }
+
+    public bool AutomaticCleanup
+    {
+        get => Settings.AutomaticCleanup;
+        set { if (Settings.AutomaticCleanup != value) { Settings.AutomaticCleanup = value; OnPropertyChanged(); } }
+    }
+
+    public bool AutomaticCleanupThorough
+    {
+        get => Settings.AutomaticCleanupThorough;
+        set { if (Settings.AutomaticCleanupThorough != value) { Settings.AutomaticCleanupThorough = value; OnPropertyChanged(); } }
+    }
+
+    public int WindowsSuppressionLifetimeIndex
+    {
+        get => Settings.RememberWindowsSuppression ? 1 : 0;
+        set
+        {
+            var remember = value == 1;
+            if (Settings.RememberWindowsSuppression == remember) return;
+            Settings.RememberWindowsSuppression = remember;
+            OnPropertyChanged();
+        }
+    }
+
+    private string cleanupFeedback = string.Empty;
+    public string CleanupFeedback
+    {
+        get => cleanupFeedback;
+        private set { cleanupFeedback = value; base.OnPropertyChanged(nameof(CleanupFeedback)); }
+    }
+
+    public ICommand CleanupCommand => new RelayCommand(StartCleanup);
+
+    private async void StartCleanup(object? parameter)
+    {
+        var finished = false;
+        var progress = new Progress<CleanupReport>(report =>
+        {
+            if (!finished) CleanupFeedback = Localize.flowlauncher_plugin_clipboardplus_cleanup_running() + " " + FormatCleanupReport(report);
+        });
+        var request = ClipboardPlus.RequestManualCleanup(progress);
+        CleanupFeedback = request.AlreadyRunning
+            ? Localize.flowlauncher_plugin_clipboardplus_cleanup_already_running()
+            : Localize.flowlauncher_plugin_clipboardplus_cleanup_running();
+        var report = await request.Completion;
+        finished = true;
+        CleanupFeedback = FormatCleanupReport(report);
+    }
+
+    private static string FormatCleanupReport(CleanupReport report)
+    {
+        var text = Localize.flowlauncher_plugin_clipboardplus_cleanup_counts(report.RecordsRemoved, report.CacheFilesRemoved, report.WindowsItemsHidden);
+        if (report.Skipped > 0) text += " " + Localize.flowlauncher_plugin_clipboardplus_cleanup_skipped(report.Skipped);
+        if (report.Errors > 0) text += " " + Localize.flowlauncher_plugin_clipboardplus_cleanup_errors(report.Errors);
+        return text;
+    }
 
     #region Max Records
 
@@ -299,6 +386,20 @@ public class SettingsViewModel : BaseModel
     }
 
     #endregion
+
+    public bool UseRelativeTime
+    {
+        get => Settings.UseRelativeTime;
+        set
+        {
+            if (Settings.UseRelativeTime == value)
+            {
+                return;
+            }
+            Settings.UseRelativeTime = value;
+            OnPropertyChanged();
+        }
+    }
 
     #region Sync Windows Clipboard History
 
