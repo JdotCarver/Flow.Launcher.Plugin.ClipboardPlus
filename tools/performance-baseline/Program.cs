@@ -83,6 +83,7 @@ internal static class Program
         MeasureDatabaseRestore("10 noisy 256x256 images", imageRecords);
         MeasureRetainedTextMemory();
         PluginScenarios.Run();
+        SqliteTransactionExperiment.Run();
     }
 
     private static BitmapSource CreateImage(int size, bool noisy, int seed)
