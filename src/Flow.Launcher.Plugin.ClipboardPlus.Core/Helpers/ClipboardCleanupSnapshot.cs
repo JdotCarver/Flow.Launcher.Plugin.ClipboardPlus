@@ -28,7 +28,9 @@ public sealed class ClipboardCleanupSnapshot
     /// <summary>Builds a detached planning value without serializing an image.</summary>
     public ClipboardData CreatePlanningRecord()
     {
-        if (filePaths is null)
+        // Preserve Windows provenance: such entries are never plugin deletion
+        // candidates, even when their payload is a mutable file list.
+        if (filePaths is null || original.FromWindowsClipboardHistory())
         {
             return original;
         }
