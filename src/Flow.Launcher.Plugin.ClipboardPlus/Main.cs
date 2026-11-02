@@ -529,6 +529,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
 
         // init settings
         Settings = context.API.LoadSettingJsonStorage<Settings>();
+        InitializeWindowsSuppression();
         Context.LogDebug(ClassName, $"Init: {Settings}");
 
         // init encrypt key
@@ -1266,6 +1267,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
             WindowsClipboardHelper.OnHistoryItemAdded += WindowsClipboardHelper_OnHistoryItemAdded;
         }
         WindowsClipboardHelper.OnHistoryItemRemoved += WindowsClipboardHelper_OnHistoryItemRemoved;
+        WindowsClipboardHelper.OnHistoryReadCompleted += WindowsClipboardHelper_OnHistoryReadCompleted;
         WindowsClipboardHelper.OnHistoryItemPinUpdated += WindowsClipboardHelper_OnHistoryItemPinUpdated;
         WindowsClipboardHelper.OnHistoryEnabledChanged += WindowsClipboardHelper_OnHistoryEnabledChanged;
         WindowsClipboardHelper.EnableClipboardHistory();
@@ -1291,6 +1293,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
             WindowsClipboardHelper.OnHistoryItemAdded -= WindowsClipboardHelper_OnHistoryItemAdded;
         }
         WindowsClipboardHelper.OnHistoryItemRemoved -= WindowsClipboardHelper_OnHistoryItemRemoved;
+        WindowsClipboardHelper.OnHistoryReadCompleted -= WindowsClipboardHelper_OnHistoryReadCompleted;
         WindowsClipboardHelper.OnHistoryItemPinUpdated -= WindowsClipboardHelper_OnHistoryItemPinUpdated;
         WindowsClipboardHelper.OnHistoryEnabledChanged -= WindowsClipboardHelper_OnHistoryEnabledChanged;
         if (remove)
@@ -1307,9 +1310,12 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
         }
     }
 
-    private void WindowsClipboardHelper_OnHistoryItemAdded(object? sender, ClipboardData e)
+    private async void WindowsClipboardHelper_OnHistoryItemAdded(object? sender, ClipboardData e)
     {
-        AddClipboardDataItem(e);
+        await RecordsLock.WaitAsync();
+        try { AddClipboardDataItem(e); }
+        finally { RecordsLock.Release(); }
+        RequestWindowsEvidenceRefresh();
     }
 
     private async void WindowsClipboardHelper_OnHistoryItemRemoved(object? sender, string[] e)
@@ -1323,6 +1329,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
         {
             RecordsLock.Release();
         }
+        RequestWindowsEvidenceRefresh();
     }
 
     private async void WindowsClipboardHelper_OnHistoryItemPinUpdated(object? sender, (string HashId, bool Pinned) e)
@@ -1350,6 +1357,8 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
         {
             RecordsLock.Release();
         }
+        RequestWindowsEvidenceRefresh();
+        Context?.ReQuery(false);
     }
 
     private async void WindowsClipboardHelper_OnHistoryEnabledChanged(object? sender, bool e)
@@ -1443,6 +1452,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
         }
 
         ScheduleAutomaticCleanup();
+        RequestWindowsEvidenceRefresh();
         // collect garbage
         GarbageCollect();
 
@@ -1468,6 +1478,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
         {
             AddClipboardDataItem(historyItems);
         }
+        RequestWindowsEvidenceRefresh();
     }
 
     private void RemoveRecordsFromSystem(Func<ClipboardData, bool>? func = null)
@@ -1705,6 +1716,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
         try
         {
             var clipboardData = clipboardDataPair.ClipboardData;
+            if (IsWindowsSuppressed(clipboardDataPair)) return null;
 
             // Get score
             int score;
@@ -2392,8 +2404,8 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
 
     public void SaveSettingJsonStorage()
     {
-        Context!.API.SaveSettingJsonStorage<Settings>();
         RefreshAutomaticCleanup();
+        Context!.API.SaveSettingJsonStorage<Settings>();
     }
 
     CultureInfo IClipboardPlus.CultureInfo => CultureInfo;

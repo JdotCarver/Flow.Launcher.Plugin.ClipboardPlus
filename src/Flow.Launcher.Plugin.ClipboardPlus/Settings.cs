@@ -28,6 +28,10 @@ public class Settings : ISettings
 
     public bool AutomaticCleanupThorough { get; set; } = false;
 
+    public bool RememberWindowsSuppression { get; set; } = false;
+
+    public List<WindowsSuppressionEntry> SuppressedWindowsItems { get; set; } = [];
+
     public bool SyncWindowsClipboardHistory { get; set; } = false;
 
     public bool UseWindowsClipboardHistoryOnly { get; set; } = false;

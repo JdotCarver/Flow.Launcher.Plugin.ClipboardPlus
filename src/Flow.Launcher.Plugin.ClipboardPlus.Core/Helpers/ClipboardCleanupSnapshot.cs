@@ -28,9 +28,7 @@ public sealed class ClipboardCleanupSnapshot
     /// <summary>Builds a detached planning value without serializing an image.</summary>
     public ClipboardData CreatePlanningRecord()
     {
-        // Preserve Windows provenance: such entries are never plugin deletion
-        // candidates, even when their payload is a mutable file list.
-        if (filePaths is null || original.FromWindowsClipboardHistory())
+        if (filePaths is null)
         {
             return original;
         }
@@ -39,7 +37,8 @@ public sealed class ClipboardCleanupSnapshot
             HashId = original.HashId, SenderApp = original.SenderApp, InitScore = original.InitScore,
             CreateTime = original.CreateTime, EncryptKeyMd5 = original.EncryptKeyMd5,
             CachedImagePath = original.CachedImagePath, Pinned = original.Pinned,
-            Saved = original.Saved, PlainText = original.PlainText
+            Saved = original.Saved, PlainText = original.PlainText,
+            ClipboardHistoryItem = original.ClipboardHistoryItem
         };
     }
 

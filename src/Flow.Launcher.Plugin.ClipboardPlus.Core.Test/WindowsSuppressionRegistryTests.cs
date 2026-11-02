@@ -26,6 +26,17 @@ public class WindowsSuppressionRegistryTests
     }
 
     [Fact]
+    public void ForgettingPersistenceKeepsTheCurrentSessionOnly()
+    {
+        var registry = new WindowsSuppressionRegistry();
+        registry.RememberManual("synthetic", true);
+        registry.ForgetPersistence();
+        Assert.True(registry.ShouldHide("synthetic", false, false, true));
+        Assert.Empty(registry.GetPersistentEntries());
+        Assert.False(new WindowsSuppressionRegistry(registry.GetPersistentEntries()).ShouldHide("synthetic", false, false, true));
+    }
+
+    [Fact]
     public void OnlyPersistentIdsSurviveReloadAndFailedReadsDoNotPrune()
     {
         var registry = new WindowsSuppressionRegistry();

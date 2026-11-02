@@ -25,6 +25,10 @@
 
     <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_action_subtitle">Verify and consolidate duplicate clipboard records</system:String>
 
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_windows_lifetime">Windows suppression lifetime</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_windows_session">Session only</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_windows_remember">Remember across reloads</system:String>
+
     <!--  General  -->
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_name">Clipboard+</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_description">Easily manage your clipboard history and Windows Clipboard History with support for text, images, and files</system:String>

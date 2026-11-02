@@ -43,6 +43,12 @@ public interface ISettings
     /// <summary>Whether automatic cleanup verifies expensive candidates.</summary>
     public bool AutomaticCleanupThorough { get; set; }
 
+    /// <summary>Whether Windows suppression IDs persist across reloads.</summary>
+    public bool RememberWindowsSuppression { get; set; }
+
+    /// <summary>Windows item IDs and suppression origin, never clipboard content.</summary>
+    public List<WindowsSuppressionEntry> SuppressedWindowsItems { get; set; }
+
     /// <summary>
     /// Whether to sync with Windows clipboard history
     /// </summary>

@@ -25,6 +25,10 @@
 
     <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_action_subtitle">验证并合并重复的剪贴板记录</system:String>
 
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_windows_lifetime">Windows 隐藏持续时间</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_windows_session">仅限本次会话</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_windows_remember">重新加载后保留</system:String>
+
     <!--  General  -->
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_name">剪切板+</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_description">轻松管理你的剪切板历史与Windows剪切板历史，支持文字、图像和文件</system:String>

@@ -147,6 +147,7 @@ public class WindowsClipboardHelper : IDisposable
 
     public event EventHandler<ClipboardData>? OnHistoryItemAdded;
     public event EventHandler<string[]>? OnHistoryItemRemoved;
+    public event EventHandler<string[]>? OnHistoryReadCompleted;
     public event EventHandler<(string HashId, bool Pinned)>? OnHistoryItemPinUpdated;
 
     public event EventHandler<bool>? OnHistoryEnabledChanged;
@@ -198,6 +199,8 @@ public class WindowsClipboardHelper : IDisposable
                         _clipboardHistoryItems.Add(item);
                         _clipboardHistoryItemsIds.Add(GetHashId(item));
                     }
+                    // Only a successful complete raw Windows read can prune IDs.
+                    OnHistoryReadCompleted?.Invoke(this, _clipboardHistoryItemsIds.ToArray());
                 }
             }
             finally
@@ -557,6 +560,7 @@ public class WindowsClipboardHelper : IDisposable
             DisableClipboardHistory();
             OnHistoryItemAdded = null;
             OnHistoryItemRemoved = null;
+            OnHistoryReadCompleted = null;
             OnHistoryItemPinUpdated = null;
             _historyItemLock.Dispose();
             _disposed = true;

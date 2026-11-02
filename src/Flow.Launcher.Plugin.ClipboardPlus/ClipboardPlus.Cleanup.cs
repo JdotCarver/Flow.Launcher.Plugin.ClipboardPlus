@@ -62,6 +62,12 @@ public partial class ClipboardPlus
         if (Settings is null) return;
         var enabled = Settings.AutomaticCleanup;
         var thorough = Settings.AutomaticCleanupThorough;
+        if (lastRememberWindowsSuppression && !Settings.RememberWindowsSuppression)
+        {
+            windowsSuppression.ForgetPersistence();
+            Settings.SuppressedWindowsItems = [];
+        }
+        lastRememberWindowsSuppression = Settings.RememberWindowsSuppression;
         cleanupCoordinator.SetAutomaticEnabled(enabled);
         if (enabled && (!lastAutomaticCleanup || lastAutomaticCleanupThorough != thorough))
         {
@@ -81,7 +87,8 @@ public partial class ClipboardPlus
 
     private async Task<CleanupReport> RunCleanupWorkAsync(CleanupWork work)
     {
-        if (work == CleanupWork.ManualExtrasOnly) return default;
+        if (work == CleanupWork.ManualExtrasOnly)
+            return await RefreshWindowsEvidenceAsync(work, true, Interlocked.Increment(ref windowsEvidenceGeneration));
         var automatic = work is CleanupWork.AutomaticBestEffort or CleanupWork.AutomaticThorough;
         var thorough = work is CleanupWork.AutomaticThorough or CleanupWork.ManualThorough;
         LinkedListNode<ClipboardDataPair>[] nodes;
@@ -166,6 +173,7 @@ public partial class ClipboardPlus
             try { ScoreHelper.Reset(RecordsList); }
             finally { RecordsLock.Release(); }
         }
-        return report;
+        var windows = await RefreshWindowsEvidenceAsync(work, thorough, Interlocked.Increment(ref windowsEvidenceGeneration));
+        return report + windows;
     }
 }

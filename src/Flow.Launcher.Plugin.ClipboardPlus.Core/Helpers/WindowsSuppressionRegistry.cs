@@ -55,6 +55,18 @@ public sealed class WindowsSuppressionRegistry
         }
     }
 
+    /// <summary>Keep existing suppression for this session, but stop persisting it.</summary>
+    public void ForgetPersistence()
+    {
+        lock (sync)
+        {
+            automaticSession.UnionWith(automaticPersistent);
+            manualSession.UnionWith(manualPersistent);
+            automaticPersistent.Clear();
+            manualPersistent.Clear();
+        }
+    }
+
     /// <summary>Incomplete or failed reads must never prune IDs.</summary>
     public void PruneAbsent(IEnumerable<string> presentIds, bool completeRead)
     {

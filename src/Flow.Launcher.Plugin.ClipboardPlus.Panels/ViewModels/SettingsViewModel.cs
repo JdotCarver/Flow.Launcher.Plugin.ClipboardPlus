@@ -148,6 +148,7 @@ public class SettingsViewModel : BaseModel
         base.OnPropertyChanged(nameof(CleanupKeyword));
         base.OnPropertyChanged(nameof(AutomaticCleanup));
         base.OnPropertyChanged(nameof(AutomaticCleanupThorough));
+        base.OnPropertyChanged(nameof(WindowsSuppressionLifetimeIndex));
         base.OnPropertyChanged(nameof(MaxRecords));
         base.OnPropertyChanged(nameof(ActionTop));
         base.OnPropertyChanged(nameof(ShowNotification));
@@ -254,6 +255,18 @@ public class SettingsViewModel : BaseModel
     {
         get => Settings.AutomaticCleanupThorough;
         set { if (Settings.AutomaticCleanupThorough != value) { Settings.AutomaticCleanupThorough = value; OnPropertyChanged(); } }
+    }
+
+    public int WindowsSuppressionLifetimeIndex
+    {
+        get => Settings.RememberWindowsSuppression ? 1 : 0;
+        set
+        {
+            var remember = value == 1;
+            if (Settings.RememberWindowsSuppression == remember) return;
+            Settings.RememberWindowsSuppression = remember;
+            OnPropertyChanged();
+        }
     }
 
     private string cleanupFeedback = string.Empty;

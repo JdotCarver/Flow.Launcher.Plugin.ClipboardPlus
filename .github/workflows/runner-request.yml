@@ -220,6 +220,7 @@ jobs:
             # The historical caller is not partial and cannot include the new
             # cleanup integration in the before snapshot.
             Remove-Item "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus\ClipboardPlus.Cleanup.cs" -ErrorAction SilentlyContinue
+            Remove-Item "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus\ClipboardPlus.WindowsSuppression.cs" -ErrorAction SilentlyContinue
             git show 077bf9c:src/Flow.Launcher.Plugin.ClipboardPlus.Core/Data/Models/Database/SqliteDatabase.cs 2>> $diagnostic |
               Set-Content -Encoding utf8 "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus.Core\Data\Models\Database\SqliteDatabase.cs"
             if ($LASTEXITCODE -ne 0) { throw "Baseline source unavailable" }
@@ -272,6 +273,9 @@ jobs:
             git show HEAD:src/Flow.Launcher.Plugin.ClipboardPlus/ClipboardPlus.Cleanup.cs 2>> $diagnostic |
               Set-Content -Encoding utf8 "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus\ClipboardPlus.Cleanup.cs"
             if ($LASTEXITCODE -ne 0) { throw "Cleanup caller source unavailable" }
+            git show HEAD:src/Flow.Launcher.Plugin.ClipboardPlus/ClipboardPlus.WindowsSuppression.cs 2>> $diagnostic |
+              Set-Content -Encoding utf8 "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus\ClipboardPlus.WindowsSuppression.cs"
+            if ($LASTEXITCODE -ne 0) { throw "Suppression caller source unavailable" }
             # Pinning baseline differs only in the record implementation.
             Set-Location "${drive}:\"
             git show 537ba8c:src/Flow.Launcher.Plugin.ClipboardPlus.Core/Data/Models/Clipboard/ClipboardData.cs 2>> $diagnostic |
