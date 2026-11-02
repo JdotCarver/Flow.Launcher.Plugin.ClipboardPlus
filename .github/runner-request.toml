@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "f07cd9d3-5baf-4ab7-ba84-39dac3b9fb67"
+request_id = "aae38032-39fd-4ed1-8133-4b88f6f3771d"
 target = "local-windows"
-job_name = "Synthetic Query Investigation"
+job_name = "Query Traversal Comparison"
