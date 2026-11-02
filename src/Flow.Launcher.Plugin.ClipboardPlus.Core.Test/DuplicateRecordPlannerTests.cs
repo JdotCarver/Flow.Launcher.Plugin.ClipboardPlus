@@ -24,14 +24,14 @@ public class DuplicateRecordPlannerTests
     public void NewestTemporaryDoesNotCauseSavedHistoryToBeRemoved()
     {
         var records = new[] { Text("same", 4), Text("same", 3, saved: true), Text("same", 2), Text("same", 1, saved: true) };
-        Assert.Equal(new[] { new DuplicateRecordCandidate(0, 2) }, DuplicateRecordPlanner.Plan(records, true));
+        Assert.Equal(new[] { new DuplicateRecordCandidate(0, 2), new DuplicateRecordCandidate(1, 3) }, DuplicateRecordPlanner.Plan(records, true));
     }
 
     [Fact]
-    public void SavedNewestKeepsItsPersistenceAndOlderUnpinnedDuplicatesCanBePlanned()
+    public void SavedNewestKeepsASeparateTemporaryRepresentative()
     {
         var records = new[] { Text("same", 1, saved: true), Text("same", 3, saved: true), Text("same", 2) };
-        Assert.Equal(new[] { new DuplicateRecordCandidate(1, 2), new DuplicateRecordCandidate(1, 0) }, DuplicateRecordPlanner.Plan(records, true));
+        Assert.Equal(new[] { new DuplicateRecordCandidate(1, 0) }, DuplicateRecordPlanner.Plan(records, true));
     }
 
     [Fact]

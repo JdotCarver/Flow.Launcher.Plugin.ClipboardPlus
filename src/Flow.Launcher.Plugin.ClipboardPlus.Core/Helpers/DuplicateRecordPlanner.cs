@@ -45,6 +45,7 @@ public static class DuplicateRecordPlanner
             {
                 var matched = false;
                 var verificationUnavailable = false;
+                var differentPersistence = false;
                 foreach (var keeper in keepers)
                 {
                     var comparison = !verifyImages &&
@@ -57,21 +58,18 @@ public static class DuplicateRecordPlanner
                         verificationUnavailable |= comparison == ClipboardContentComparison.Unavailable;
                         continue;
                     }
+                    if (keeper.Record.Saved != item.Record.Saved)
+                    {
+                        differentPersistence = true;
+                        continue;
+                    }
                     matched = true;
-                    // A temporary newest copy must not replace saved history.
-                    if (keeper.Record.Saved || !item.Record.Saved)
-                    {
-                        candidates.Add(new DuplicateRecordCandidate(keeper.Index, item.Index));
-                    }
-                    else
-                    {
-                        skipped++;
-                    }
+                    candidates.Add(new DuplicateRecordCandidate(keeper.Index, item.Index));
                     break;
                 }
                 if (!matched)
                 {
-                    if (verificationUnavailable) skipped++;
+                    if (verificationUnavailable || differentPersistence) skipped++;
                     keepers.Add(item);
                 }
             }

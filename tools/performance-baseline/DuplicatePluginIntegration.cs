@@ -45,8 +45,8 @@ internal static class DuplicatePluginIntegration
             var cleanup = typeof(Plugin).GetMethod("RunCleanupWorkAsync", BindingFlags.Instance | BindingFlags.NonPublic)
                 ?? throw new InvalidOperationException("Cleanup test seam missing");
             var report = ((Task<CleanupReport>)cleanup.Invoke(plugin, new object[] { CleanupWork.ManualThorough })!).GetAwaiter().GetResult();
-            if (report.RecordsRemoved != 2 || report.Errors != 0 || list.Count != 2 ||
-                list.Any(item => item.ClipboardData.HashId is "saved" or "temporary") ||
+            if (report.RecordsRemoved != 1 || report.Errors != 0 || list.Count != 3 ||
+                list.Any(item => item.ClipboardData.HashId == "saved") || !list.Any(item => item.ClipboardData.HashId == "temporary") ||
                 !list.Any(item => item.ClipboardData.HashId == "pinned"))
                 throw new InvalidOperationException("Synthetic plugin cleanup failed");
             var settings = new SettingsViewModel(plugin);
@@ -56,7 +56,7 @@ internal static class DuplicatePluginIntegration
                 throw new InvalidOperationException("Synthetic cleanup keyword conflict validation failed");
             var exact = plugin.QueryAsync(QueryFor("cleanup"), CancellationToken.None).GetAwaiter().GetResult();
             var longer = plugin.QueryAsync(QueryFor("cleanup extra"), CancellationToken.None).GetAwaiter().GetResult();
-            if (exact.Count != 1 || exact[0].Score != int.MaxValue || longer.Count != 0 || list.Count != 2)
+            if (exact.Count != 1 || exact[0].Score != int.MaxValue || longer.Count != 0 || list.Count != 3)
                 throw new InvalidOperationException("Synthetic cleanup query validation failed");
             TestSyntheticCacheScan(plugin, database);
             Console.WriteLine("dedup plugin synthetic record and cache integration checks passed");
