@@ -136,7 +136,9 @@ jobs:
         run: |
           dotnet --version
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          dotnet build Flow.Launcher.Plugin.ClipboardPlus.sln --configuration Release
+          dotnet restore Flow.Launcher.Plugin.ClipboardPlus.sln --source https://api.nuget.org/v3/index.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet build Flow.Launcher.Plugin.ClipboardPlus.sln --configuration Release --no-restore
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet test Flow.Launcher.Plugin.ClipboardPlus.sln --configuration Release --no-build
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -144,7 +146,9 @@ jobs:
       - name: Synthetic performance baseline
         shell: pwsh
         run: |
-          dotnet run --project tools/performance-baseline/PerformanceBaseline.csproj --configuration Release
+          dotnet restore tools/performance-baseline/PerformanceBaseline.csproj --source https://api.nuget.org/v3/index.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet run --project tools/performance-baseline/PerformanceBaseline.csproj --configuration Release --no-restore
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Redaction round trip on a realistic log
