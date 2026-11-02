@@ -64,6 +64,7 @@ internal static class PluginScenarios
                 throw new InvalidOperationException("Cancellation did not return an empty list");
         }
 
+        QueryInvestigation.Run(plugin);
         MeasureQueryRetention(plugin);
         MeasureContendedCapture(plugin);
         SetField(plugin, "RecordsList", new LinkedList<ClipboardDataPair>());
