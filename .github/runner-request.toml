@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "8b1f3a0d-27e8-4507-9344-c76006cb6577"
+request_id = "ddf52ec8-8dfe-4c2a-b194-a75a5f31df13"
 target = "local-windows"
-job_name = "Database Safety Retest"
+job_name = "Duplicate Transaction Validation"
