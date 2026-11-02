@@ -1,6 +1,7 @@
 // DuplicatePluginIntegration.cs
 // Exercises the plugin cleanup against synthetic records and in-memory SQLite.
 using System.Globalization;
+using System.Diagnostics;
 using System.Collections.Concurrent;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -127,14 +128,25 @@ internal static class DuplicatePluginIntegration
             SetField(plugin, "Settings", settings);
             SetField(plugin, "RecordsList", new LinkedList<ClipboardDataPair>());
             SetField(plugin, "Context", new PluginInitContext(null, Ioc.Default.GetRequiredService<IPublicAPI>()));
-            var image = BitmapSource.Create(1, 1, 96, 96, PixelFormats.Bgra32, null, new byte[] { 8, 9, 10, 255 }, 4);
+            var pixels = new byte[1024 * 1024 * 4];
+            new Random(5678).NextBytes(pixels);
+            var image = BitmapSource.Create(1024, 1024, 96, 96, PixelFormats.Bgra32, null, pixels, 4096);
             image.Freeze();
             var capture = typeof(Plugin).GetMethod("GetClipboardDataItem", BindingFlags.Instance | BindingFlags.NonPublic)!;
             var savesBefore = Volatile.Read(ref SyntheticHost.SettingsSaveCalls);
             ClipboardData Create(string id) => (ClipboardData)capture.Invoke(plugin,
                 [image, DataType.Image, id, new DateTime(2026, 1, 1), SourceApplication.NULL, "", "", true, null])!;
+            var timer = Stopwatch.StartNew();
             var first = Create("synthetic-image-one");
+            var firstMs = timer.Elapsed.TotalMilliseconds;
+            timer.Restart();
             var second = Create("synthetic-image-two");
+            var secondMs = timer.Elapsed.TotalMilliseconds;
+            timer.Restart();
+            var legacy = FileUtils.SaveImageCache(first, root, "synthetic-legacy-benchmark");
+            var legacyMs = timer.Elapsed.TotalMilliseconds;
+            if (string.IsNullOrEmpty(legacy)) throw new InvalidOperationException("Synthetic legacy cache benchmark failed");
+            Console.WriteLine($"dedup optout image cache safe first/repeat {firstMs:F2}/{secondMs:F2} ms; legacy single {legacyMs:F2} ms");
             if (string.IsNullOrEmpty(first.CachedImagePath) || first.CachedImagePath == second.CachedImagePath ||
                 !File.Exists(first.CachedImagePath) || !File.Exists(second.CachedImagePath) ||
                 settings.OwnedCacheFiles.Count != 2 || settings.OwnedCacheFiles.Any(item => item.WindowsAssociated))

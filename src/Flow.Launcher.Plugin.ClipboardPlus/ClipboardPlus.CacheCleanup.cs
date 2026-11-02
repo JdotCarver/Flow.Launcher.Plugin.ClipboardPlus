@@ -11,6 +11,7 @@ namespace Flow.Launcher.Plugin.ClipboardPlus;
 public partial class ClipboardPlus
 {
     private readonly object cacheOwnershipLock = new();
+    private readonly System.Threading.SemaphoreSlim cacheProvenanceSaveLock = new(1, 1);
     private readonly ConcurrentQueue<string> removedWindowsCachePaths = new();
 
     private void RememberOwnedCacheFile(OwnedCacheFile ownership)
@@ -24,10 +25,12 @@ public partial class ClipboardPlus
     private void SaveCacheProvenance()
     {
         // Losing this best-effort save only makes a file ineligible for cleanup.
-        _ = Task.Run(() =>
+        _ = Task.Run(async () =>
         {
+            await cacheProvenanceSaveLock.WaitAsync();
             try { Context?.API.SaveSettingJsonStorage<Settings>(); }
             catch (Exception) { }
+            finally { cacheProvenanceSaveLock.Release(); }
         });
     }
 
