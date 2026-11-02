@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "8d1f1e11-aeb3-4eaa-b7ff-528946c1ccdc"
+request_id = "aad6cd9a-22d0-40db-a340-cc59ce75ce9c"
 target = "local-windows"
-job_name = "Cleanup Safety Integration"
+job_name = "Windows Suppression Safety"
