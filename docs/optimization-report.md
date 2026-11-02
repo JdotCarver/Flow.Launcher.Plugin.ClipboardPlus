@@ -85,9 +85,9 @@ The same run's actual `QueryAsync` all-match scenario at 10,000 records had a 20
 
 The solution build and tests passed on the local Windows runner. New tests check pin/unpin state and record metadata, hash identity for initially frozen images, rehashing after mutation and subsequent freezing, and `Clone()` with a new ID. This does not validate UI or Windows-history integration, native allocations, or real-world image distributions.
 
-## Deduplication considerations (discussion only)
+## Deduplication and relative time (design only)
 
-Capture currently suppresses only a consecutive duplicate using `DataEquals` (data type and MD5); later repeats receive different record IDs. Import checks record identity rather than content. Full-history deduplication could reduce query work and persisted storage in proportion to the duplicates actually removed, but a scan and duplicate checking have costs and no performance gain is established yet. Content hashes alone are not proof of exact equality; rich text and files have representation/ordering semantics that require agreement. Pinned records, persistence, metadata, previews and Windows clipboard history make deletion and merging potentially destructive. No deduplication behavior has been approved or implemented.
+Capture currently suppresses only a consecutive duplicate using `DataEquals` (data type and MD5); later repeats receive different record IDs. Import checks record identity rather than content. Full-history deduplication could reduce query work and persisted storage in proportion to the duplicates actually removed, but a scan and duplicate checking have costs and no performance gain is established yet. Content hashes alone are not proof of exact equality; rich text and files have representation/ordering semantics that require agreement. Pinned records, persistence, metadata, previews and Windows clipboard history make deletion and merging potentially destructive. An agreed design is recorded in [deduplication and relative time](deduplication-relative-time-design.md); neither feature has been implemented, and performance remains to be measured.
 
 ## Security-relevant observation
 
