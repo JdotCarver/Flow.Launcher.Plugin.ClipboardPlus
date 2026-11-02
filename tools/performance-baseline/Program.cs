@@ -82,6 +82,7 @@ internal static class Program
             .Select(i => CreateRecord(CreateImage(256, true, i), DataType.Image, i)).ToArray();
         MeasureDatabaseRestore("10 noisy 256x256 images", imageRecords);
         MeasureRetainedTextMemory();
+        PluginScenarios.Run();
     }
 
     private static BitmapSource CreateImage(int size, bool noisy, int seed)

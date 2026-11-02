@@ -9,7 +9,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../../src/Flow.Launcher.Plugin.ClipboardPlus.Core/Flow.Launcher.Plugin.ClipboardPlus.Core.csproj" />
+    <ProjectReference Include="../../src/Flow.Launcher.Plugin.ClipboardPlus/Flow.Launcher.Plugin.ClipboardPlus.csproj" />
     <Compile Include="../../src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/ClipboardPlus.cs" Link="ClipboardPlus.cs" />
     <Compile Include="../../src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/Usings.cs" Link="Usings.cs" />
   </ItemGroup>

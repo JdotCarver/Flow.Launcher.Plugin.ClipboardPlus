@@ -142,14 +142,16 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           try {
             Set-Location "${drive}:\"
-            dotnet restore Flow.Launcher.Plugin.ClipboardPlus.sln --source https://api.nuget.org/v3/index.json
+            dotnet restore Flow.Launcher.Plugin.ClipboardPlus.sln --source https://api.nuget.org/v3/index.json *> "$env:RUNNER_TEMP\clipboardplus-build.log"
             if ($LASTEXITCODE -ne 0) { throw "Restore failed" }
-            dotnet build Flow.Launcher.Plugin.ClipboardPlus.sln --configuration Release --no-restore
+            dotnet build Flow.Launcher.Plugin.ClipboardPlus.sln --configuration Release --no-restore *> "$env:RUNNER_TEMP\clipboardplus-build.log"
             if ($LASTEXITCODE -ne 0) { throw "Build failed" }
-            dotnet test Flow.Launcher.Plugin.ClipboardPlus.sln --configuration Release --no-build
-            if ($LASTEXITCODE -ne 0) { throw "Tests failed" }
+            dotnet test Flow.Launcher.Plugin.ClipboardPlus.sln --configuration Release --no-build *> "$env:RUNNER_TEMP\clipboardplus-build.log"
+            if ($LASTEXITCODE -ne 0) { throw "Tests failed (details suppressed for privacy)" }
+            Write-Host "Solution build and tests passed."
           } finally {
             Set-Location $env:RUNNER_TEMP
+            Remove-Item "$env:RUNNER_TEMP\clipboardplus-build.log" -ErrorAction SilentlyContinue
             subst "${drive}:" /d
           }
 
@@ -163,12 +165,19 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           try {
             Set-Location "${drive}:\"
-            dotnet restore tools/performance-baseline/PerformanceBaseline.csproj --source https://api.nuget.org/v3/index.json
+            dotnet restore tools/performance-baseline/PerformanceBaseline.csproj --source https://api.nuget.org/v3/index.json *> "$env:RUNNER_TEMP\clipboardplus-benchmark.log"
             if ($LASTEXITCODE -ne 0) { throw "Baseline restore failed" }
-            dotnet run --project tools/performance-baseline/PerformanceBaseline.csproj --configuration Release --no-restore
-            if ($LASTEXITCODE -ne 0) { throw "Baseline failed" }
+            dotnet run --project tools/performance-baseline/PerformanceBaseline.csproj --configuration Release --no-restore *> "$env:RUNNER_TEMP\clipboardplus-benchmark.log"
+            $exitCode = $LASTEXITCODE
+            # Only publish recognized synthetic measurement lines, never arbitrary
+            # build diagnostics, exceptions, environment values or file paths.
+            Get-Content "$env:RUNNER_TEMP\clipboardplus-benchmark.log" | Where-Object {
+              $_ -match '^(text create and display|image hashing only|image construct and serialize|two forced collections and finalizer wait|SQLite disk bulk insert and read|SQLite reopen and materialize|10000 live synthetic text records|plugin query|plugin synthetic text add)[A-Za-z0-9 ,./():=+\-]*$'
+            } | ForEach-Object { Write-Host $_ }
+            if ($exitCode -ne 0) { throw "Baseline failed (details suppressed for privacy)" }
           } finally {
             Set-Location $env:RUNNER_TEMP
+            Remove-Item "$env:RUNNER_TEMP\clipboardplus-benchmark.log" -ErrorAction SilentlyContinue
             subst "${drive}:" /d
           }
 
