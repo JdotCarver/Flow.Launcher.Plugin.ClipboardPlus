@@ -722,7 +722,7 @@ public class SqliteDatabase : IAsyncDisposable
 
     private Task WaitTaskQueueAsync() => taskQueue.WaitForSubmittedAsync();
 
-    private Task ProcessTaskQueueAsync(Func<Task> operation) => taskQueue.ExecuteAsync(operation);
+    internal Task ProcessTaskQueueAsync(Func<Task> operation) => taskQueue.ExecuteAsync(operation);
 
     #endregion
 

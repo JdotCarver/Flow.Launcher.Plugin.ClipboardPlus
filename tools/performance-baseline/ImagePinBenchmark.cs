@@ -56,7 +56,7 @@ internal static class ImagePinBenchmark
             SetField(plugin, "Database", database);
             SetField(plugin, "RecordsList", new LinkedList<ClipboardDataPair>([pair]));
             var pin = typeof(Plugin).GetMethod("PinRecordAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
-            var queue = (SemaphoreSlim)typeof(SqliteDatabase).GetField("_queueSemaphore", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(database)!;
+            var waitForDatabase = typeof(SqliteDatabase).GetMethod("WaitTaskQueueAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
             var durations = new double[5];
             var allocations = new long[5];
             for (int i = -1; i < durations.Length; i++)
@@ -64,8 +64,7 @@ internal static class ImagePinBenchmark
                 long before = GC.GetTotalAllocatedBytes(true);
                 var timer = Stopwatch.StartNew();
                 ((Task)pin.Invoke(plugin, [pair, false])!).GetAwaiter().GetResult();
-                queue.Wait();
-                queue.Release();
+                ((Task)waitForDatabase.Invoke(database, null)!).GetAwaiter().GetResult();
                 timer.Stop();
                 long allocated = GC.GetTotalAllocatedBytes(true) - before;
                 bool expected = i % 2 != 0;
