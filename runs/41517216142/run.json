@@ -1,0 +1,34 @@
+{
+  "capture_note": "Status is captured while Export logs is still in progress; use the final workflow conclusion for that job's result.",
+  "conclusion": null,
+  "event": "push",
+  "head_branch": "arena/1e362655-flow-launcher-plugin-clipboard",
+  "head_sha": "4da81fb5ea0d17f7c1f9222b0e2687dd5cd391f4",
+  "id": 41517216142,
+  "jobs": [
+    {
+      "conclusion": "success",
+      "id": 125523718547,
+      "name": "Select runner",
+      "status": "completed",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41517216142/job/125523718547"
+    },
+    {
+      "conclusion": "success",
+      "id": 125523863934,
+      "name": "Best Effort Budget Validation",
+      "status": "completed",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41517216142/job/125523863934"
+    },
+    {
+      "conclusion": null,
+      "id": 125525331176,
+      "name": "Export logs",
+      "status": "in_progress",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41517216142/job/125525331176"
+    }
+  ],
+  "name": "Runner request",
+  "status": "in_progress",
+  "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41517216142"
+}
