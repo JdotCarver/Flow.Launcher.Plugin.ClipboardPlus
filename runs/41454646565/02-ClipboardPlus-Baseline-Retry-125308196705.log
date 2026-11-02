@@ -1,0 +1,347 @@
+﻿2026-11-02T13:38:05.2670145Z Current runner version: '2.338.2'
+2026-11-02T13:38:05.2674871Z Runner name: <machine>
+2026-11-02T13:38:05.2675468Z Runner group name: 'Default'
+2026-11-02T13:38:05.2675922Z Machine name: <machine>
+2026-11-02T13:38:05.2678132Z ##[group]GITHUB_TOKEN Permissions
+2026-11-02T13:38:05.2679352Z Contents: read
+2026-11-02T13:38:05.2679624Z Metadata: read
+2026-11-02T13:38:05.2679927Z ##[endgroup]
+2026-11-02T13:38:05.2680975Z Secret source: Actions
+2026-11-02T13:38:05.2681433Z Cache mode: write
+2026-11-02T13:38:05.2681771Z Prepare workflow directory
+2026-11-02T13:38:05.2967918Z Prepare all required actions
+2026-11-02T13:38:05.2996073Z Getting action download info
+2026-11-02T13:38:05.9120620Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-02T13:38:06.8362796Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-11-02T13:38:07.9448717Z Complete job name: ClipboardPlus Baseline Retry
+2026-11-02T13:38:08.0009814Z ##[group]Run actions/checkout@v4
+2026-11-02T13:38:08.0010231Z with:
+2026-11-02T13:38:08.0010361Z   fetch-depth: 0
+2026-11-02T13:38:08.0010537Z   repository: JdotCarver/Flow.Launcher.Plugin.ClipboardPlus
+2026-11-02T13:38:08.0011999Z   token: ***
+2026-11-02T13:38:08.0012126Z   ssh-strict: true
+2026-11-02T13:38:08.0012268Z   ssh-user: git
+2026-11-02T13:38:08.0012417Z   persist-credentials: true
+2026-11-02T13:38:08.0012577Z   clean: true
+2026-11-02T13:38:08.0012729Z   sparse-checkout-cone-mode: true
+2026-11-02T13:38:08.0012929Z   fetch-tags: false
+2026-11-02T13:38:08.0013074Z   show-progress: true
+2026-11-02T13:38:08.0013227Z   lfs: false
+2026-11-02T13:38:08.0013373Z   submodules: false
+2026-11-02T13:38:08.0013541Z   set-safe-directory: true
+2026-11-02T13:38:08.0013687Z   allow-unsafe-pr-checkout: false
+2026-11-02T13:38:08.0013939Z ##[endgroup]
+2026-11-02T13:38:08.1370873Z Syncing repository: JdotCarver/Flow.Launcher.Plugin.ClipboardPlus
+2026-11-02T13:38:08.1371847Z ##[group]Getting Git version info
+2026-11-02T13:38:08.1372360Z Working directory is 'C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus'
+2026-11-02T13:38:08.1619068Z [command]"C:\Program Files\Git\cmd\git.exe" version
+2026-11-02T13:38:08.1781336Z git version 2.53.0.windows.1
+2026-11-02T13:38:08.1807816Z ##[endgroup]
+2026-11-02T13:38:08.1816035Z Copying 'C:\Users\<user>\.gitconfig' to 'C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\_temp\6ae1a7cf-cda4-490c-a042-666c475c8f50\.gitconfig'
+2026-11-02T13:38:08.1829174Z Temporarily overriding HOME='C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\_temp\6ae1a7cf-cda4-490c-a042-666c475c8f50' before making global git config changes
+2026-11-02T13:38:08.1829790Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-02T13:38:08.1836664Z [command]"C:\Program Files\Git\cmd\git.exe" config --global --add safe.directory C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus
+2026-11-02T13:38:08.2044244Z [command]"C:\Program Files\Git\cmd\git.exe" config --local --get remote.origin.url
+2026-11-02T13:38:08.2213274Z https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus
+2026-11-02T13:38:08.2239320Z ##[group]Removing previously created refs, to avoid conflicts
+2026-11-02T13:38:08.2247268Z [command]"C:\Program Files\Git\cmd\git.exe" rev-parse --symbolic-full-name --verify --quiet HEAD
+2026-11-02T13:38:08.2420753Z refs/heads/arena/9261f4f4-flow-launcher-plugin-clipboard
+2026-11-02T13:38:08.2450267Z [command]"C:\Program Files\Git\cmd\git.exe" checkout --detach
+2026-11-02T13:38:08.3184333Z HEAD is now at 5eccb87 Actions: request local-windows run
+2026-11-02T13:38:08.3659349Z ##[endgroup]
+2026-11-02T13:38:08.3666466Z [command]"C:\Program Files\Git\cmd\git.exe" submodule status
+2026-11-02T13:38:08.6846603Z ##[group]Cleaning the repository
+2026-11-02T13:38:08.6853341Z [command]"C:\Program Files\Git\cmd\git.exe" clean -ffdx
+2026-11-02T13:38:08.7043038Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/obj/Flow.Launcher.Plugin.ClipboardPlus.Core.Test.csproj.nuget.dgspec.json: Filename too long
+2026-11-02T13:38:08.7044095Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T13:38:08.7044660Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T13:38:08.7045613Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/obj/Flow.Launcher.Plugin.ClipboardPlus.Core.Test.csproj.nuget.g.props: Filename too long
+2026-11-02T13:38:08.7046752Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T13:38:08.7047419Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T13:38:08.7050908Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/obj/Flow.Launcher.Plugin.ClipboardPlus.Core.Test.csproj.nuget.g.targets: Filename too long
+2026-11-02T13:38:08.7051706Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T13:38:08.7052008Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T13:38:08.7052511Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core/obj/Flow.Launcher.Plugin.ClipboardPlus.Core.csproj.nuget.dgspec.json: Filename too long
+2026-11-02T13:38:08.7052966Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T13:38:08.7053254Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T13:38:08.7053831Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.csproj.nuget.dgspec.json: Filename too long
+2026-11-02T13:38:08.7054319Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T13:38:08.7054608Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T13:38:08.7055123Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.csproj.nuget.g.props: Filename too long
+2026-11-02T13:38:08.7055592Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T13:38:08.7055869Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T13:38:08.7056398Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.csproj.nuget.g.targets: Filename too long
+2026-11-02T13:38:08.7056869Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T13:38:08.7057151Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T13:38:08.7057650Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Flow.Launcher.Plugin.ClipboardPlus.Panels.csproj.nuget.dgspec.json: Filename too long
+2026-11-02T13:38:08.7058108Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T13:38:08.7058389Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T13:38:08.7058875Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Flow.Launcher.Plugin.ClipboardPlus.Panels.csproj.nuget.g.props: Filename too long
+2026-11-02T13:38:08.7059322Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T13:38:08.7059598Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T13:38:08.7060088Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Flow.Launcher.Plugin.ClipboardPlus.Panels.csproj.nuget.g.targets: Filename too long
+2026-11-02T13:38:08.7060537Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T13:38:08.7060815Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T13:38:08.7061439Z Removing build/obj/
+2026-11-02T13:38:08.7061805Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/obj/project.assets.json
+2026-11-02T13:38:08.7062167Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/obj/project.nuget.cache
+2026-11-02T13:38:08.7062608Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Core/obj/Flow.Launcher.Plugin.ClipboardPlus.Core.csproj.nuget.g.props
+2026-11-02T13:38:08.7063126Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Core/obj/Flow.Launcher.Plugin.ClipboardPlus.Core.csproj.nuget.g.targets
+2026-11-02T13:38:08.7063546Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Core/obj/project.assets.json
+2026-11-02T13:38:08.7063880Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Core/obj/project.nuget.cache
+2026-11-02T13:38:08.7064226Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/project.assets.json
+2026-11-02T13:38:08.7064589Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/project.nuget.cache
+2026-11-02T13:38:08.7065160Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/project.assets.json
+2026-11-02T13:38:08.7065517Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/project.nuget.cache
+2026-11-02T13:38:08.7065816Z Removing src/Flow.Launcher.Plugin.ClipboardPlus/obj/
+2026-11-02T13:38:08.7066051Z Removing tools/github_actions_runner/__pycache__/
+2026-11-02T13:38:08.7081958Z ##[endgroup]
+2026-11-02T13:38:08.7091424Z ##[warning]Unable to clean or reset the repository. The repository will be recreated instead.
+2026-11-02T13:38:08.7094790Z Deleting the contents of 'C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus'
+2026-11-02T13:38:08.7280384Z ##[group]Initializing the repository
+2026-11-02T13:38:08.7286976Z [command]"C:\Program Files\Git\cmd\git.exe" init C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus
+2026-11-02T13:38:08.7574639Z Initialized empty Git repository in C:/actions-runners/JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session/_work/Flow.Launcher.Plugin.ClipboardPlus/Flow.Launcher.Plugin.ClipboardPlus/.git/
+2026-11-02T13:38:08.7607493Z [command]"C:\Program Files\Git\cmd\git.exe" remote add origin https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus
+2026-11-02T13:38:08.7819508Z ##[endgroup]
+2026-11-02T13:38:08.7819844Z ##[group]Disabling automatic garbage collection
+2026-11-02T13:38:08.7826465Z [command]"C:\Program Files\Git\cmd\git.exe" config --local gc.auto 0
+2026-11-02T13:38:08.8016103Z ##[endgroup]
+2026-11-02T13:38:08.8016428Z ##[group]Setting up auth
+2026-11-02T13:38:08.8024162Z [command]"C:\Program Files\Git\cmd\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-02T13:38:08.8212484Z [command]"C:\Program Files\Git\cmd\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-02T13:38:09.1285054Z [command]"C:\Program Files\Git\cmd\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-02T13:38:09.1489985Z [command]"C:\Program Files\Git\cmd\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-02T13:38:09.4615485Z [command]"C:\Program Files\Git\cmd\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-02T13:38:09.4803084Z [command]"C:\Program Files\Git\cmd\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-02T13:38:09.7993456Z [command]"C:\Program Files\Git\cmd\git.exe" config --local http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-11-02T13:38:09.8198313Z ##[endgroup]
+2026-11-02T13:38:09.8198808Z ##[group]Fetching the repository
+2026-11-02T13:38:09.8207805Z [command]"C:\Program Files\Git\cmd\git.exe" -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+2026-11-02T13:38:12.4833246Z From https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus
+2026-11-02T13:38:12.4833637Z  * [new branch]      actions-logs        -> origin/actions-logs
+2026-11-02T13:38:12.4834115Z  * [new branch]      arena/9261f4f4-flow-launcher-plugin-clipboard -> origin/arena/9261f4f4-flow-launcher-plugin-clipboard
+2026-11-02T13:38:12.4834512Z  * [new branch]      branch              -> origin/branch
+2026-11-02T13:38:12.4834746Z  * [new branch]      master              -> origin/master
+2026-11-02T13:38:12.4835019Z  * [new branch]      test_init_initasync -> origin/test_init_initasync
+2026-11-02T13:38:12.4835272Z  * [new tag]         v1.0.1              -> v1.0.1
+2026-11-02T13:38:12.4836482Z  * [new tag]         v1.0.2              -> v1.0.2
+2026-11-02T13:38:12.4836711Z  * [new tag]         v1.0.3              -> v1.0.3
+2026-11-02T13:38:12.4836926Z  * [new tag]         v1.0.4              -> v1.0.4
+2026-11-02T13:38:12.4837131Z  * [new tag]         v1.0.5              -> v1.0.5
+2026-11-02T13:38:12.4837339Z  * [new tag]         v1.0.6              -> v1.0.6
+2026-11-02T13:38:12.4837539Z  * [new tag]         v1.0.7              -> v1.0.7
+2026-11-02T13:38:12.4837735Z  * [new tag]         v1.0.8              -> v1.0.8
+2026-11-02T13:38:12.4837936Z  * [new tag]         v1.0.9              -> v1.0.9
+2026-11-02T13:38:12.4838150Z  * [new tag]         v1.1.0              -> v1.1.0
+2026-11-02T13:38:12.4838346Z  * [new tag]         v1.1.1              -> v1.1.1
+2026-11-02T13:38:12.4838539Z  * [new tag]         v1.1.2              -> v1.1.2
+2026-11-02T13:38:12.4838748Z  * [new tag]         v1.1.3              -> v1.1.3
+2026-11-02T13:38:12.4838941Z  * [new tag]         v1.1.4              -> v1.1.4
+2026-11-02T13:38:12.4839149Z  * [new tag]         v1.1.5              -> v1.1.5
+2026-11-02T13:38:12.4839339Z  * [new tag]         v1.1.6              -> v1.1.6
+2026-11-02T13:38:12.4839531Z  * [new tag]         v1.1.7              -> v1.1.7
+2026-11-02T13:38:12.4839743Z  * [new tag]         v1.1.8              -> v1.1.8
+2026-11-02T13:38:12.4839955Z  * [new tag]         v1.1.9              -> v1.1.9
+2026-11-02T13:38:12.4840178Z  * [new tag]         v2.0.0              -> v2.0.0
+2026-11-02T13:38:12.4840380Z  * [new tag]         v2.1.1              -> v2.1.1
+2026-11-02T13:38:12.4840573Z  * [new tag]         v2.2.2              -> v2.2.2
+2026-11-02T13:38:12.4840785Z  * [new tag]         v2.2.3              -> v2.2.3
+2026-11-02T13:38:12.4840998Z  * [new tag]         v2.3.0              -> v2.3.0
+2026-11-02T13:38:12.4841213Z  * [new tag]         v2.4.0              -> v2.4.0
+2026-11-02T13:38:12.4841416Z  * [new tag]         v2.4.1              -> v2.4.1
+2026-11-02T13:38:12.4841611Z  * [new tag]         v2.4.2              -> v2.4.2
+2026-11-02T13:38:12.4841812Z  * [new tag]         v2.4.3              -> v2.4.3
+2026-11-02T13:38:12.4842009Z  * [new tag]         v2.4.4              -> v2.4.4
+2026-11-02T13:38:12.4842202Z  * [new tag]         v2.4.5              -> v2.4.5
+2026-11-02T13:38:12.4842398Z  * [new tag]         v2.4.6              -> v2.4.6
+2026-11-02T13:38:12.4842594Z  * [new tag]         v3.0.0              -> v3.0.0
+2026-11-02T13:38:12.4842790Z  * [new tag]         v3.0.1              -> v3.0.1
+2026-11-02T13:38:12.4842986Z  * [new tag]         v3.0.2              -> v3.0.2
+2026-11-02T13:38:12.4843181Z  * [new tag]         v3.0.3              -> v3.0.3
+2026-11-02T13:38:12.4843375Z  * [new tag]         v3.0.4              -> v3.0.4
+2026-11-02T13:38:12.4843567Z  * [new tag]         v3.0.5              -> v3.0.5
+2026-11-02T13:38:12.4843759Z  * [new tag]         v3.0.6              -> v3.0.6
+2026-11-02T13:38:12.4843952Z  * [new tag]         v3.1.0              -> v3.1.0
+2026-11-02T13:38:12.4844258Z  * [new tag]         v3.1.1              -> v3.1.1
+2026-11-02T13:38:12.4844456Z  * [new tag]         v3.1.2              -> v3.1.2
+2026-11-02T13:38:12.5319666Z [command]"C:\Program Files\Git\cmd\git.exe" branch --list --remote origin/arena/9261f4f4-flow-launcher-plugin-clipboard
+2026-11-02T13:38:12.5510977Z   origin/arena/9261f4f4-flow-launcher-plugin-clipboard
+2026-11-02T13:38:12.5539496Z [command]"C:\Program Files\Git\cmd\git.exe" rev-parse refs/remotes/origin/arena/9261f4f4-flow-launcher-plugin-clipboard
+2026-11-02T13:38:12.5699314Z 7c0dcca9932316b9e362aa53af75fad8380c3bf3
+2026-11-02T13:38:12.5722048Z ##[endgroup]
+2026-11-02T13:38:12.5722283Z ##[group]Determining the checkout info
+2026-11-02T13:38:12.5722694Z ##[endgroup]
+2026-11-02T13:38:12.5729815Z [command]"C:\Program Files\Git\cmd\git.exe" sparse-checkout disable
+2026-11-02T13:38:12.5956158Z [command]"C:\Program Files\Git\cmd\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-11-02T13:38:12.6147070Z ##[group]Checking out the ref
+2026-11-02T13:38:12.6154432Z [command]"C:\Program Files\Git\cmd\git.exe" checkout --progress --force -B arena/9261f4f4-flow-launcher-plugin-clipboard refs/remotes/origin/arena/9261f4f4-flow-launcher-plugin-clipboard
+2026-11-02T13:38:12.7130694Z Switched to a new branch 'arena/9261f4f4-flow-launcher-plugin-clipboard'
+2026-11-02T13:38:12.7153497Z branch 'arena/9261f4f4-flow-launcher-plugin-clipboard' set up to track 'origin/arena/9261f4f4-flow-launcher-plugin-clipboard'.
+2026-11-02T13:38:12.7178789Z ##[endgroup]
+2026-11-02T13:38:12.7402097Z [command]"C:\Program Files\Git\cmd\git.exe" log -1 --format=%H
+2026-11-02T13:38:12.7598626Z 7c0dcca9932316b9e362aa53af75fad8380c3bf3
+2026-11-02T13:38:12.7892945Z ##[group]Run $resolved = $null
+2026-11-02T13:38:12.7893161Z $resolved = $null
+2026-11-02T13:38:12.7893336Z foreach ($candidate in @('py', 'python', 'python3')) {
+2026-11-02T13:38:12.7893569Z   $command = Get-Command $candidate -ErrorAction SilentlyContinue
+2026-11-02T13:38:12.7893778Z   if (-not $command) { continue }
+2026-11-02T13:38:12.7893990Z   $executable = & $command.Source -c "import sys; print(sys.executable)" 2>$null
+2026-11-02T13:38:12.7894220Z   if ($LASTEXITCODE -eq 0 -and $executable) {
+2026-11-02T13:38:12.7894379Z     $resolved = "$executable".Trim()
+2026-11-02T13:38:12.7894512Z     break
+2026-11-02T13:38:12.7894609Z   }
+2026-11-02T13:38:12.7894694Z }
+2026-11-02T13:38:12.7894844Z if (-not $resolved) { throw "No usable Python found on this runner." }
+2026-11-02T13:38:12.7895122Z "PYTHON=$resolved" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+2026-11-02T13:38:12.7895331Z & $resolved --version
+2026-11-02T13:38:12.7899966Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-02T13:38:12.7900139Z ##[endgroup]
+2026-11-02T13:38:13.0187060Z Python 3.13.14
+2026-11-02T13:38:13.0721279Z ##[group]Run # Family and architecture only: the exact build is a finding aid for
+2026-11-02T13:38:13.0721607Z # Family and architecture only: the exact build is a finding aid for
+2026-11-02T13:38:13.0721822Z # an attacker, and these logs are public. See
+2026-11-02T13:38:13.0721994Z # tools/github_actions_runner/machine_label.py.
+2026-11-02T13:38:13.0722464Z & $env:PYTHON -c "import sqlite3, sys; sys.path.insert(0, 'tools/github_actions_runner'); from machine_label import describe_machine; print('python', sys.version.split()[0], '| sqlite', sqlite3.sqlite_version, '|', describe_machine())"
+2026-11-02T13:38:13.0725151Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-02T13:38:13.0725320Z env:
+2026-11-02T13:38:13.0725471Z   PYTHON: C:\Users\<user>\AppData\Local\Programs\Python\Python313\python.exe
+2026-11-02T13:38:13.0725650Z ##[endgroup]
+2026-11-02T13:38:13.2730071Z python 3.13.14 | sqlite 3.50.4 | Windows / AMD64
+2026-11-02T13:38:13.3394884Z ##[group]Run & $env:PYTHON tools/github_actions_runner/probe.py .github/runner-request.toml
+2026-11-02T13:38:13.3395609Z & $env:PYTHON tools/github_actions_runner/probe.py .github/runner-request.toml
+2026-11-02T13:38:13.3397831Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-02T13:38:13.3398013Z env:
+2026-11-02T13:38:13.3398160Z   PYTHON: C:\Users\<user>\AppData\Local\Programs\Python\Python313\python.exe
+2026-11-02T13:38:13.3398358Z ##[endgroup]
+2026-11-02T13:38:13.5702657Z {
+2026-11-02T13:38:13.5702832Z   "architecture": "AMD64",
+2026-11-02T13:38:13.5703050Z   "commit": "7c0dcca9932316b9e362aa53af75fad8380c3bf3",
+2026-11-02T13:38:13.5703260Z   "job_name": "ClipboardPlus Baseline Retry",
+2026-11-02T13:38:13.5703660Z   "operating_system": "Windows / AMD64",
+2026-11-02T13:38:13.5704129Z   "python_version": "3.13.14",
+2026-11-02T13:38:13.5704523Z   "repository": "JdotCarver/Flow.Launcher.Plugin.ClipboardPlus",
+2026-11-02T13:38:13.5705048Z   "request_id": "c40f7436-95db-47ad-983f-3bd4a6b1821e",
+2026-11-02T13:38:13.5705380Z   "run_id": "41454646565",
+2026-11-02T13:38:13.5705640Z   "runner_environment": "self-hosted",
+2026-11-02T13:38:13.5705914Z   "target": "local-windows"
+2026-11-02T13:38:13.5706133Z }
+2026-11-02T13:38:13.6415051Z ##[group]Run # The tests live in dev/ and are not part of what a consumer
+2026-11-02T13:38:13.6415383Z # The tests live in dev/ and are not part of what a consumer
+2026-11-02T13:38:13.6415608Z # repository copies, so their absence is expected there and is
+2026-11-02T13:38:13.6415811Z # reported rather than treated as a failure.
+2026-11-02T13:38:13.6415967Z $testDirectory = "dev/tests"
+2026-11-02T13:38:13.6416113Z if (-not (Test-Path $testDirectory)) {
+2026-11-02T13:38:13.6416358Z   Write-Host "No dev/tests directory; this repository ships the kit without its tests. Skipping."
+2026-11-02T13:38:13.6416587Z   exit 0
+2026-11-02T13:38:13.6416680Z }
+2026-11-02T13:38:13.6416833Z # `unittest discover` exits 0 when it finds no tests at all, so a
+2026-11-02T13:38:13.6417063Z # renamed test directory would report green having run nothing. Count
+2026-11-02T13:38:13.6417300Z # them and fail below the expected floor instead.
+2026-11-02T13:38:13.6417583Z & $env:PYTHON -m unittest discover -s $testDirectory -p "test_*.py" -v 2>&1 | Tee-Object -Variable testOutput
+2026-11-02T13:38:13.6417857Z if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+2026-11-02T13:38:13.6418083Z $summary = ($testOutput | Select-String -Pattern '^Ran (\d+) tests').Matches
+2026-11-02T13:38:13.6418323Z if (-not $summary -or [int]$summary.Groups[1].Value -lt 20) {
+2026-11-02T13:38:13.6418558Z   throw "Expected at least 20 tests to run; discovery found none or too few."
+2026-11-02T13:38:13.6418740Z }
+2026-11-02T13:38:13.6421096Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-02T13:38:13.6421271Z env:
+2026-11-02T13:38:13.6421418Z   PYTHON: C:\Users\<user>\AppData\Local\Programs\Python\Python313\python.exe
+2026-11-02T13:38:13.6421597Z ##[endgroup]
+2026-11-02T13:38:13.8171833Z No dev/tests directory; this repository ships the kit without its tests. Skipping.
+2026-11-02T13:38:13.8554834Z ##[group]Run dotnet --version
+2026-11-02T13:38:13.8555009Z dotnet --version
+2026-11-02T13:38:13.8555156Z if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+2026-11-02T13:38:13.8555459Z dotnet restore Flow.Launcher.Plugin.ClipboardPlus.sln --source https://api.nuget.org/v3/index.json
+2026-11-02T13:38:13.8555743Z if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+2026-11-02T13:38:13.8555998Z dotnet build Flow.Launcher.Plugin.ClipboardPlus.sln --configuration Release --no-restore
+2026-11-02T13:38:13.8556260Z if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+2026-11-02T13:38:13.8556506Z dotnet test Flow.Launcher.Plugin.ClipboardPlus.sln --configuration Release --no-build <version>-11-02T13:38:13.8556878Z if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+2026-11-02T13:38:13.8559121Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-02T13:38:13.8559285Z env:
+2026-11-02T13:38:13.8559455Z   PYTHON: C:\Users\<user>\AppData\Local\Programs\Python\Python313\python.exe
+2026-11-02T13:38:13.8559642Z ##[endgroup]
+2026-11-02T13:38:14.0728697Z 10.0.114
+2026-11-02T13:38:14.6474938Z   Identification des projets à restaurer...
+2026-11-02T13:38:21.0273059Z   Restauration effectuée de C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Panels\Flow.Launcher.Plugin.ClipboardPlus.Panels.csproj (en 6,14 sec).
+2026-11-02T13:38:21.0275858Z   Restauration effectuée de C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus.csproj (en 6,14 sec).
+2026-11-02T13:38:21.0278012Z   Restauration effectuée de C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Core.Test\Flow.Launcher.Plugin.ClipboardPlus.Core.Test.csproj (en 6,14 sec).
+2026-11-02T13:38:21.0279700Z   Restauration effectuée de C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Core\Flow.Launcher.Plugin.ClipboardPlus.Core.csproj (en 6,14 sec).
+2026-11-02T13:38:21.0417330Z   Restauration effectuée de C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\build\Build.csproj (en 6,19 sec).
+2026-11-02T13:38:23.0267662Z   Restauration effectuée de C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.csproj (en 8,18 sec).
+2026-11-02T13:38:29.9690432Z   Flow.Launcher.Plugin.ClipboardPlus.Core -> C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Core\bin\Release\net9.0-windows10.0.19041.0\Flow.Launcher.Plugin.ClipboardPlus.Core.dll
+2026-11-02T13:38:30.8104832Z CSC : warning FLSG0002: Could not find the main class of your plugin. It must implement `IPluginI18n`. [C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Core.Test\Flow.Launcher.Plugin.ClipboardPlus.Core.Test.csproj]
+2026-11-02T13:38:30.8110097Z C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Core.Test\ClipboardPlus.cs(28,45): warning CS0067: L'événement 'ClipboardPlus.CultureInfoChanged' n'est jamais utilisé [C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Core.Test\Flow.Launcher.Plugin.ClipboardPlus.Core.Test.csproj]
+2026-11-02T13:38:30.9306280Z   Flow.Launcher.Plugin.ClipboardPlus.Core.Test -> C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Core.Test\bin\Release\net9.0-windows10.0.19041.0\Flow.Launcher.Plugin.ClipboardPlus.Core.Test.dll
+2026-11-02T13:38:31.2149159Z   Flow.Launcher.Plugin.ClipboardPlus.Panels -> C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Panels\bin\Release\net9.0-windows10.0.19041.0\Flow.Launcher.Plugin.ClipboardPlus.Panels.dll
+2026-11-02T13:38:32.2197389Z CSC : warning FLSG0002: Could not find the main class of your plugin. It must implement `IPluginI18n`. [C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test_gvgvgazh_wpftmp.csproj]
+2026-11-02T13:38:32.2203775Z C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test\PublicAPIInstanc.cs(19,60): warning CS0414: Le champ 'PublicAPIInstance.ActualApplicationThemeChanged' est assigné, mais sa valeur n'est jamais utilisée [C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test_gvgvgazh_wpftmp.csproj]
+2026-11-02T13:38:32.2207456Z C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test\PublicAPIInstanc.cs(18,48): warning CS0414: Le champ 'PublicAPIInstance.VisibilityChanged' est assigné, mais sa valeur n'est jamais utilisée [C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test_gvgvgazh_wpftmp.csproj]
+2026-11-02T13:38:32.2691693Z   Flow.Launcher.Plugin.ClipboardPlus -> C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus\bin\Release\Flow.Launcher.Plugin.ClipboardPlus.dll
+2026-11-02T13:38:32.5132595Z CSC : warning FLSG0002: Could not find the main class of your plugin. It must implement `IPluginI18n`. [C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.csproj]
+2026-11-02T13:38:32.5136627Z C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test\PublicAPIInstanc.cs(18,48): warning CS0414: Le champ 'PublicAPIInstance.VisibilityChanged' est assigné, mais sa valeur n'est jamais utilisée [C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.csproj]
+2026-11-02T13:38:32.5139626Z C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test\PublicAPIInstanc.cs(19,60): warning CS0414: Le champ 'PublicAPIInstance.ActualApplicationThemeChanged' est assigné, mais sa valeur n'est jamais utilisée [C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.csproj]
+2026-11-02T13:38:32.6994141Z   Flow.Launcher.Plugin.ClipboardPlus.Panels.Test -> C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test\bin\Release\net9.0-windows10.0.26100.0\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.dll
+2026-11-02T13:38:33.2212490Z CSC : warning FLSG0002: Could not find the main class of your plugin. It must implement `IPluginI18n`. [C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\build\Build.csproj]
+2026-11-02T13:38:33.3646138Z   Build -> C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\build\bin\Release\net9.0-windows10.0.19041.0\Build.dll
+2026-11-02T13:38:33.3802628Z 
+2026-11-02T13:38:33.3807029Z La génération a réussi.
+2026-11-02T13:38:33.3807238Z 
+2026-11-02T13:38:33.3808647Z CSC : warning FLSG0002: Could not find the main class of your plugin. It must implement `IPluginI18n`. [C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Core.Test\Flow.Launcher.Plugin.ClipboardPlus.Core.Test.csproj]
+2026-11-02T13:38:33.3811933Z C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Core.Test\ClipboardPlus.cs(28,45): warning CS0067: L'événement 'ClipboardPlus.CultureInfoChanged' n'est jamais utilisé [C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Core.Test\Flow.Launcher.Plugin.ClipboardPlus.Core.Test.csproj]
+2026-11-02T13:38:33.3814160Z CSC : warning FLSG0002: Could not find the main class of your plugin. It must implement `IPluginI18n`. [C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test_gvgvgazh_wpftmp.csproj]
+2026-11-02T13:38:33.3816222Z C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test\PublicAPIInstanc.cs(19,60): warning CS0414: Le champ 'PublicAPIInstance.ActualApplicationThemeChanged' est assigné, mais sa valeur n'est jamais utilisée [C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test_gvgvgazh_wpftmp.csproj]
+2026-11-02T13:38:33.3818907Z C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test\PublicAPIInstanc.cs(18,48): warning CS0414: Le champ 'PublicAPIInstance.VisibilityChanged' est assigné, mais sa valeur n'est jamais utilisée [C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test_gvgvgazh_wpftmp.csproj]
+2026-11-02T13:38:33.3820785Z CSC : warning FLSG0002: Could not find the main class of your plugin. It must implement `IPluginI18n`. [C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.csproj]
+2026-11-02T13:38:33.3822720Z C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test\PublicAPIInstanc.cs(18,48): warning CS0414: Le champ 'PublicAPIInstance.VisibilityChanged' est assigné, mais sa valeur n'est jamais utilisée [C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.csproj]
+2026-11-02T13:38:33.3825625Z C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test\PublicAPIInstanc.cs(19,60): warning CS0414: Le champ 'PublicAPIInstance.ActualApplicationThemeChanged' est assigné, mais sa valeur n'est jamais utilisée [C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test\Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.csproj]
+2026-11-02T13:38:33.3827357Z CSC : warning FLSG0002: Could not find the main class of your plugin. It must implement `IPluginI18n`. [C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\build\Build.csproj]
+2026-11-02T13:38:33.3827917Z     9 Avertissement(s)
+2026-11-02T13:38:33.3828044Z     0 Erreur(s)
+2026-11-02T13:38:33.3828108Z 
+2026-11-02T13:38:33.3828183Z Temps écoulé 00:00:10.18
+2026-11-02T13:38:33.9260418Z Série de tests pour C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Core.Test\bin\Release\net9.0-windows10.0.19041.0\Flow.Launcher.Plugin.ClipboardPlus.Core.Test.dll (.NETCoreApp,Version=v9.0)
+2026-11-02T13:38:33.9815378Z Version de VSTest 18.0.2 (x64)
+2026-11-02T13:38:33.9833228Z 
+2026-11-02T13:38:34.0598354Z Démarrage de l'exécution de tests, patientez...
+2026-11-02T13:38:34.1015209Z Au total, 1 fichiers de test ont correspondu au modèle spécifié.
+2026-11-02T13:38:34.1650499Z Le processus Testhost pour la ou les sources 'C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Core.Test\bin\Release\net9.0-windows10.0.19041.0\Flow.Launcher.Plugin.ClipboardPlus.Core.Test.dll' s’est arrêté. Erreur : You must install or update .NET to run this application.
+2026-11-02T13:38:34.1652015Z App: C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus\src\Flow.Launcher.Plugin.ClipboardPlus.Core.Test\bin\Release\net9.0-windows10.0.19041.0\testhost.exe
+2026-11-02T13:38:34.1652571Z Architecture: x64
+2026-11-02T13:38:34.1652754Z Framework: 'Microsoft.NETCore.App', version '9.0.0' (x64)
+2026-11-02T13:38:34.1652966Z .NET location: C:\Program Files\dotnet
+2026-11-02T13:38:34.1653131Z The following frameworks were found:
+2026-11-02T13:38:34.1653345Z   6.0.36 at [C:\Program Files\dotnet\shared\Microsoft.NETCore.App]
+2026-11-02T13:38:34.1653782Z   8.0.33 at [C:\Program Files\dotnet\shared\Microsoft.NETCore.App]
+2026-11-02T13:38:34.1654019Z   10.0.14 at [C:\Program Files\dotnet\shared\Microsoft.NETCore.App]
+2026-11-02T13:38:34.1654198Z Learn more:
+2026-11-02T13:38:34.1654341Z https://aka.ms/dotnet/app-launch-failed
+2026-11-02T13:38:34.1654510Z To install missing framework, download:
+2026-11-02T13:38:34.1654849Z https://aka.ms/dotnet-core-applaunch?framework=Microsoft.NETCore.App&framework_version=9.0.0&arch=x64&rid=win-x64&os=win10
+2026-11-02T13:38:34.1655204Z . Pour plus d’informations, consultez les journaux de diagnostic.
+2026-11-02T13:38:34.1783401Z 
+2026-11-02T13:38:34.1795882Z Série de tests abandonnée.
+2026-11-02T13:38:34.2264500Z ##[error]Process completed with exit code 1.
+2026-11-02T13:38:34.2411535Z Post job cleanup.
+2026-11-02T13:38:34.3249908Z [command]"C:\Program Files\Git\cmd\git.exe" version
+2026-11-02T13:38:34.3430314Z git version 2.53.0.windows.1
+2026-11-02T13:38:34.3466466Z Copying 'C:\Users\<user>\.gitconfig' to 'C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\_temp\73a103f8-6afc-479f-8b2f-b4f954302191\.gitconfig'
+2026-11-02T13:38:34.3482224Z Temporarily overriding HOME='C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\_temp\73a103f8-6afc-479f-8b2f-b4f954302191' before making global git config changes
+2026-11-02T13:38:34.3483237Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-02T13:38:34.3490516Z [command]"C:\Program Files\Git\cmd\git.exe" config --global --add safe.directory C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus
+2026-11-02T13:38:34.3703978Z [command]"C:\Program Files\Git\cmd\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-02T13:38:34.3898052Z [command]"C:\Program Files\Git\cmd\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-02T13:38:34.7113140Z [command]"C:\Program Files\Git\cmd\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-02T13:38:34.7283526Z http.https://github.com/.extraheader
+2026-11-02T13:38:34.7312753Z [command]"C:\Program Files\Git\cmd\git.exe" config --local --unset-all http.https://github.com/.extraheader
+2026-11-02T13:38:34.7517709Z [command]"C:\Program Files\Git\cmd\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-02T13:38:35.0644743Z [command]"C:\Program Files\Git\cmd\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-02T13:38:35.0839415Z [command]"C:\Program Files\Git\cmd\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-02T13:38:35.4107613Z Cleaning up orphan processes
+2026-11-02T13:38:35.4324401Z Terminate orphan process: pid (2868) (dotnet)
+2026-11-02T13:38:35.4388548Z Terminate orphan process: pid (39496) (dotnet)
+2026-11-02T13:38:35.4452580Z Terminate orphan process: pid (13744) (dotnet)
+2026-11-02T13:38:35.4520871Z Terminate orphan process: pid (13912) (dotnet)
+2026-11-02T13:38:35.4579828Z Terminate orphan process: pid (4136) (dotnet)
+2026-11-02T13:38:35.4691088Z Terminate orphan process: pid (18192) (VBCSCompiler)
+2026-11-02T13:38:35.4753974Z Terminate orphan process: pid (32468) (conhost)
+2026-11-02T13:38:35.4804202Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
