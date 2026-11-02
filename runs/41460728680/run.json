@@ -1,0 +1,34 @@
+{
+  "capture_note": "Status is captured while Export logs is still in progress; use the final workflow conclusion for that job's result.",
+  "conclusion": null,
+  "event": "push",
+  "head_branch": "arena/9261f4f4-flow-launcher-plugin-clipboard",
+  "head_sha": "007c9fdc93d0b9df52ebf2496ed21a4b9db73aec",
+  "id": 41460728680,
+  "jobs": [
+    {
+      "conclusion": "success",
+      "id": 125328767297,
+      "name": "Select runner",
+      "status": "completed",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41460728680/job/125328767297"
+    },
+    {
+      "conclusion": "success",
+      "id": 125328966259,
+      "name": "Flow Fuzzy Search Baseline",
+      "status": "completed",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41460728680/job/125328966259"
+    },
+    {
+      "conclusion": null,
+      "id": 125329979460,
+      "name": "Export logs",
+      "status": "in_progress",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41460728680/job/125329979460"
+    }
+  ],
+  "name": "Runner request",
+  "status": "in_progress",
+  "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41460728680"
+}
