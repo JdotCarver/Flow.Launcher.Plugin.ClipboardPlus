@@ -94,3 +94,16 @@ After reviewing these results, the maintainer approved retaining the conservativ
 In local self-hosted Windows run [41530121545](https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41530121545), a synthetic 1024×1024 noisy image captured with automatic cleanup disabled took 182.12 ms initially and 180.55 ms on a filename collision. The same synthetic image's individual safe and legacy cache-file writes took 84.41 ms and 81.62 ms respectively. Full capture includes image hashing and the asynchronous provenance-save dispatch; the isolated writes do not. This is a tiny, non-randomized sample, uses a synthetic settings API and temporary directory, and does not measure real settings I/O. It is not evidence of a general performance difference. The maintainer chose to keep non-overwriting files and provenance even when automatic cleanup is off, to support safe manual cleanup.
 
 With the same synthetic 250-pair contention scenario as above, best effort took 135.66 ms overall, with capture median/max 2.06/5.10 ms and query median/max 0.99/14.37 ms; thorough took 3,263.30 ms, with capture median/max 1.92/5.06 ms and query median/max 1.15/1.58 ms. The 20 queries and captures overlapped both runs. These remain one-shot, in-memory measurements, not a real-disk or encrypted-history benchmark.
+
+## Saved image candidate selection and bounded overflow
+
+Local self-hosted Windows run [41536361628](https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41536361628) used private in-memory SQLite with synthetic 256×256 noisy images. Each scenario ran once for warm-up and three measured times. This measures metadata selection and candidate reconstruction, **not** full duplicate verification or cleanup; setup and image insertion are excluded. A concurrent cache-reference query approximates database-queue delay, not disk writes or capture latency.
+
+| Unique images | Scenario | Reconstructed | Selection median / max | Concurrent query median / max |
+| --- | --- | ---: | ---: | ---: |
+| 40 | All records loaded | 0 | 0.10 / 0.19 ms | 0.09 / 0.09 ms |
+| 40 | Two duplicates unloaded | 2 | 13.83 / 14.72 ms | 0.05 / 0.05 ms |
+| 160 | All records loaded | 0 | 0.18 / 0.31 ms | 0.11 / 0.16 ms |
+| 160 | Eight duplicates unloaded | 8 | 54.18 / 57.15 ms | 0.09 / 0.22 ms |
+
+The synthetic capacity regression used a limit of two, one protected pinned Windows-origin item, and 60 more simulated Windows captures. At the provisional 25-record overflow bound the loaded list remained at 27; once cleanup could verify the snapshot, it trimmed to two while retaining the pinned item. A separate skipped-image scenario showed unrelated captures did not accumulate beyond the one slot reserved for that unresolved pair. At the bound, oldest-unpinned eviction can lose unsaved history. These tests do not determine an optimal bound or cover real Windows history, real disk, sustained physical clipboard rates, or pinned-only histories that exceed the limit.
