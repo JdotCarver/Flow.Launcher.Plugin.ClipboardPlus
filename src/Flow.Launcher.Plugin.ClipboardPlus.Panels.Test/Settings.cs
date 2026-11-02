@@ -31,6 +31,8 @@ public class Settings : ISettings
 
     public List<WindowsSuppressionEntry> SuppressedWindowsItems { get; set; } = [];
 
+    public List<OwnedCacheFile> OwnedCacheFiles { get; set; } = [];
+
     public bool SyncWindowsClipboardHistory { get; set; } = false;
 
     public bool UseWindowsClipboardHistoryOnly { get; set; } = false;

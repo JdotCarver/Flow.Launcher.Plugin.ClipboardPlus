@@ -49,6 +49,9 @@ public interface ISettings
     /// <summary>Windows item IDs and suppression origin, never clipboard content.</summary>
     public List<WindowsSuppressionEntry> SuppressedWindowsItems { get; set; }
 
+    /// <summary>File identities of newly created plugin-owned cache images.</summary>
+    public List<OwnedCacheFile> OwnedCacheFiles { get; set; }
+
     /// <summary>
     /// Whether to sync with Windows clipboard history
     /// </summary>

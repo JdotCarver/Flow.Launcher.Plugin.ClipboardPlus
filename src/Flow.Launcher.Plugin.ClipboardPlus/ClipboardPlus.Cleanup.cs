@@ -88,7 +88,10 @@ public partial class ClipboardPlus
     private async Task<CleanupReport> RunCleanupWorkAsync(CleanupWork work)
     {
         if (work == CleanupWork.ManualExtrasOnly)
-            return await RefreshWindowsEvidenceAsync(work, true, Interlocked.Increment(ref windowsEvidenceGeneration));
+        {
+            var windowsOnly = await RefreshWindowsEvidenceAsync(work, true, Interlocked.Increment(ref windowsEvidenceGeneration));
+            return windowsOnly + await ScanOrphanCacheDuplicatesAsync();
+        }
         var automatic = work is CleanupWork.AutomaticBestEffort or CleanupWork.AutomaticThorough;
         var thorough = work is CleanupWork.AutomaticThorough or CleanupWork.ManualThorough;
         LinkedListNode<ClipboardDataPair>[] nodes;
@@ -106,6 +109,7 @@ public partial class ClipboardPlus
             RecordsLock.Release();
         }
 
+        var cacheCandidates = new List<(string Path, string KeeperPath, LinkedListNode<ClipboardDataPair> Keeper, ClipboardCleanupSnapshot Snapshot)>();
         var report = await DuplicateCleanupEngine.RunAsync(snapshots, thorough, async (keeperIndex, duplicateIndex) =>
         {
             var keeperSnapshot = snapshots[keeperIndex];
@@ -138,6 +142,8 @@ public partial class ClipboardPlus
                     return DuplicateRemovalResult.Skipped;
                 }
                 removed = duplicateNode.Value;
+                if (duplicate.DataType == DataType.Image && !string.IsNullOrEmpty(duplicate.CachedImagePath))
+                    cacheCandidates.Add((duplicate.CachedImagePath, keeper.CachedImagePath, keeperNode, keeperSnapshot));
                 RecordsList.Remove(duplicateNode);
             }
             finally
@@ -173,7 +179,13 @@ public partial class ClipboardPlus
             try { ScoreHelper.Reset(RecordsList); }
             finally { RecordsLock.Release(); }
         }
+        foreach (var cache in cacheCandidates)
+        {
+            report += await DeleteRedundantCacheFileAsync(cache.Path, cache.KeeperPath,
+                () => cache.Keeper.List == RecordsList && cache.Snapshot.Matches(cache.Keeper.Value.ClipboardData), automatic);
+        }
         var windows = await RefreshWindowsEvidenceAsync(work, thorough, Interlocked.Increment(ref windowsEvidenceGeneration));
+        if (!automatic) report += await ScanOrphanCacheDuplicatesAsync();
         return report + windows;
     }
 }

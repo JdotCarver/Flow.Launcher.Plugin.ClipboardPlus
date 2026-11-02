@@ -3,12 +3,16 @@ using Microsoft.Win32.SafeHandles;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Flow.Launcher.Plugin.ClipboardPlus.Core.Helpers;
 
 /// <summary>Minimal provenance for a newly created cache file; no content or hashes.</summary>
-public sealed record OwnedCacheFile(string FileName, uint Volume, uint IndexHigh, uint IndexLow, long CreationTime);
+public sealed record OwnedCacheFile(string FileName, uint Volume, uint IndexHigh, uint IndexLow, long CreationTime)
+{
+    public bool WindowsAssociated { get; init; }
+}
 
 /// <summary>
 /// Opens both files without sharing writes or deletion, verifies exact bytes and
@@ -53,6 +57,28 @@ public sealed class ManagedCacheFile : IDisposable
         catch (Exception) { return null; }
     }
 
+    /// <summary>Produces an ephemeral candidate hash while denying writes and links.</summary>
+    public static bool TryFingerprint(string root, string path, out long size, out long lastWrite, out string hash)
+    {
+        size = 0;
+        lastWrite = 0;
+        hash = string.Empty;
+        if (!OperatingSystem.IsWindows()) return false;
+        try
+        {
+            if (!IsManagedPng(root, path)) return false;
+            using var file = OpenRead(path);
+            if (!TryGetSafeInformation(file.SafeFileHandle, path, out var before)) return false;
+            var digest = SHA256.HashData(file);
+            if (!TryGetSafeInformation(file.SafeFileHandle, path, out var after) || !Unchanged(before, after)) return false;
+            size = file.Length;
+            lastWrite = FileTime(before.LastWriteTimeHigh, before.LastWriteTimeLow);
+            hash = Convert.ToHexString(digest);
+            return true;
+        }
+        catch (Exception) { return false; }
+    }
+
     public static ManagedCacheFile? Prepare(string root, OwnedCacheFile ownership, string keeperPath)
     {
         if (!OperatingSystem.IsWindows() || ownership is null || string.IsNullOrEmpty(ownership.FileName) ||
@@ -82,17 +108,22 @@ public sealed class ManagedCacheFile : IDisposable
     }
 
     /// <summary>The callback must atomically confirm there are no surviving references.</summary>
-    public bool DeleteIf(Func<bool> unreferenced)
+    public bool DeleteIf(Func<bool> unreferenced) => DeleteIf(unreferenced, out _);
+
+    public bool DeleteIf(Func<bool> unreferenced, out bool error)
     {
+        error = false;
         try
         {
             if (!TryGetSafeInformation(candidate.SafeFileHandle, candidatePath, out var currentCandidate) ||
                 !TryGetSafeInformation(keeper.SafeFileHandle, keeperPath, out var currentKeeper) ||
                 !Unchanged(candidateInfo, currentCandidate) || !Unchanged(keeperInfo, currentKeeper) || !unreferenced()) return false;
             var disposition = new FileDispositionInfo { DeleteFile = 1 };
-            return SetFileInformationByHandle(candidate.SafeFileHandle, 4, ref disposition, (uint)Marshal.SizeOf<FileDispositionInfo>());
+            var deleted = SetFileInformationByHandle(candidate.SafeFileHandle, 4, ref disposition, (uint)Marshal.SizeOf<FileDispositionInfo>());
+            error = !deleted;
+            return deleted;
         }
-        catch (Exception) { return false; }
+        catch (Exception) { error = true; return false; }
     }
 
     public void Dispose() { candidate.Dispose(); keeper.Dispose(); }

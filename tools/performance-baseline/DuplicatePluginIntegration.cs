@@ -55,11 +55,52 @@ internal static class DuplicatePluginIntegration
             var longer = plugin.QueryAsync(QueryFor("cleanup extra"), CancellationToken.None).GetAwaiter().GetResult();
             if (exact.Count != 1 || exact[0].Score != int.MaxValue || longer.Count != 0 || list.Count != 2)
                 throw new InvalidOperationException("Synthetic cleanup query validation failed");
-            Console.WriteLine("dedup plugin synthetic record integration checks passed");
+            TestSyntheticCacheScan(plugin, database);
+            Console.WriteLine("dedup plugin synthetic record and cache integration checks passed");
         }
         finally
         {
             database.DisposeAsync().AsTask().GetAwaiter().GetResult();
+        }
+    }
+
+    private static void TestSyntheticCacheScan(Plugin plugin, SqliteDatabase database)
+    {
+        var root = Path.Combine(Path.GetTempPath(), $"clipboardplus-synthetic-scan-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(root);
+        var cachePath = typeof(PathHelper).GetProperty("ImageCachePath")!;
+        var previous = cachePath.GetValue(null);
+        try
+        {
+            cachePath.SetValue(null, root);
+            // No settings storage is invoked in this synthetic-only integration test.
+            SetField(plugin, "Context", null);
+            var settings = new Settings();
+            SetField(plugin, "Settings", settings);
+            var keep = Path.Combine(root, "keeper.png");
+            var owned = Path.Combine(root, "owned.png");
+            var unknown = Path.Combine(root, "unknown.png");
+            File.WriteAllBytes(keep, new byte[] { 4, 5, 6 });
+            using (var stream = new FileStream(owned, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None))
+            {
+                stream.Write(new byte[] { 4, 5, 6 }); stream.Flush();
+                settings.OwnedCacheFiles.Add(ManagedCacheFile.IdentifyNewFile(root, owned, stream)
+                    ?? throw new InvalidOperationException("Synthetic ownership unavailable"));
+            }
+            File.WriteAllBytes(unknown, new byte[] { 4, 5, 6 });
+            var record = Record("cache-keeper", 6, true);
+            record.CachedImagePath = keep;
+            database.AddOneRecordAsync(record, true).GetAwaiter().GetResult();
+            var scan = typeof(Plugin).GetMethod("ScanOrphanCacheDuplicatesAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            var report = ((Task<CleanupReport>)scan.Invoke(plugin, null)!).GetAwaiter().GetResult();
+            if (report.CacheFilesRemoved != 1 || report.Errors != 0 || File.Exists(owned) ||
+                !File.Exists(keep) || !File.Exists(unknown))
+                throw new InvalidOperationException("Synthetic cache scan safety failed");
+        }
+        finally
+        {
+            cachePath.SetValue(null, previous);
+            Directory.Delete(root, true);
         }
     }
 

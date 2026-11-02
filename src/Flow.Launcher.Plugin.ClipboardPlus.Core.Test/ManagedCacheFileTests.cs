@@ -21,6 +21,10 @@ public class ManagedCacheFileTests
                 ownership = ManagedCacheFile.IdentifyNewFile(root, candidate, stream);
             }
             File.WriteAllBytes(keeper, new byte[] { 1, 2, 3 });
+            Assert.True(ManagedCacheFile.TryFingerprint(root, candidate, out var candidateSize, out _, out var candidateHash));
+            Assert.True(ManagedCacheFile.TryFingerprint(root, keeper, out var keeperSize, out _, out var keeperHash));
+            Assert.Equal(candidateSize, keeperSize);
+            Assert.Equal(candidateHash, keeperHash);
             Assert.NotNull(ownership);
             using (var prepared = ManagedCacheFile.Prepare(root, ownership, keeper))
             {

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.IO;
 using System.Globalization;
 using System.Threading.Tasks;
 
@@ -609,6 +610,51 @@ public class SqliteDatabase : IAsyncDisposable
         stored.DataType == snapshot.DataType && stored.Pinned == snapshot.Pinned &&
         stored.SenderApp == snapshot.SenderApp && stored.CachedImagePath == snapshot.CachedImagePath &&
         stored.EncryptData == snapshot.EncryptData && stored.EncryptKeyMd5 == snapshot.EncryptKeyMd5;
+
+    /// <summary>Returns cache references for planning; deletion must recheck them transactionally.</summary>
+    public async Task<IReadOnlyList<string>> GetCacheReferencesAsync()
+    {
+        var paths = new List<string>();
+        await ProcessTaskQueueAsync(async () =>
+        {
+            paths.AddRange(await Connection.QueryAsync<string>(
+                "SELECT cached_image_path FROM record WHERE cached_image_path IS NOT NULL AND cached_image_path <> '';"));
+        });
+        return paths;
+    }
+
+    /// <summary>
+    /// Executes a cache deletion callback only while an immediate transaction
+    /// confirms that no database record references the path. The caller must
+    /// also hold the history lock and revalidate in-memory references.
+    /// </summary>
+    public async Task<bool> TryDeleteUnreferencedCacheFileAsync(string path, Func<bool> delete)
+    {
+        if (!Path.IsPathFullyQualified(path)) return false;
+        var removed = false;
+        await ProcessTaskQueueAsync(async () =>
+        {
+            using var transaction = Connection.BeginTransaction();
+            var paths = await Connection.QueryAsync<string>(
+                "SELECT cached_image_path FROM record WHERE cached_image_path IS NOT NULL AND cached_image_path <> '';",
+                transaction: transaction);
+            string expected;
+            try
+            {
+                expected = Path.GetFullPath(path);
+                foreach (var reference in paths)
+                {
+                    // An ambiguous path must never be ignored.
+                    if (!Path.IsPathFullyQualified(reference) ||
+                        string.Equals(Path.GetFullPath(reference), expected, StringComparison.OrdinalIgnoreCase)) return;
+                }
+            }
+            catch (Exception) { return; }
+            removed = delete();
+            transaction.Commit();
+        });
+        return removed;
+    }
 
     public async Task DeleteRecordsAsync(IEnumerable<string> hashIds)
     {

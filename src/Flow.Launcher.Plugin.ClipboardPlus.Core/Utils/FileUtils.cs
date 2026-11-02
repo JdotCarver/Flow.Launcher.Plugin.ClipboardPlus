@@ -81,6 +81,36 @@ public static class FileUtils
         }
     }
 
+    /// <summary>Creates a new cache image without overwriting any existing path.</summary>
+    public static string SaveNewImageCache(ClipboardData data, string cachePath, string name, out OwnedCacheFile? ownership)
+    {
+        ownership = null;
+        if (data.Data is not BitmapSource image || string.IsNullOrWhiteSpace(name) ||
+            Path.GetFileName(name) != name || name.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0) return string.Empty;
+        try
+        {
+            Directory.CreateDirectory(cachePath);
+            for (int attempt = 0; attempt < 2; attempt++)
+            {
+                var fileName = attempt == 0 ? $"{name}.png" : $"{name}-{Guid.NewGuid():N}.png";
+                var path = Path.Combine(cachePath, fileName);
+                try
+                {
+                    using var file = new FileStream(path, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None);
+                    var encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(image));
+                    encoder.Save(file);
+                    file.Flush();
+                    ownership = ManagedCacheFile.IdentifyNewFile(cachePath, path, file);
+                    return path;
+                }
+                catch (IOException) when (attempt == 0 && File.Exists(path)) { }
+            }
+        }
+        catch (Exception) { }
+        return string.Empty;
+    }
+
     public static bool ClearImageCache(string imageCachePath)
     {
         if (Directory.Exists(imageCachePath))

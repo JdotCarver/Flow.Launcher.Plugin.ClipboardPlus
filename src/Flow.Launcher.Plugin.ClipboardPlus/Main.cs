@@ -1146,8 +1146,9 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
                 string.IsNullOrEmpty(clipboardData.SenderApp) ?
                 Localize.flowlauncher_plugin_clipboardplus_unknown() :
                 clipboardData.SenderApp);
-            var imagePath = FileUtils.SaveImageCache(clipboardData, PathHelper.ImageCachePath, imageName);
+            var imagePath = FileUtils.SaveNewImageCache(clipboardData, PathHelper.ImageCachePath, imageName, out var ownership);
             clipboardData.CachedImagePath = imagePath;
+            if (ownership is not null) RememberOwnedCacheFile(ownership with { WindowsAssociated = !filterConsecutive });
         }
         if (dataType == DataType.RichText)
         {
@@ -1320,9 +1321,14 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
 
     private async void WindowsClipboardHelper_OnHistoryItemRemoved(object? sender, string[] e)
     {
+        List<string> removedCachePaths = [];
         await RecordsLock.WaitAsync();
         try
         {
+            if (Settings.AutomaticCleanup)
+                removedCachePaths = RecordsList.Where(pair => pair.ClipboardData.FromWindowsClipboardHistory() &&
+                    e.Contains(pair.ClipboardData.HashId) && pair.ClipboardData.DataType == DataType.Image)
+                    .Select(pair => pair.ClipboardData.CachedImagePath).Where(path => !string.IsNullOrEmpty(path)).ToList();
             RemoveRecordsFromSystem(r => e.Contains(r.HashId));
         }
         finally
@@ -1330,6 +1336,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
             RecordsLock.Release();
         }
         RequestWindowsEvidenceRefresh();
+        if (removedCachePaths.Count > 0) _ = CleanupRemovedWindowsCacheAsync(removedCachePaths);
     }
 
     private async void WindowsClipboardHelper_OnHistoryItemPinUpdated(object? sender, (string HashId, bool Pinned) e)
