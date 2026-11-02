@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "043bf248-a899-4371-91ae-d3bf3d670cd5"
+request_id = "a6ac4aea-e386-4945-bce8-f32760ecb5f2"
 target = "local-windows"
-job_name = "Plugin Cleanup Integration"
+job_name = "Manual Progress Verification"
