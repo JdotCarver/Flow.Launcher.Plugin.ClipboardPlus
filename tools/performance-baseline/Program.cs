@@ -98,6 +98,7 @@ internal static class Program
         MeasureDatabaseRestore("10 noisy 256x256 images", imageRecords);
         MeasureRetainedTextMemory();
         PluginScenarios.Run();
+        DeduplicationPlannerBenchmark.Run();
         SqliteTransactionExperiment.Run();
         ImageExperiment.Run();
         ImagePinInvestigation.Run();
