@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "69e48dc4-80b1-4a08-808c-5235b77528bc"
+request_id = "e2fffdcb-d115-429f-96d2-36e0b89322d1"
 target = "local-windows"
-job_name = "Extended ClipboardPlus Baseline"
+job_name = "Image Capture AB Validation"
