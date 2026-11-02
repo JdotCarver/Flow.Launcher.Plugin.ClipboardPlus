@@ -185,6 +185,46 @@ jobs:
             subst "${drive}:" /d
           }
 
+      - name: Compare actual bulk method before and after
+        if: success() || failure()
+        shell: pwsh
+        run: |
+          $drive = @('Z','Y','X','W','V') | Where-Object { -not (Test-Path "${_}:\") } | Select-Object -First 1
+          if (-not $drive) { throw "No temporary drive letter available" }
+          subst "${drive}:" "$env:GITHUB_WORKSPACE"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $scratch = "${drive}:\.benchmark-ab"
+          $diagnostic = "$env:RUNNER_TEMP\clipboardplus-ab.log"
+          try {
+            Set-Location "${drive}:\"
+            New-Item -ItemType Directory -Path "$scratch\before", "$scratch\after" -Force | Out-Null
+            git archive --format=tar --output="$scratch\snapshot.tar" HEAD *>> $diagnostic
+            if ($LASTEXITCODE -ne 0) { throw "Snapshot failed" }
+            foreach ($variant in @('before', 'after')) {
+              tar -xf "$scratch\snapshot.tar" -C "$scratch\$variant" *>> $diagnostic
+              if ($LASTEXITCODE -ne 0) { throw "Snapshot extraction failed" }
+            }
+            git show 077bf9c:src/Flow.Launcher.Plugin.ClipboardPlus.Core/Data/Models/Database/SqliteDatabase.cs 2>> $diagnostic |
+              Set-Content -Encoding utf8 "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus.Core\Data\Models\Database\SqliteDatabase.cs"
+            if ($LASTEXITCODE -ne 0) { throw "Baseline source unavailable" }
+            foreach ($variant in @('before', 'after')) {
+              Set-Location "$scratch\$variant"
+              dotnet restore tools/performance-baseline/PerformanceBaseline.csproj --source https://api.nuget.org/v3/index.json *> $diagnostic
+              if ($LASTEXITCODE -ne 0) { throw "A/B restore failed" }
+              dotnet run --project tools/performance-baseline/PerformanceBaseline.csproj --configuration Release --no-restore -- --bulk-only *> $diagnostic
+              $exitCode = $LASTEXITCODE
+              $measurement = @(Get-Content $diagnostic | Where-Object { $_ -match '^actual bulk insert 500 records: ms min/median/max=[0-9,./]+$' })
+              if ($exitCode -ne 0 -or $measurement.Count -ne 1) { throw "A/B benchmark failed (details suppressed for privacy)" }
+              Write-Host "$variant $($measurement[0])"
+            }
+          } finally {
+            Set-Location "${drive}:\"
+            Remove-Item $scratch -Recurse -Force -ErrorAction SilentlyContinue
+            Set-Location $env:RUNNER_TEMP
+            Remove-Item $diagnostic -ErrorAction SilentlyContinue
+            subst "${drive}:" /d
+          }
+
       - name: Redaction round trip on a realistic log
         run: |
           # The redactor harvests identifiers from the log itself, so it must be

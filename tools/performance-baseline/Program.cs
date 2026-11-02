@@ -16,8 +16,13 @@ internal static class Program
     private static readonly CultureInfo Culture = CultureInfo.GetCultureInfo("en-US");
 
     [STAThread]
-    private static void Main()
+    private static void Main(string[] args)
     {
+        if (args.Length == 1 && args[0] == "--bulk-only")
+        {
+            BulkMethodBenchmark.Run();
+            return;
+        }
         Console.WriteLine("Synthetic baseline; Release build; five measured repetitions after one warmup.");
         Console.WriteLine($"Runtime: {Environment.Version}; logical processors: {Environment.ProcessorCount}");
         Console.WriteLine("Allocations are process-wide managed bytes; working set is a process snapshot, not Flow Launcher memory.");
