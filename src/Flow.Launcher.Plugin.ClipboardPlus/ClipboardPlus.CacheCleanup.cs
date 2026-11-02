@@ -163,18 +163,7 @@ public partial class ClipboardPlus
     // Called with RecordsLock held. Any uncertain reference prevents deletion.
     private bool HasUncertainOrMatchingCacheReference(string candidatePath)
     {
-        try
-        {
-            var expected = Path.GetFullPath(candidatePath);
-            foreach (var pair in RecordsList)
-            {
-                var path = pair.ClipboardData.CachedImagePath;
-                if (string.IsNullOrEmpty(path)) continue;
-                if (!Path.IsPathFullyQualified(path) ||
-                    string.Equals(Path.GetFullPath(path), expected, StringComparison.OrdinalIgnoreCase)) return true;
-            }
-            return false;
-        }
-        catch (Exception) { return true; }
+        return !CacheReferenceSafety.IsUnreferenced(candidatePath,
+            RecordsList.Select(pair => pair.ClipboardData.CachedImagePath));
     }
 }

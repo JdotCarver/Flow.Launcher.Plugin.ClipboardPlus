@@ -638,18 +638,7 @@ public class SqliteDatabase : IAsyncDisposable
             var paths = await Connection.QueryAsync<string>(
                 "SELECT cached_image_path FROM record WHERE cached_image_path IS NOT NULL AND cached_image_path <> '';",
                 transaction: transaction);
-            string expected;
-            try
-            {
-                expected = Path.GetFullPath(path);
-                foreach (var reference in paths)
-                {
-                    // An ambiguous path must never be ignored.
-                    if (!Path.IsPathFullyQualified(reference) ||
-                        string.Equals(Path.GetFullPath(reference), expected, StringComparison.OrdinalIgnoreCase)) return;
-                }
-            }
-            catch (Exception) { return; }
+            if (!CacheReferenceSafety.IsUnreferenced(path, paths)) return;
             removed = delete();
             transaction.Commit();
         });
