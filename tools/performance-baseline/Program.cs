@@ -95,6 +95,7 @@ internal static class Program
         PluginScenarios.Run();
         SqliteTransactionExperiment.Run();
         ImageExperiment.Run();
+        ImagePinInvestigation.Run();
     }
 
     private static BitmapSource CreateImage(int size, bool noisy, int seed)
