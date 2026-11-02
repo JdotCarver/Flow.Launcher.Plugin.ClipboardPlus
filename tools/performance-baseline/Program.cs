@@ -99,6 +99,7 @@ internal static class Program
         MeasureRetainedTextMemory();
         PluginScenarios.Run();
         DeduplicationPlannerBenchmark.Run();
+        DeduplicationDatabaseBenchmark.Run();
         SqliteTransactionExperiment.Run();
         ImageExperiment.Run();
         ImagePinInvestigation.Run();
