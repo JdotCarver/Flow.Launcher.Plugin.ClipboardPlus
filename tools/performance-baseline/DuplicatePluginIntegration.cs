@@ -70,6 +70,7 @@ internal static class DuplicatePluginIntegration
             if (exact.Count != 1 || exact[0].Score != int.MaxValue || longer.Count != 0 || list.Count != 3)
                 throw new InvalidOperationException("Synthetic cleanup query validation failed");
             TestUnloadedSavedKeeper();
+            TestManualActionRefresh();
             TestCapacityProtection(plugin);
             TestDisabledEvidenceRefresh(plugin);
             TestManualImageEvidenceRetention();
@@ -81,6 +82,49 @@ internal static class DuplicatePluginIntegration
         {
             database.DisposeAsync().AsTask().GetAwaiter().GetResult();
         }
+    }
+
+    private static void TestManualActionRefresh()
+    {
+        var database = new SqliteDatabase("synthetic-manual-refresh", new ClipboardPlus(), SqliteCacheMode.Private, SqliteOpenMode.Memory);
+        try
+        {
+            database.InitializeDatabaseAsync().GetAwaiter().GetResult();
+            ClipboardData Item(string id, int minute) => new("cleanup synthetic", DataType.PlainText, false)
+            {
+                HashId = id, SenderApp = "synthetic", InitScore = 0,
+                CreateTime = new DateTime(2026, 1, 1).AddMinutes(minute), Pinned = false, Saved = false
+            };
+            var list = new LinkedList<ClipboardDataPair>(new[] { Item("old-manual", 1), Item("new-manual", 2) }.Select(data => new ClipboardDataPair
+            {
+                ClipboardData = data,
+                PreviewPanel = new Lazy<UserControl>(() => throw new InvalidOperationException("Preview must stay lazy"))
+            }));
+            var plugin = new Plugin();
+            SetField(plugin, "ClipboardMonitor", null);
+            SetField(plugin, "Context", new PluginInitContext(null, Ioc.Default.GetRequiredService<IPublicAPI>()));
+            SetField(plugin, "Settings", new Settings());
+            SetField(plugin, "CultureInfo", CultureInfo.GetCultureInfo("en-US"));
+            SetField(plugin, "ScoreHelper", new ScoreHelper(10000));
+            SetField(plugin, "Database", database);
+            SetField(plugin, "RecordsList", list);
+            var results = plugin.QueryAsync(QueryFor("cleanup"), CancellationToken.None).GetAwaiter().GetResult();
+            var action = results.Single(result => result.Score == int.MaxValue);
+            if (results.Count(result => result.ContextData is ClipboardDataPair) != 2)
+                throw new InvalidOperationException("Synthetic cleanup query is missing records");
+            var refreshed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            plugin.ResultsUpdated += (_, args) =>
+            {
+                if (args.Results.Contains(action) && args.Results.Count(result => result.ContextData is ClipboardDataPair) == 1 &&
+                    args.Results.All(result => result.ContextData is not ClipboardDataPair pair || pair.ClipboardData.HashId != "old-manual"))
+                    refreshed.TrySetResult();
+            };
+            action.Action!(null!);
+            refreshed.Task.WaitAsync(TimeSpan.FromSeconds(30)).GetAwaiter().GetResult();
+            var coordinator = (CleanupRunCoordinator)typeof(Plugin).GetField("cleanupCoordinator", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(plugin)!;
+            coordinator.StopAsync().GetAwaiter().GetResult();
+        }
+        finally { database.DisposeAsync().AsTask().GetAwaiter().GetResult(); }
     }
 
     private static void TestUnloadedSavedKeeper()
