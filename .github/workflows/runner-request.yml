@@ -245,6 +245,28 @@ jobs:
               if ($exitCode -ne 0 -or $measurement.Count -ne 1) { throw "Image capture A/B failed (details suppressed for privacy)" }
               Write-Host "$variant $($measurement[0])"
             }
+            # Pinning baseline differs only in the record implementation.
+            Set-Location "${drive}:\"
+            git show 537ba8c:src/Flow.Launcher.Plugin.ClipboardPlus.Core/Data/Models/Clipboard/ClipboardData.cs 2>> $diagnostic |
+              Set-Content -Encoding utf8 "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus.Core\Data\Models\Clipboard\ClipboardData.cs"
+            if ($LASTEXITCODE -ne 0) { throw "Pin baseline source unavailable" }
+            # Restore the current image-capture implementation in the before
+            # tree, so that only the hash-reuse change differs.
+            foreach ($relative in @(
+              'src/Flow.Launcher.Plugin.ClipboardPlus/Main.cs',
+              'src/Flow.Launcher.Plugin.ClipboardPlus.Core/Data/Models/Database/SqliteDatabase.cs'
+            )) {
+              git show "HEAD:$relative" 2>> $diagnostic | Set-Content -Encoding utf8 "$scratch\before\$relative"
+              if ($LASTEXITCODE -ne 0) { throw "Pin baseline source unavailable" }
+            }
+            foreach ($variant in @('before', 'after')) {
+              Set-Location "$scratch\$variant"
+              dotnet run --project tools/performance-baseline/PerformanceBaseline.csproj --configuration Release --no-restore -- --image-pin-only *> $diagnostic
+              $exitCode = $LASTEXITCODE
+              $measurement = @(Get-Content $diagnostic | Where-Object { $_ -match '^actual image pin 1024 noise: ms min/median/max=[0-9,./]+; median allocated=[0-9,.]+ MiB$' })
+              if ($exitCode -ne 0 -or $measurement.Count -ne 1) { throw "Image pin A/B failed (details suppressed for privacy)" }
+              Write-Host "$variant $($measurement[0])"
+            }
           } finally {
             Set-Location "${drive}:\"
             Remove-Item $scratch -Recurse -Force -ErrorAction SilentlyContinue
