@@ -145,9 +145,9 @@ public partial class ClipboardPlus
             var windowsOnly = await RefreshWindowsEvidenceAsync(work, true, Interlocked.Increment(ref windowsEvidenceGeneration));
             windowsOnly += await CleanupRemovedWindowsCacheAsync(true);
             cleanupCoordinator.ReportProgress(windowsOnly);
-            var report = windowsOnly + await ScanOrphanCacheDuplicatesAsync(scan => cleanupCoordinator.ReportProgress(windowsOnly + scan));
+            var extrasReport = windowsOnly + await ScanOrphanCacheDuplicatesAsync(scan => cleanupCoordinator.ReportProgress(windowsOnly + scan));
             await PublishCurrentResultsAsync();
-            return report;
+            return extrasReport;
         }
         var automatic = work is CleanupWork.AutomaticBestEffort or CleanupWork.AutomaticThorough;
         var thorough = work is CleanupWork.AutomaticThorough or CleanupWork.ManualThorough;
