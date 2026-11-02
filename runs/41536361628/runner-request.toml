@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "d6cc1000-f584-4388-8b0c-7659c22b8b54"
+request_id = "bf8dd3ae-bc6f-4d54-8a0e-5412bc710cc5"
 target = "local-windows"
-job_name = "Evidence And Result Refresh"
+job_name = "Saved Image Cleanup Scaling"

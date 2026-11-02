@@ -1,0 +1,34 @@
+{
+  "capture_note": "Status is captured while Export logs is still in progress; use the final workflow conclusion for that job's result.",
+  "conclusion": null,
+  "event": "push",
+  "head_branch": "arena/1e362655-flow-launcher-plugin-clipboard",
+  "head_sha": "bd831500303f13665998d7621fd7c32b0350f1ed",
+  "id": 41536361628,
+  "jobs": [
+    {
+      "conclusion": "success",
+      "id": 125589095570,
+      "name": "Select runner",
+      "status": "completed",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41536361628/job/125589095570"
+    },
+    {
+      "conclusion": "success",
+      "id": 125589164985,
+      "name": "Saved Image Cleanup Scaling",
+      "status": "completed",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41536361628/job/125589164985"
+    },
+    {
+      "conclusion": null,
+      "id": 125590258113,
+      "name": "Export logs",
+      "status": "in_progress",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41536361628/job/125590258113"
+    }
+  ],
+  "name": "Runner request",
+  "status": "in_progress",
+  "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41536361628"
+}
