@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "e417c039-7ed9-4b41-a30f-b9cc65a3e2e1"
+request_id = "fb432c7c-f465-44ed-b6ad-38e80dd15e89"
 target = "local-windows"
-job_name = "Batch Overflow Validation"
+job_name = "Metadata Collision Regression"
