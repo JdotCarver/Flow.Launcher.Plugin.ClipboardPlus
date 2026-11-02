@@ -20,8 +20,16 @@ public static class WindowsDuplicatePlanner
     public static IReadOnlyList<WindowsDuplicateCandidate> Plan(IReadOnlyList<WindowsDuplicateEntry> entries, bool verifyImages)
     {
         var result = new List<WindowsDuplicateCandidate>();
+        // A repeated ID makes pin and identity state ambiguous. Never hide it,
+        // and never rely on it as a keeper for another item.
+        var ambiguousIds = entries.Where(entry => !string.IsNullOrWhiteSpace(entry.WindowsId))
+            .GroupBy(entry => entry.WindowsId!, StringComparer.Ordinal)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key)
+            .ToHashSet(StringComparer.Ordinal);
         var groups = entries.Select((entry, index) => (Entry: entry, Index: index))
-            .Where(item => !item.Entry.Data.Pinned && !string.IsNullOrEmpty(item.Entry.Data.DataMd5))
+            .Where(item => !item.Entry.Data.Pinned && !string.IsNullOrEmpty(item.Entry.Data.DataMd5) &&
+                           (item.Entry.WindowsId is null || !ambiguousIds.Contains(item.Entry.WindowsId)))
             .GroupBy(item => (item.Entry.Data.DataType, item.Entry.Data.DataMd5));
         foreach (var group in groups)
         {

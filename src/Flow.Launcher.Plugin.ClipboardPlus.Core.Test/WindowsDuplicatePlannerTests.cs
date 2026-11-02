@@ -36,6 +36,18 @@ public class WindowsDuplicatePlannerTests
     }
 
     [Fact]
+    public void RepeatedWindowsIdsAreNeverHiddenOrUsedAsKeepers()
+    {
+        var items = new[]
+        {
+            new WindowsDuplicateEntry(Record("x", 4, pinned: true), "repeated"),
+            new WindowsDuplicateEntry(Record("x", 3), "repeated"),
+            new WindowsDuplicateEntry(Record("x", 2), "other")
+        };
+        Assert.Empty(WindowsDuplicatePlanner.Plan(items, true));
+    }
+
+    [Fact]
     public void NewestWindowsItemRemainsVisibleWhenOnlyOlderSavedEquivalentExists()
     {
         var items = new[]
