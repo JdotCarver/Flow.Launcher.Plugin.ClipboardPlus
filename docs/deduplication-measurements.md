@@ -77,3 +77,14 @@ These totals are not tail latency or a real disk benchmark. They omit encryption
 snapshotting, images, cache, Windows history, and concurrent query/capture;
 they also do not measure lock hold times in an integrated cleanup. Do not treat
 them as proof that any threshold is safe on other machines.
+
+## Integrated synthetic contention, 2026-11-02
+
+Local self-hosted Windows run [41522950466](https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41522950466) built and passed the tests and benchmark. A synthetic plugin instance used private in-memory SQLite, 250 saved duplicate text pairs of 4,094 characters, four 1024×1024 noisy synthetic images, and 20 concurrent synthetic captures and no-match queries. The monitor was not started; no real clipboard, user database, settings, or cache was accessed. Capture includes the existing forced-GC path. All 20 capture/query iterations overlapped cleanup, but these are one-shot measurements, not a statistical A/B study.
+
+| Mode | Total with captures/queries | Capture median / maximum | Query median / maximum | Removed / skipped |
+| --- | ---: | ---: | ---: | ---: |
+| Best effort (4,096-character cap, no images) | 88.15 ms | 1.97 / 2.59 ms | 0.85 / 1.40 ms | 250 / 3 |
+| Thorough | 3,196.82 ms | 1.88 / 4.08 ms | 0.86 / 1.46 ms | 253 / 0 |
+
+These results support keeping the provisional conservative limit for discussion, not a universal responsiveness guarantee. They exclude real disk and encryption, different hardware and contention patterns; capture/query maxima are from only 20 samples, and the two modes do not form randomized repeated A/B trials. The thorough run demonstrates why expensive image verification remains background work. Windows-history behavior was simulated, not tested against the user's Windows history.
