@@ -89,6 +89,7 @@ internal static class Program
         MeasureRetainedTextMemory();
         PluginScenarios.Run();
         SqliteTransactionExperiment.Run();
+        ImageExperiment.Run();
     }
 
     private static BitmapSource CreateImage(int size, bool noisy, int seed)
