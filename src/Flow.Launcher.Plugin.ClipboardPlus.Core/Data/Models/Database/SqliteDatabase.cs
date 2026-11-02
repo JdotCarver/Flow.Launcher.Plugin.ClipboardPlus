@@ -5,12 +5,10 @@
 using Dapper;
 using Microsoft.Data.Sqlite;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Globalization;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Flow.Launcher.Plugin.ClipboardPlus.Core.Data.Models;
@@ -187,9 +185,7 @@ public class SqliteDatabase : IAsyncDisposable
 
     #region Queued Tasks
 
-    private readonly ConcurrentQueue<Func<Task>> _taskQueue = new();
-    private readonly SemaphoreSlim _queueSemaphore = new(1, 1);  // Semaphore to synchronize task queue processing
-    private bool _isProcessingQueue;
+    private readonly SerialAsyncQueue taskQueue = new();
 
     #endregion
 
@@ -645,43 +641,9 @@ public class SqliteDatabase : IAsyncDisposable
 
     #region Extension functions
 
-    private async Task WaitTaskQueueAsync()
-    {
-        if (!_isProcessingQueue)
-        {
-            return;
-        }
+    private Task WaitTaskQueueAsync() => taskQueue.WaitForSubmittedAsync();
 
-        // wait for the current task queue to finish
-        await _queueSemaphore.WaitAsync();
-        _queueSemaphore.Release();
-    }
-
-    private async Task ProcessTaskQueueAsync(Func<Task> func)
-    {
-        _taskQueue.Enqueue(func);
-
-        if (_isProcessingQueue)
-        {
-            return;
-        }
-
-        _isProcessingQueue = true;
-        await _queueSemaphore.WaitAsync(); // Ensure only one task queue process at a time
-
-        try
-        {
-            while (_taskQueue.TryDequeue(out var task))
-            {
-                await task();
-            }
-        }
-        finally
-        {
-            _isProcessingQueue = false;
-            _queueSemaphore.Release();
-        }
-    }
+    private Task ProcessTaskQueueAsync(Func<Task> operation) => taskQueue.ExecuteAsync(operation);
 
     #endregion
 
