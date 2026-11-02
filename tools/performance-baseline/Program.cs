@@ -39,6 +39,17 @@ internal static class Program
             });
         }
 
+        // Compare compressible and high-entropy synthetic images; real screenshots vary.
+        foreach (bool noisy in new[] { false, true })
+        {
+            var sample = CreateImage(512, noisy, 123);
+            Measure($"image hashing only, 512x512, {(noisy ? "noise" : "solid")}", () =>
+            {
+                var record = CreateRecord(sample, DataType.Image, 1);
+                if (string.IsNullOrEmpty(record.DataMd5)) throw new InvalidOperationException("Image hash missing");
+            });
+        }
+
         // The same bitmap is used throughout: no clipboard or personal image is accessed.
         int width = 1024, height = 1024;
         var pixels = new byte[width * height * 4];
@@ -65,6 +76,61 @@ internal static class Program
             Measure($"SQLite disk bulk insert and read, {count} records", () =>
                 DatabaseRoundTrip(records));
         }
+
+        MeasureDatabaseRestore("1000 text records", CreateTextRecords(1000));
+        var imageRecords = Enumerable.Range(0, 10)
+            .Select(i => CreateRecord(CreateImage(256, true, i), DataType.Image, i)).ToArray();
+        MeasureDatabaseRestore("10 noisy 256x256 images", imageRecords);
+        MeasureRetainedTextMemory();
+    }
+
+    private static BitmapSource CreateImage(int size, bool noisy, int seed)
+    {
+        var pixels = new byte[size * size * 4];
+        if (noisy) new Random(seed).NextBytes(pixels);
+        var bitmap = BitmapSource.Create(size, size, 96, 96, PixelFormats.Bgra32, null, pixels, size * 4);
+        bitmap.Freeze();
+        return bitmap;
+    }
+
+    private static void MeasureDatabaseRestore(string label, ClipboardData[] records)
+    {
+        string path = Path.Combine(Path.GetTempPath(), $"clipboardplus-baseline-{Guid.NewGuid():N}.db");
+        var database = new SqliteDatabase(path, new ClipboardPlus());
+        try
+        {
+            database.InitializeDatabaseAsync().GetAwaiter().GetResult();
+            database.AddRecordsAsync(records, false).GetAwaiter().GetResult();
+            database.CloseAsync().GetAwaiter().GetResult();
+            Measure($"SQLite reopen and materialize {label}", () =>
+            {
+                database.OpenAsync().GetAwaiter().GetResult();
+                var loaded = database.GetAllRecordsAsync(true).GetAwaiter().GetResult();
+                if (loaded.Count != records.Length || loaded.Select(x => x.HashId).Distinct().Count() != records.Length)
+                    throw new InvalidOperationException("Database restore count or identity regression");
+                GC.KeepAlive(loaded);
+                database.CloseAsync().GetAwaiter().GetResult();
+            });
+        }
+        finally
+        {
+            database.DisposeAsync().AsTask().GetAwaiter().GetResult();
+            Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
+            foreach (var suffix in new[] { "", "-wal", "-shm", "-journal" })
+                if (File.Exists(path + suffix)) File.Delete(path + suffix);
+        }
+    }
+
+    private static void MeasureRetainedTextMemory()
+    {
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
+        long before = GC.GetTotalMemory(true);
+        var records = CreateTextRecords(10000);
+        long after = GC.GetTotalMemory(true);
+        Console.WriteLine($"10000 live synthetic text records: managed heap delta={(after - before) / 1048576.0:F2} MiB (after full GC; excludes native memory)");
+        GC.KeepAlive(records);
     }
 
     private static ClipboardData[] CreateTextRecords(int count) => Enumerable.Range(0, count)
