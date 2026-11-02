@@ -23,7 +23,8 @@ public static class DuplicateCleanupEngine
         IReadOnlyList<ClipboardCleanupSnapshot> snapshots,
         bool verifyImages,
         Func<int, int, Task<DuplicateRemovalResult>> apply,
-        Action<CleanupReport>? progress = null)
+        Action<CleanupReport>? progress = null,
+        Action<int, int, DuplicateRemovalResult?>? attempted = null)
     {
         var records = snapshots.Select(snapshot => snapshot.CreatePlanningRecord()).ToArray();
         var plan = DuplicateRecordPlanner.PlanDetailed(records, verifyImages);
@@ -36,6 +37,7 @@ public static class DuplicateCleanupEngine
             try
             {
                 var result = await apply(candidate.KeeperIndex, candidate.DuplicateIndex).ConfigureAwait(false);
+                attempted?.Invoke(candidate.KeeperIndex, candidate.DuplicateIndex, result);
                 if (result == DuplicateRemovalResult.Removed)
                 {
                     removed++;
@@ -50,6 +52,7 @@ public static class DuplicateCleanupEngine
                 // Other independent candidates may still be safely processed.
                 // Do not expose the exception or any clipboard contents.
                 errors++;
+                attempted?.Invoke(candidate.KeeperIndex, candidate.DuplicateIndex, null);
             }
             processed++;
             if (processed % 16 == 0 || processed == plan.Candidates.Count)

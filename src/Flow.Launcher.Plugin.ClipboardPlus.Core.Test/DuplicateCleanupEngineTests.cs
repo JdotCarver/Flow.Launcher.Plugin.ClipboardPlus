@@ -18,15 +18,17 @@ public class DuplicateCleanupEngineTests
             .Select(data => new ClipboardCleanupSnapshot(data)).ToArray();
         var calls = new List<int>();
         var updates = new List<CleanupReport>();
+        var attempts = new List<DuplicateRemovalResult?>();
         var result = await DuplicateCleanupEngine.RunAsync(snapshots, true, (keeper, duplicate) =>
         {
             Assert.Equal(0, keeper);
             calls.Add(duplicate);
             if (duplicate == 2) throw new InvalidOperationException("private synthetic content");
             return Task.FromResult(duplicate == 1 ? DuplicateRemovalResult.Removed : DuplicateRemovalResult.Skipped);
-        }, updates.Add);
+        }, updates.Add, (_, _, outcome) => attempts.Add(outcome));
         Assert.Equal(new[] { 1, 2, 3 }, calls);
         Assert.Single(updates);
+        Assert.Equal(new DuplicateRemovalResult?[] { DuplicateRemovalResult.Removed, null, DuplicateRemovalResult.Skipped }, attempts);
         Assert.Equal(new CleanupReport(1, 0, 0, 1, 1), updates[^1]);
         Assert.Equal(new CleanupReport(1, 0, 0, 1, 1), result);
     }
