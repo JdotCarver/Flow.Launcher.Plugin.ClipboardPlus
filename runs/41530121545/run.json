@@ -1,0 +1,34 @@
+{
+  "capture_note": "Status is captured while Export logs is still in progress; use the final workflow conclusion for that job's result.",
+  "conclusion": null,
+  "event": "push",
+  "head_branch": "arena/1e362655-flow-launcher-plugin-clipboard",
+  "head_sha": "531491391dbed45a001063a6106249abdf40b748",
+  "id": 41530121545,
+  "jobs": [
+    {
+      "conclusion": "success",
+      "id": 125567830835,
+      "name": "Select runner",
+      "status": "completed",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41530121545/job/125567830835"
+    },
+    {
+      "conclusion": "success",
+      "id": 125567916233,
+      "name": "Review Regression Suite",
+      "status": "completed",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41530121545/job/125567916233"
+    },
+    {
+      "conclusion": null,
+      "id": 125569004906,
+      "name": "Export logs",
+      "status": "in_progress",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41530121545/job/125569004906"
+    }
+  ],
+  "name": "Runner request",
+  "status": "in_progress",
+  "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41530121545"
+}
