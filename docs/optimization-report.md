@@ -48,6 +48,21 @@ The median fell by about 41% in this scenario. Windows clipboard extraction, UI 
 
 The cache-file comparison verifies byte-identical PNGs but performs different file operations and is especially noisy (current range 43.33–95.28 ms). Reusing base64 requires decoding it back to bytes in that candidate; it did not reduce managed allocation in this case. Long-lived encoded caches, asynchronous queue retention, native memory, realistic screenshot distributions and simultaneous cache plus persistence were not measured. The current image processing path performs PNG encoding for construction, asset persistence and optional cache writing separately. The implemented persistence path preserves the representation and avoids storing an encoded copy in history; queue backlog and cache-file reuse remain open questions.
 
+## Investigated: query allocation and traversal (no production change)
+
+[Windows run 41467474061](https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41467474061) used generated plain-text histories, the plugin's actual result factory and the pinned Flow Launcher v2.1.4 matcher (regular precision, no alphabet translation). Matcher-only measurements call the matcher directly; result measurements include the synthetic host dispatch. Five measurements per traversal variant followed warmups and were alternated. Result IDs, scores and selected display fields were checked for equivalence; ordering, action execution, cancellation and preview behavior were not tested by this comparison.
+
+| Component scenario | Serial median | Parallel median | Serial / parallel allocation |
+| --- | ---: | ---: | ---: |
+| 100 short records, all match | 0.19 ms | 0.10 ms | 0.21 / 0.26 MiB |
+| 333 short records, all match | 0.64 ms | 0.30 ms | 0.71 / 0.84 MiB |
+| 10,000 short records, all match | 33.70 ms | 8.03 ms | 21.32 / 24.33 MiB |
+| 1,000 long records, all match | 5.45 ms | 0.85 ms | 2.78 / 2.96 MiB |
+
+For 10,000 all-match records, matcher-only allocated 13.73 MiB (median); full serial result production allocated 21.32 MiB. This is an approximate component breakdown, not a controlled attribution of every byte: the host and traversal differ. Parallel traversal traded more managed allocation for lower median latency on this particular machine and dataset. Small-history differences are fractions of a millisecond and observed maxima include outliers; this is insufficient evidence to change the threshold of 333. The parallel experiment does not reproduce the complete `QueryAsync` locking or task-wrapper semantics.
+
+The same run's actual `QueryAsync` all-match scenario at 10,000 records had a 20.16 ms median and 23.82 MiB median allocation; a deliberately overlapping capture-like record-lock wait had an 11.47 ms median. Reducing lock scope requires a safe ownership/lifetime design for mutable or disposed records and stale results, not merely copying the list. Real Flow settings, scheduling, actual clipboard events and UI latency remain unmeasured.
+
 ## Security-relevant observation
 
 `ClipboardData.EncryptData` explicitly excludes images. Enabling the encryption setting therefore does not encrypt saved image assets. This is existing behavior, not introduced by the bulk-insert change; it should be reviewed separately rather than silently changed in a performance PR.
