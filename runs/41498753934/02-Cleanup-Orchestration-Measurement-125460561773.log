@@ -1,0 +1,1563 @@
+﻿2026-11-02T18:15:19.5041833Z Current runner version: '2.338.2'
+2026-11-02T18:15:19.5050357Z Runner name: <machine>
+2026-11-02T18:15:19.5051343Z Runner group name: 'Default'
+2026-11-02T18:15:19.5051893Z Machine name: <machine>
+2026-11-02T18:15:19.5054353Z ##[group]GITHUB_TOKEN Permissions
+2026-11-02T18:15:19.5055716Z Contents: read
+2026-11-02T18:15:19.5056022Z Metadata: read
+2026-11-02T18:15:19.5056334Z ##[endgroup]
+2026-11-02T18:15:19.5057479Z Secret source: Actions
+2026-11-02T18:15:19.5057998Z Cache mode: write
+2026-11-02T18:15:19.5058373Z Prepare workflow directory
+2026-11-02T18:15:19.5384206Z Prepare all required actions
+2026-11-02T18:15:19.5414086Z Getting action download info
+2026-11-02T18:15:20.5714484Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-02T18:15:35.0647866Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-11-02T18:16:23.1666323Z Complete job name: Cleanup Orchestration Measurement
+2026-11-02T18:16:23.2226578Z ##[group]Run actions/checkout@v4
+2026-11-02T18:16:23.2227051Z with:
+2026-11-02T18:16:23.2227259Z   fetch-depth: 0
+2026-11-02T18:16:23.2227492Z   repository: JdotCarver/Flow.Launcher.Plugin.ClipboardPlus
+2026-11-02T18:16:23.2229676Z   token: ***
+2026-11-02T18:16:23.2229941Z   ssh-strict: true
+2026-11-02T18:16:23.2230164Z   ssh-user: git
+2026-11-02T18:16:23.2230426Z   persist-credentials: true
+2026-11-02T18:16:23.2230673Z   clean: true
+2026-11-02T18:16:23.2230885Z   sparse-checkout-cone-mode: true
+2026-11-02T18:16:23.2231131Z   fetch-tags: false
+2026-11-02T18:16:23.2231341Z   show-progress: true
+2026-11-02T18:16:23.2231569Z   lfs: false
+2026-11-02T18:16:23.2231774Z   submodules: false
+2026-11-02T18:16:23.2232012Z   set-safe-directory: true
+2026-11-02T18:16:23.2232421Z   allow-unsafe-pr-checkout: false
+2026-11-02T18:16:23.2232792Z ##[endgroup]
+2026-11-02T18:16:23.3603110Z Syncing repository: JdotCarver/Flow.Launcher.Plugin.ClipboardPlus
+2026-11-02T18:16:23.3604434Z ##[group]Getting Git version info
+2026-11-02T18:16:23.3605157Z Working directory is 'C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus'
+2026-11-02T18:16:23.3860138Z [command]"C:\Program Files\Git\cmd\git.exe" version
+2026-11-02T18:16:23.4030810Z git version 2.53.0.windows.1
+2026-11-02T18:16:23.4062263Z ##[endgroup]
+2026-11-02T18:16:23.4069777Z Copying 'C:\Users\<user>\.gitconfig' to 'C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\_temp\02911e85-18df-4d2a-87dc-7034b8207908\.gitconfig'
+2026-11-02T18:16:23.4082871Z Temporarily overriding HOME='C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\_temp\02911e85-18df-4d2a-87dc-7034b8207908' before making global git config changes
+2026-11-02T18:16:23.4083558Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-02T18:16:23.4090785Z [command]"C:\Program Files\Git\cmd\git.exe" config --global --add safe.directory C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus
+2026-11-02T18:16:23.4303075Z [command]"C:\Program Files\Git\cmd\git.exe" config --local --get remote.origin.url
+2026-11-02T18:16:23.4470506Z https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus
+2026-11-02T18:16:23.4499001Z ##[group]Removing previously created refs, to avoid conflicts
+2026-11-02T18:16:23.4505301Z [command]"C:\Program Files\Git\cmd\git.exe" rev-parse --symbolic-full-name --verify --quiet HEAD
+2026-11-02T18:16:23.4678723Z refs/heads/arena/1e362655-flow-launcher-plugin-clipboard
+2026-11-02T18:16:23.4710014Z [command]"C:\Program Files\Git\cmd\git.exe" checkout --detach
+2026-11-02T18:16:23.4955018Z HEAD is now at 12db40f Actions: request local-windows run
+2026-11-02T18:16:23.5472758Z ##[endgroup]
+2026-11-02T18:16:23.5473060Z [command]"C:\Program Files\Git\cmd\git.exe" submodule status
+2026-11-02T18:16:23.8837428Z ##[group]Cleaning the repository
+2026-11-02T18:16:23.8843603Z [command]"C:\Program Files\Git\cmd\git.exe" clean -ffdx
+2026-11-02T18:16:23.9114444Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/browser-wasm/': Filename too long
+2026-11-02T18:16:23.9115303Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-arm/native/': Filename too long
+2026-11-02T18:16:23.9116072Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-arm64/native/': Filename too long
+2026-11-02T18:16:23.9116873Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-armel/native/': Filename too long
+2026-11-02T18:16:23.9118684Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-mips64/': Filename too long
+2026-11-02T18:16:23.9119510Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-musl-arm/': Filename too long
+2026-11-02T18:16:23.9120262Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-musl-arm64/': Filename too long
+2026-11-02T18:16:23.9121059Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-musl-riscv64/': Filename too long
+2026-11-02T18:16:23.9121811Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-musl-s390x/': Filename too long
+2026-11-02T18:16:23.9122570Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-musl-x64/': Filename too long
+2026-11-02T18:16:23.9123336Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-ppc64le/': Filename too long
+2026-11-02T18:16:23.9124076Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-riscv64/': Filename too long
+2026-11-02T18:16:23.9124864Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-s390x/native/': Filename too long
+2026-11-02T18:16:23.9125637Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-x64/native/': Filename too long
+2026-11-02T18:16:23.9126380Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-x86/native/': Filename too long
+2026-11-02T18:16:23.9127134Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/maccatalyst-arm64/': Filename too long
+2026-11-02T18:16:23.9127903Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/maccatalyst-x64/': Filename too long
+2026-11-02T18:16:23.9128678Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/osx-arm64/native/': Filename too long
+2026-11-02T18:16:23.9129440Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/osx-x64/native/': Filename too long
+2026-11-02T18:16:23.9130178Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/win-arm/native/': Filename too long
+2026-11-02T18:16:23.9131311Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/win-arm64/native/': Filename too long
+2026-11-02T18:16:23.9132055Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/win-x64/native/': Filename too long
+2026-11-02T18:16:23.9132822Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/win-x86/native/': Filename too long
+2026-11-02T18:16:23.9145683Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/browser/lib/': Filename too long
+2026-11-02T18:16:23.9146920Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/browser-wasm/': Filename too long
+2026-11-02T18:16:23.9147753Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-arm/native/': Filename too long
+2026-11-02T18:16:23.9148544Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-arm64/': Filename too long
+2026-11-02T18:16:23.9149293Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-armel/': Filename too long
+2026-11-02T18:16:23.9150037Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-mips64/': Filename too long
+2026-11-02T18:16:23.9150821Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-musl-arm/': Filename too long
+2026-11-02T18:16:23.9151586Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-musl-arm64/': Filename too long
+2026-11-02T18:16:23.9152498Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-musl-riscv64/': Filename too long
+2026-11-02T18:16:23.9153267Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-musl-s390x/': Filename too long
+2026-11-02T18:16:23.9154024Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-musl-x64/': Filename too long
+2026-11-02T18:16:23.9154786Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-ppc64le/': Filename too long
+2026-11-02T18:16:23.9155558Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-riscv64/': Filename too long
+2026-11-02T18:16:23.9156331Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-s390x/': Filename too long
+2026-11-02T18:16:23.9157070Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-x64/native/': Filename too long
+2026-11-02T18:16:23.9157827Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-x86/native/': Filename too long
+2026-11-02T18:16:23.9158633Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/maccatalyst-arm64/': Filename too long
+2026-11-02T18:16:23.9159518Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/maccatalyst-x64/': Filename too long
+2026-11-02T18:16:23.9160284Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/osx-arm64/native/': Filename too long
+2026-11-02T18:16:23.9161050Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/osx-x64/native/': Filename too long
+2026-11-02T18:16:23.9212966Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/win/lib/net9.0/': Filename too long
+2026-11-02T18:16:23.9214085Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/win-arm/native/': Filename too long
+2026-11-02T18:16:23.9215259Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/win-arm64/native/': Filename too long
+2026-11-02T18:16:23.9215977Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/win-x64/native/': Filename too long
+2026-11-02T18:16:23.9216669Z warning: could not open directory 'src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/win-x86/native/': Filename too long
+2026-11-02T18:16:23.9438528Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/.msCoverageSourceRootsMapping_Flow.Launcher.Plugin.ClipboardPlus.Core.Test: Filename too long
+2026-11-02T18:16:23.9439189Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9439498Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9440043Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/CommunityToolkit.Mvvm.dll: Filename too long
+2026-11-02T18:16:23.9440504Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9440796Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9441393Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/CoverletSourceRootsMapping_Flow.Launcher.Plugin.ClipboardPlus.Core.Test: Filename too long
+2026-11-02T18:16:23.9441945Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9442233Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9442833Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/cs/Microsoft.TestPlatform.CommunicationUtilities.resources.dll: Filename too long
+2026-11-02T18:16:23.9443367Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9443668Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9444229Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/cs/Microsoft.TestPlatform.CoreUtilities.resources.dll: Filename too long
+2026-11-02T18:16:23.9444732Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9445022Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9445583Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/cs/Microsoft.TestPlatform.CrossPlatEngine.resources.dll: Filename too long
+2026-11-02T18:16:23.9446089Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9446374Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9447126Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/cs/Microsoft.VisualStudio.TestPlatform.Common.resources.dll: Filename too long
+2026-11-02T18:16:23.9447646Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9447929Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9448514Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/cs/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll: Filename too long
+2026-11-02T18:16:23.9449058Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9449340Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9450254Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/de/Microsoft.TestPlatform.CommunicationUtilities.resources.dll: Filename too long
+2026-11-02T18:16:23.9450790Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9451072Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9451624Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/de/Microsoft.TestPlatform.CoreUtilities.resources.dll: Filename too long
+2026-11-02T18:16:23.9452236Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9452519Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9453073Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/de/Microsoft.TestPlatform.CrossPlatEngine.resources.dll: Filename too long
+2026-11-02T18:16:23.9453579Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9454051Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9454826Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/de/Microsoft.VisualStudio.TestPlatform.Common.resources.dll: Filename too long
+2026-11-02T18:16:23.9455379Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9455679Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9456285Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/de/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll: Filename too long
+2026-11-02T18:16:23.9456838Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9457133Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9457735Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/es/Microsoft.TestPlatform.CommunicationUtilities.resources.dll: Filename too long
+2026-11-02T18:16:23.9458289Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9458577Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9459148Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/es/Microsoft.TestPlatform.CoreUtilities.resources.dll: Filename too long
+2026-11-02T18:16:23.9459670Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9459966Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9460549Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/es/Microsoft.TestPlatform.CrossPlatEngine.resources.dll: Filename too long
+2026-11-02T18:16:23.9461085Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9461823Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9462402Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/es/Microsoft.VisualStudio.TestPlatform.Common.resources.dll: Filename too long
+2026-11-02T18:16:23.9462933Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9463219Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9463821Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/es/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll: Filename too long
+2026-11-02T18:16:23.9464369Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9464661Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9465404Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Localization.Attributes.dll: Filename too long
+2026-11-02T18:16:23.9465912Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9466204Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9466744Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.dll: Filename too long
+2026-11-02T18:16:23.9467239Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9467531Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9468106Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.Test.deps.json: Filename too long
+2026-11-02T18:16:23.9468636Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9468930Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9469487Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.Test.dll: Filename too long
+2026-11-02T18:16:23.9469994Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9470282Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9470853Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.Test.pdb: Filename too long
+2026-11-02T18:16:23.9471364Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9471657Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9472262Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.Test.runtimeconfig.json: Filename too long
+2026-11-02T18:16:23.9472799Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9473090Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9473591Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.dll: Filename too long
+2026-11-02T18:16:23.9474059Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9474352Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9474945Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/fr/Microsoft.TestPlatform.CommunicationUtilities.resources.dll: Filename too long
+2026-11-02T18:16:23.9475655Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9475940Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9476497Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/fr/Microsoft.TestPlatform.CoreUtilities.resources.dll: Filename too long
+2026-11-02T18:16:23.9477002Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9477285Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9477845Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/fr/Microsoft.TestPlatform.CrossPlatEngine.resources.dll: Filename too long
+2026-11-02T18:16:23.9478362Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9478648Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9479393Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/fr/Microsoft.VisualStudio.TestPlatform.Common.resources.dll: Filename too long
+2026-11-02T18:16:23.9479914Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9480198Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9480789Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/fr/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll: Filename too long
+2026-11-02T18:16:23.9481337Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9481625Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9482119Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/Images/clipboard_b64.txt: Filename too long
+2026-11-02T18:16:23.9482573Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9482859Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9483445Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/it/Microsoft.TestPlatform.CommunicationUtilities.resources.dll: Filename too long
+2026-11-02T18:16:23.9484251Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9484585Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9485180Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/it/Microsoft.TestPlatform.CoreUtilities.resources.dll: Filename too long
+2026-11-02T18:16:23.9485718Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9486014Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9486616Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/it/Microsoft.TestPlatform.CrossPlatEngine.resources.dll: Filename too long
+2026-11-02T18:16:23.9487154Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9487456Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9488046Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/it/Microsoft.VisualStudio.TestPlatform.Common.resources.dll: Filename too long
+2026-11-02T18:16:23.9488582Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9488875Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9489478Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/it/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll: Filename too long
+2026-11-02T18:16:23.9490386Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9490679Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9491273Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/ja/Microsoft.TestPlatform.CommunicationUtilities.resources.dll: Filename too long
+2026-11-02T18:16:23.9491822Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9492118Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9492690Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/ja/Microsoft.TestPlatform.CoreUtilities.resources.dll: Filename too long
+2026-11-02T18:16:23.9493211Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9493759Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9494346Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/ja/Microsoft.TestPlatform.CrossPlatEngine.resources.dll: Filename too long
+2026-11-02T18:16:23.9494865Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9495160Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9495750Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/ja/Microsoft.VisualStudio.TestPlatform.Common.resources.dll: Filename too long
+2026-11-02T18:16:23.9496283Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9496576Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9497186Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/ja/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll: Filename too long
+2026-11-02T18:16:23.9497742Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9498047Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9498546Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/JetBrains.Annotations.dll: Filename too long
+2026-11-02T18:16:23.9498998Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9499289Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9499893Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/ko/Microsoft.TestPlatform.CommunicationUtilities.resources.dll: Filename too long
+2026-11-02T18:16:23.9500454Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9500754Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9501323Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/ko/Microsoft.TestPlatform.CoreUtilities.resources.dll: Filename too long
+2026-11-02T18:16:23.9501848Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9502189Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9502767Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/ko/Microsoft.TestPlatform.CrossPlatEngine.resources.dll: Filename too long
+2026-11-02T18:16:23.9503301Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9503596Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9504201Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/ko/Microsoft.VisualStudio.TestPlatform.Common.resources.dll: Filename too long
+2026-11-02T18:16:23.9504970Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9505264Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9505860Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/ko/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll: Filename too long
+2026-11-02T18:16:23.9506399Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9506692Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9507197Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/Microsoft.Data.Sqlite.dll: Filename too long
+2026-11-02T18:16:23.9507751Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9508040Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9508594Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/Microsoft.TestPlatform.CommunicationUtilities.dll: Filename too long
+2026-11-02T18:16:23.9509107Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9509396Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9509937Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/Microsoft.TestPlatform.CoreUtilities.dll: Filename too long
+2026-11-02T18:16:23.9510426Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9510710Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9511254Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/Microsoft.TestPlatform.CrossPlatEngine.dll: Filename too long
+2026-11-02T18:16:23.9511747Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9512037Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9512588Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/Microsoft.TestPlatform.PlatformAbstractions.dll: Filename too long
+2026-11-02T18:16:23.9513095Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9513384Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9513922Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/Microsoft.TestPlatform.Utilities.dll: Filename too long
+2026-11-02T18:16:23.9514418Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9514706Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9515256Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/Microsoft.VisualStudio.CodeCoverage.Shim.dll: Filename too long
+2026-11-02T18:16:23.9515764Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9516053Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9516600Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/Microsoft.VisualStudio.TestPlatform.Common.dll: Filename too long
+2026-11-02T18:16:23.9517100Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9517386Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9517956Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/Microsoft.VisualStudio.TestPlatform.ObjectModel.dll: Filename too long
+2026-11-02T18:16:23.9518686Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9518974Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9519475Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/Microsoft.Windows.SDK.NET.dll: Filename too long
+2026-11-02T18:16:23.9519937Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9520232Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9520826Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/pl/Microsoft.TestPlatform.CommunicationUtilities.resources.dll: Filename too long
+2026-11-02T18:16:23.9521458Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9521756Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9522335Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/pl/Microsoft.TestPlatform.CoreUtilities.resources.dll: Filename too long
+2026-11-02T18:16:23.9522867Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9523156Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9523757Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/pl/Microsoft.TestPlatform.CrossPlatEngine.resources.dll: Filename too long
+2026-11-02T18:16:23.9524283Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9524570Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9525172Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/pl/Microsoft.VisualStudio.TestPlatform.Common.resources.dll: Filename too long
+2026-11-02T18:16:23.9525702Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9525991Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9526590Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/pl/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll: Filename too long
+2026-11-02T18:16:23.9527134Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9527424Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9528038Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/pt-BR/Microsoft.TestPlatform.CommunicationUtilities.resources.dll: Filename too long
+2026-11-02T18:16:23.9528595Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9528882Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9529459Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/pt-BR/Microsoft.TestPlatform.CoreUtilities.resources.dll: Filename too long
+2026-11-02T18:16:23.9529977Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9530267Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9530840Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/pt-BR/Microsoft.TestPlatform.CrossPlatEngine.resources.dll: Filename too long
+2026-11-02T18:16:23.9531369Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9531659Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9532344Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/pt-BR/Microsoft.VisualStudio.TestPlatform.Common.resources.dll: Filename too long
+2026-11-02T18:16:23.9532883Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9533172Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9533792Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/pt-BR/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll: Filename too long
+2026-11-02T18:16:23.9534340Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9534633Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9535302Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/ru/Microsoft.TestPlatform.CommunicationUtilities.resources.dll: Filename too long
+2026-11-02T18:16:23.9535858Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9536158Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9536738Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/ru/Microsoft.TestPlatform.CoreUtilities.resources.dll: Filename too long
+2026-11-02T18:16:23.9537259Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9537959Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9538602Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/ru/Microsoft.TestPlatform.CrossPlatEngine.resources.dll: Filename too long
+2026-11-02T18:16:23.9539151Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9539490Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9540077Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/ru/Microsoft.VisualStudio.TestPlatform.Common.resources.dll: Filename too long
+2026-11-02T18:16:23.9540623Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9540920Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9541548Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/ru/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll: Filename too long
+2026-11-02T18:16:23.9542114Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9542412Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9542930Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/browser-wasm: Directory not empty
+2026-11-02T18:16:23.9543618Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-arm/native: Filename too long
+2026-11-02T18:16:23.9544742Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9545334Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9546256Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-arm64/native: Filename too long
+2026-11-02T18:16:23.9547125Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9547699Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9548626Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-armel/native: Filename too long
+2026-11-02T18:16:23.9549387Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9549703Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9550227Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-mips64: Directory not empty
+2026-11-02T18:16:23.9550903Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-musl-arm: Filename too long
+2026-11-02T18:16:23.9551378Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9551683Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9552204Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-musl-arm64: Filename too long
+2026-11-02T18:16:23.9552767Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9553070Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9553584Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-musl-riscv64: Filename too long
+2026-11-02T18:16:23.9554072Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9554373Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9554882Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-musl-s390x: Filename too long
+2026-11-02T18:16:23.9555348Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9555660Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9556162Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-musl-x64: Filename too long
+2026-11-02T18:16:23.9556619Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9556904Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9557397Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-ppc64le: Directory not empty
+2026-11-02T18:16:23.9558051Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-riscv64: Directory not empty
+2026-11-02T18:16:23.9558708Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-s390x/native: Filename too long
+2026-11-02T18:16:23.9559155Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9559449Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9559942Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-x64/native: Filename too long
+2026-11-02T18:16:23.9560392Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9560680Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9561178Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-x86/native: Filename too long
+2026-11-02T18:16:23.9561630Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9561919Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9562425Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/maccatalyst-arm64: Filename too long
+2026-11-02T18:16:23.9562960Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9563246Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9563751Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/maccatalyst-x64: Filename too long
+2026-11-02T18:16:23.9564207Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9564495Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9564986Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/osx-arm64/native: Filename too long
+2026-11-02T18:16:23.9565435Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9565719Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9566290Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/osx-x64/native: Filename too long
+2026-11-02T18:16:23.9566945Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9567281Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9567786Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/win-arm/native: Filename too long
+2026-11-02T18:16:23.9568248Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9568548Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9569064Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/win-arm64/native: Filename too long
+2026-11-02T18:16:23.9569534Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9569858Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9570358Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/win-x64/native: Filename too long
+2026-11-02T18:16:23.9570819Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9571107Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9571609Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/runtimes/win-x86/native: Filename too long
+2026-11-02T18:16:23.9572070Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9572360Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9572866Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/SQLitePCLRaw.batteries_v2.dll: Filename too long
+2026-11-02T18:16:23.9573337Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9573711Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9574381Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/SQLitePCLRaw.provider.e_sqlite3.dll: Filename too long
+2026-11-02T18:16:23.9574866Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9575157Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9576331Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/tr/Microsoft.TestPlatform.CommunicationUtilities.resources.dll: Filename too long
+2026-11-02T18:16:23.9577112Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9577563Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9578136Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/tr/Microsoft.TestPlatform.CoreUtilities.resources.dll: Filename too long
+2026-11-02T18:16:23.9579194Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9579530Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9580128Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/tr/Microsoft.TestPlatform.CrossPlatEngine.resources.dll: Filename too long
+2026-11-02T18:16:23.9580671Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9580967Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9581701Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/tr/Microsoft.VisualStudio.TestPlatform.Common.resources.dll: Filename too long
+2026-11-02T18:16:23.9582249Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9582543Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9583144Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/tr/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll: Filename too long
+2026-11-02T18:16:23.9583699Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9583993Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9584499Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/xunit.execution.dotnet.dll: Filename too long
+2026-11-02T18:16:23.9585227Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9585570Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9586130Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/xunit.runner.visualstudio.testadapter.dll: Filename too long
+2026-11-02T18:16:23.9586629Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9586925Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9587538Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/zh-Hans/Microsoft.TestPlatform.CommunicationUtilities.resources.dll: Filename too long
+2026-11-02T18:16:23.9588094Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9588390Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9588972Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/zh-Hans/Microsoft.TestPlatform.CoreUtilities.resources.dll: Filename too long
+2026-11-02T18:16:23.9589507Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9589794Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9590382Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/zh-Hans/Microsoft.TestPlatform.CrossPlatEngine.resources.dll: Filename too long
+2026-11-02T18:16:23.9590914Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9591199Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9591784Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/zh-Hans/Microsoft.VisualStudio.TestPlatform.Common.resources.dll: Filename too long
+2026-11-02T18:16:23.9592475Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9592762Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9593363Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/zh-Hans/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll: Filename too long
+2026-11-02T18:16:23.9594126Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9594445Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9595042Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/zh-Hant/Microsoft.TestPlatform.CommunicationUtilities.resources.dll: Filename too long
+2026-11-02T18:16:23.9595600Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9595887Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9596604Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/zh-Hant/Microsoft.TestPlatform.CoreUtilities.resources.dll: Filename too long
+2026-11-02T18:16:23.9597147Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9597447Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9598038Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/zh-Hant/Microsoft.TestPlatform.CrossPlatEngine.resources.dll: Filename too long
+2026-11-02T18:16:23.9598575Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9598866Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9599467Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/zh-Hant/Microsoft.VisualStudio.TestPlatform.Common.resources.dll: Filename too long
+2026-11-02T18:16:23.9600017Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9600302Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9600906Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/zh-Hant/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll: Filename too long
+2026-11-02T18:16:23.9601460Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9601746Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9602289Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/obj/Flow.Launcher.Plugin.ClipboardPlus.Core.Test.csproj.nuget.dgspec.json: Filename too long
+2026-11-02T18:16:23.9602783Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9603081Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9603603Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/obj/Flow.Launcher.Plugin.ClipboardPlus.Core.Test.csproj.nuget.g.props: Filename too long
+2026-11-02T18:16:23.9604104Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9604385Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9604906Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/obj/Flow.Launcher.Plugin.ClipboardPlus.Core.Test.csproj.nuget.g.targets: Filename too long
+2026-11-02T18:16:23.9605389Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9605675Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9606220Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/obj/Release/net9.0-windows10.0.19041.0/.NETCoreApp,Version=v9.0.AssemblyAttributes.cs: Filename too long
+2026-11-02T18:16:23.9606803Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9607086Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9607586Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/obj/Release/net9.0-windows10.0.19041.0/Flow.Lau.0AD7E127.Up2Date: Filename too long
+2026-11-02T18:16:23.9608043Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9608327Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9608908Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.Test.AssemblyInfo.cs: Filename too long
+2026-11-02T18:16:23.9609440Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9609724Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9610414Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.Test.AssemblyInfoInputs.cache: Filename too long
+2026-11-02T18:16:23.9610969Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9611256Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9611828Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.Test.assets.cache: Filename too long
+2026-11-02T18:16:23.9612357Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9612655Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9613272Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.Test.csproj.AssemblyReference.cache: Filename too long
+2026-11-02T18:16:23.9613843Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9614131Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9614747Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.Test.csproj.CoreCompileInputs.cache: Filename too long
+2026-11-02T18:16:23.9615308Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9615599Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9616219Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.Test.csproj.FileListAbsolute.txt: Filename too long
+2026-11-02T18:16:23.9616785Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9617096Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9617739Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.Test.dll: Filename too long
+2026-11-02T18:16:23.9618328Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9618668Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9619412Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.Test.GeneratedMSBuildEditorConfig.editorconfig: Filename too long
+2026-11-02T18:16:23.9620012Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9620299Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9620975Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.Test.genruntimeconfig.cache: Filename too long
+2026-11-02T18:16:23.9621522Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9621813Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9622393Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.Test.GlobalUsings.g.cs: Filename too long
+2026-11-02T18:16:23.9622921Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9623205Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9623763Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.Test.pdb: Filename too long
+2026-11-02T18:16:23.9624345Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9624627Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9625217Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.Test.sourcelink.json: Filename too long
+2026-11-02T18:16:23.9625751Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9626040Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9626602Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/obj/Release/net9.0-windows10.0.19041.0/ref/Flow.Launcher.Plugin.ClipboardPlus.Core.Test.dll: Filename too long
+2026-11-02T18:16:23.9627110Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9627400Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9627983Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/obj/Release/net9.0-windows10.0.19041.0/refint/Flow.Launcher.Plugin.ClipboardPlus.Core.Test.dll: Filename too long
+2026-11-02T18:16:23.9628496Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9628783Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9629326Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core/bin/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.deps.json: Filename too long
+2026-11-02T18:16:23.9629817Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9630107Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9630640Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core/bin/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.dll: Filename too long
+2026-11-02T18:16:23.9631124Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9631404Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9631915Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core/obj/Flow.Launcher.Plugin.ClipboardPlus.Core.csproj.nuget.dgspec.json: Filename too long
+2026-11-02T18:16:23.9632392Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9632676Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9633207Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core/obj/Release/net9.0-windows10.0.19041.0/.NETCoreApp,Version=v9.0.AssemblyAttributes.cs: Filename too long
+2026-11-02T18:16:23.9633699Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9633987Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9635009Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.AssemblyInfo.cs: Filename too long
+2026-11-02T18:16:23.9635518Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9635800Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9636375Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.AssemblyInfoInputs.cache: Filename too long
+2026-11-02T18:16:23.9636906Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9637196Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9637932Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.assets.cache: Filename too long
+2026-11-02T18:16:23.9638438Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9638723Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9639321Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.csproj.AssemblyReference.cache: Filename too long
+2026-11-02T18:16:23.9639862Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9640153Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9640749Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.csproj.CoreCompileInputs.cache: Filename too long
+2026-11-02T18:16:23.9641296Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9641586Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9642174Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.csproj.FileListAbsolute.txt: Filename too long
+2026-11-02T18:16:23.9642708Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9642994Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9643525Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.dll: Filename too long
+2026-11-02T18:16:23.9644022Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9644320Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9644961Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.GeneratedMSBuildEditorConfig.editorconfig: Filename too long
+2026-11-02T18:16:23.9645539Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9645828Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9646381Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core/obj/Release/net9.0-windows10.0.19041.0/ref/Flow.Launcher.Plugin.ClipboardPlus.Core.dll: Filename too long
+2026-11-02T18:16:23.9646869Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9647160Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9647709Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Core/obj/Release/net9.0-windows10.0.19041.0/refint/Flow.Launcher.Plugin.ClipboardPlus.Core.dll: Filename too long
+2026-11-02T18:16:23.9648217Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9648582Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9649080Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/CommunityToolkit.Mvvm.dll: Filename too long
+2026-11-02T18:16:23.9649537Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9649823Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9650354Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Localization.Attributes.dll: Filename too long
+2026-11-02T18:16:23.9650843Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9651127Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9651823Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.ClipboardPlus.Core.dll: Filename too long
+2026-11-02T18:16:23.9652322Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9652605Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9653155Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.dll: Filename too long
+2026-11-02T18:16:23.9653660Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9653953Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9654521Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.deps.json: Filename too long
+2026-11-02T18:16:23.9655041Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9655341Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9655909Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.dll: Filename too long
+2026-11-02T18:16:23.9656426Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9656715Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9657284Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.exe: Filename too long
+2026-11-02T18:16:23.9657806Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9658102Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9658678Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.pdb: Filename too long
+2026-11-02T18:16:23.9659203Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9659498Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9660111Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.runtimeconfig.json: Filename too long
+2026-11-02T18:16:23.9660684Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9660985Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9661510Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.dll: Filename too long
+2026-11-02T18:16:23.9661993Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9662382Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9662922Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/iNKORE.UI.WPF.Modern.Controls.dll: Filename too long
+2026-11-02T18:16:23.9663411Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9663715Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9664257Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/iNKORE.UI.WPF.Modern.dll: Filename too long
+2026-11-02T18:16:23.9664729Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9665030Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9665763Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/JetBrains.Annotations.dll: Filename too long
+2026-11-02T18:16:23.9666272Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9666574Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9667092Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Data.Sqlite.dll: Filename too long
+2026-11-02T18:16:23.9667566Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9667858Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9668431Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Extensions.Configuration.Abstractions.dll: Filename too long
+2026-11-02T18:16:23.9668973Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9669284Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9669849Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Extensions.Configuration.Binder.dll: Filename too long
+2026-11-02T18:16:23.9670381Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9670678Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9671261Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Extensions.Configuration.CommandLine.dll: Filename too long
+2026-11-02T18:16:23.9671789Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9672087Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9672651Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Extensions.Configuration.dll: Filename too long
+2026-11-02T18:16:23.9673161Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9673458Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9674066Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Extensions.Configuration.EnvironmentVariables.dll: Filename too long
+2026-11-02T18:16:23.9674605Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9674896Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9675475Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Extensions.Configuration.FileExtensions.dll: Filename too long
+2026-11-02T18:16:23.9676001Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9676378Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9676924Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Extensions.Configuration.Json.dll: Filename too long
+2026-11-02T18:16:23.9677428Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9677716Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9678279Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Extensions.Configuration.UserSecrets.dll: Filename too long
+2026-11-02T18:16:23.9678798Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9679089Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9679882Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll: Filename too long
+2026-11-02T18:16:23.9680423Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9680714Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9681260Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Extensions.DependencyInjection.dll: Filename too long
+2026-11-02T18:16:23.9681763Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9682048Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9682601Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Extensions.Diagnostics.Abstractions.dll: Filename too long
+2026-11-02T18:16:23.9683108Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9683399Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9683932Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Extensions.Diagnostics.dll: Filename too long
+2026-11-02T18:16:23.9684407Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9684691Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9685259Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Extensions.FileProviders.Abstractions.dll: Filename too long
+2026-11-02T18:16:23.9685781Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9686065Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9686626Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Extensions.FileProviders.Physical.dll: Filename too long
+2026-11-02T18:16:23.9687134Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9687412Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9687951Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Extensions.FileSystemGlobbing.dll: Filename too long
+2026-11-02T18:16:23.9688449Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9688737Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9689275Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Extensions.Hosting.Abstractions.dll: Filename too long
+2026-11-02T18:16:23.9689770Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9690140Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9690655Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Extensions.Hosting.dll: Filename too long
+2026-11-02T18:16:23.9691130Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9691415Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9691968Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Extensions.Logging.Abstractions.dll: Filename too long
+2026-11-02T18:16:23.9692474Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9692759Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9693523Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Extensions.Logging.Configuration.dll: Filename too long
+2026-11-02T18:16:23.9694046Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9694335Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9694885Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Extensions.Logging.Console.dll: Filename too long
+2026-11-02T18:16:23.9695381Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9695667Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9696201Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Extensions.Logging.Debug.dll: Filename too long
+2026-11-02T18:16:23.9696689Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9696983Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9697504Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Extensions.Logging.dll: Filename too long
+2026-11-02T18:16:23.9697980Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9698263Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9698805Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Extensions.Logging.EventLog.dll: Filename too long
+2026-11-02T18:16:23.9699303Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9699596Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9700152Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Extensions.Logging.EventSource.dll: Filename too long
+2026-11-02T18:16:23.9701359Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9702002Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9702935Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Extensions.Options.ConfigurationExtensions.dll: Filename too long
+2026-11-02T18:16:23.9703496Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9703802Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9704439Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Extensions.Options.dll: Filename too long
+2026-11-02T18:16:23.9705103Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9705601Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9706161Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Extensions.Primitives.dll: Filename too long
+2026-11-02T18:16:23.9706679Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9706982Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9707519Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Microsoft.Windows.SDK.NET.dll: Filename too long
+2026-11-02T18:16:23.9708012Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9708320Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9708925Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/browser/lib: Directory not empty
+2026-11-02T18:16:23.9709602Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/browser-wasm: Filename too long
+2026-11-02T18:16:23.9710067Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9710361Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9710870Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-arm/native: Filename too long
+2026-11-02T18:16:23.9711332Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9711627Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9712137Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-arm64: Directory not empty
+2026-11-02T18:16:23.9712809Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-armel: Directory not empty
+2026-11-02T18:16:23.9713470Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-mips64: Filename too long
+2026-11-02T18:16:23.9714167Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9714501Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9715037Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-musl-arm: Filename too long
+2026-11-02T18:16:23.9715524Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9715823Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9716360Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-musl-arm64: Filename too long
+2026-11-02T18:16:23.9716847Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9717149Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9717678Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-musl-riscv64: Filename too long
+2026-11-02T18:16:23.9718160Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9718463Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9718978Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-musl-s390x: Filename too long
+2026-11-02T18:16:23.9719445Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9719879Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9720386Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-musl-x64: Filename too long
+2026-11-02T18:16:23.9720844Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9721139Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9721646Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-ppc64le: Filename too long
+2026-11-02T18:16:23.9722100Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9722391Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9722900Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-riscv64: Filename too long
+2026-11-02T18:16:23.9723434Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9723738Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9724228Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-s390x: Directory not empty
+2026-11-02T18:16:23.9724897Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-x64/native: Filename too long
+2026-11-02T18:16:23.9725359Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9725651Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9726147Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/linux-x86/native: Filename too long
+2026-11-02T18:16:23.9726612Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9726903Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9727413Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/maccatalyst-arm64: Filename too long
+2026-11-02T18:16:23.9727877Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9728170Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9728677Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/maccatalyst-x64: Filename too long
+2026-11-02T18:16:23.9729347Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9730087Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9731095Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/osx-arm64/native: Filename too long
+2026-11-02T18:16:23.9732031Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9732340Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9732851Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/osx-x64/native: Filename too long
+2026-11-02T18:16:23.9733316Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9733614Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9734578Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/win/lib/net9.0: Filename too long
+2026-11-02T18:16:23.9735654Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9736654Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9737729Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/win-arm/native: Filename too long
+2026-11-02T18:16:23.9738663Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9739261Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9740256Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/win-arm64/native: Filename too long
+2026-11-02T18:16:23.9741194Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9741786Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9742751Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/win-x64/native: Filename too long
+2026-11-02T18:16:23.9744121Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9744985Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9745928Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/runtimes/win-x86/native: Filename too long
+2026-11-02T18:16:23.9746836Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9747407Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9748373Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/SQLitePCLRaw.batteries_v2.dll: Filename too long
+2026-11-02T18:16:23.9749268Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9749826Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9750981Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/SQLitePCLRaw.core.dll: Filename too long
+2026-11-02T18:16:23.9751994Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9752327Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9752890Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/SQLitePCLRaw.provider.e_sqlite3.dll: Filename too long
+2026-11-02T18:16:23.9753943Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9754648Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9755702Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/System.Diagnostics.DiagnosticSource.dll: Filename too long
+2026-11-02T18:16:23.9756748Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9757390Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9758394Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/System.Diagnostics.EventLog.dll: Filename too long
+2026-11-02T18:16:23.9759333Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9759917Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9760856Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/System.IO.Pipelines.dll: Filename too long
+2026-11-02T18:16:23.9761712Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9762260Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9763207Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/System.Text.Encodings.Web.dll: Filename too long
+2026-11-02T18:16:23.9764445Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9777943Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9778679Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.csproj.nuget.dgspec.json: Filename too long
+2026-11-02T18:16:23.9779206Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9779506Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9780051Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.csproj.nuget.g.props: Filename too long
+2026-11-02T18:16:23.9780542Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9780990Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9781537Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.csproj.nuget.g.targets: Filename too long
+2026-11-02T18:16:23.9782038Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9782330Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9782884Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/.NETCoreApp,Version=v9.0.AssemblyAttributes.cs: Filename too long
+2026-11-02T18:16:23.9783383Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9783688Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9784205Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/Flow.Lau.82168D03.Up2Date: Filename too long
+2026-11-02T18:16:23.9784662Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9784947Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9785550Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.AssemblyInfo.cs: Filename too long
+2026-11-02T18:16:23.9786089Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9786378Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9787007Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.AssemblyInfoInputs.cache: Filename too long
+2026-11-02T18:16:23.9787576Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9787874Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9788464Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.assets.cache: Filename too long
+2026-11-02T18:16:23.9788994Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9789281Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9789921Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.csproj.AssemblyReference.cache: Filename too long
+2026-11-02T18:16:23.9790495Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9790781Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9791419Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.csproj.CoreCompileInputs.cache: Filename too long
+2026-11-02T18:16:23.9792108Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9792399Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9793036Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.csproj.FileListAbsolute.txt: Filename too long
+2026-11-02T18:16:23.9793603Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9793905Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9794488Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.dll: Filename too long
+2026-11-02T18:16:23.9795087Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9795374Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9795964Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.g.resources: Filename too long
+2026-11-02T18:16:23.9796499Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9796791Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9797465Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.GeneratedMSBuildEditorConfig.editorconfig: Filename too long
+2026-11-02T18:16:23.9798084Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9798374Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9798995Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.genruntimeconfig.cache: Filename too long
+2026-11-02T18:16:23.9799561Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9799843Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9800410Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.pdb: Filename too long
+2026-11-02T18:16:23.9800916Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9801220Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9801826Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.sourcelink.json: Filename too long
+2026-11-02T18:16:23.9802377Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9802673Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9803336Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test_0ro3ulsu_wpftmp.AssemblyInfo.cs: Filename too long
+2026-11-02T18:16:23.9804182Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9804528Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9805213Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test_0ro3ulsu_wpftmp.AssemblyInfoInputs.cache: Filename too long
+2026-11-02T18:16:23.9805976Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9806339Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9807095Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test_0ro3ulsu_wpftmp.assets.cache: Filename too long
+2026-11-02T18:16:23.9807725Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9808025Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9808741Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test_0ro3ulsu_wpftmp.GeneratedMSBuildEditorConfig.editorconfig: Filename too long
+2026-11-02T18:16:23.9809395Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9809778Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9810407Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test_0ro3ulsu_wpftmp.sourcelink.json: Filename too long
+2026-11-02T18:16:23.9810974Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9811267Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9811863Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test_Content.g.cs: Filename too long
+2026-11-02T18:16:23.9812393Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9812683Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9813290Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test_MarkupCompile.cache: Filename too long
+2026-11-02T18:16:23.9813861Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9814158Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9814764Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test_MarkupCompile.lref: Filename too long
+2026-11-02T18:16:23.9815303Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9815591Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9816172Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/ref/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.dll: Filename too long
+2026-11-02T18:16:23.9816701Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9816989Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9817566Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/refint/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test.dll: Filename too long
+2026-11-02T18:16:23.9818091Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9818377Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9818911Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/bin/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.dll: Filename too long
+2026-11-02T18:16:23.9819398Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9819684Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9820319Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/bin/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.deps.json: Filename too long
+2026-11-02T18:16:23.9820830Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9821118Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9821653Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/bin/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.dll: Filename too long
+2026-11-02T18:16:23.9822139Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9822426Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9822945Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Flow.Launcher.Plugin.ClipboardPlus.Panels.csproj.nuget.dgspec.json: Filename too long
+2026-11-02T18:16:23.9823493Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9823800Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9824312Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Flow.Launcher.Plugin.ClipboardPlus.Panels.csproj.nuget.g.props: Filename too long
+2026-11-02T18:16:23.9824786Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9825072Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9825586Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Flow.Launcher.Plugin.ClipboardPlus.Panels.csproj.nuget.g.targets: Filename too long
+2026-11-02T18:16:23.9826056Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9826350Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9826897Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Release/net9.0-windows10.0.19041.0/.NETCoreApp,Version=v9.0.AssemblyAttributes.cs: Filename too long
+2026-11-02T18:16:23.9827392Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9827682Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9828262Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.AssemblyInfo.cs: Filename too long
+2026-11-02T18:16:23.9828792Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9829083Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9830110Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.AssemblyInfoInputs.cache: Filename too long
+2026-11-02T18:16:23.9831099Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9831414Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9832001Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.assets.cache: Filename too long
+2026-11-02T18:16:23.9832536Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9832841Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9833480Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.csproj.AssemblyReference.cache: Filename too long
+2026-11-02T18:16:23.9834073Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9834375Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9835153Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.csproj.CoreCompileInputs.cache: Filename too long
+2026-11-02T18:16:23.9835735Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9836035Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9836654Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.csproj.FileListAbsolute.txt: Filename too long
+2026-11-02T18:16:23.9837215Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9837516Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9838078Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.dll: Filename too long
+2026-11-02T18:16:23.9838685Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9838981Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9839566Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.g.resources: Filename too long
+2026-11-02T18:16:23.9840090Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9840392Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9841054Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.GeneratedMSBuildEditorConfig.editorconfig: Filename too long
+2026-11-02T18:16:23.9841663Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9841964Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9842561Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Panels_MarkupCompile.cache: Filename too long
+2026-11-02T18:16:23.9843101Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9843406Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9843993Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Panels_MarkupCompile.lref: Filename too long
+2026-11-02T18:16:23.9844517Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9844812Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9845443Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Panels_zic3v1vq_wpftmp.AssemblyInfo.cs: Filename too long
+2026-11-02T18:16:23.9845991Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9846280Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9846934Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Panels_zic3v1vq_wpftmp.AssemblyInfoInputs.cache: Filename too long
+2026-11-02T18:16:23.9847517Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9847808Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9848410Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Panels_zic3v1vq_wpftmp.assets.cache: Filename too long
+2026-11-02T18:16:23.9849041Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9849335Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9850019Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Panels_zic3v1vq_wpftmp.GeneratedMSBuildEditorConfig.editorconfig: Filename too long
+2026-11-02T18:16:23.9850638Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9850925Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9851435Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Release/net9.0-windows10.0.19041.0/GeneratedInternalTypeHelper.g.cs: Filename too long
+2026-11-02T18:16:23.9851908Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9852193Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9852821Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Release/net9.0-windows10.0.19041.0/ref/Flow.Launcher.Plugin.ClipboardPlus.Panels.dll: Filename too long
+2026-11-02T18:16:23.9853316Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9853603Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9854157Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Release/net9.0-windows10.0.19041.0/refint/Flow.Launcher.Plugin.ClipboardPlus.Panels.dll: Filename too long
+2026-11-02T18:16:23.9854670Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9854965Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9855470Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Release/net9.0-windows10.0.19041.0/Views/AppSelectionWindow.baml: Filename too long
+2026-11-02T18:16:23.9855956Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9856251Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9856778Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Release/net9.0-windows10.0.19041.0/Views/AppSelectionWindow.g.cs: Filename too long
+2026-11-02T18:16:23.9857255Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9857557Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9858095Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus/obj/Release/Flow.Launcher.Plugin.ClipboardPlus.csproj.AssemblyReference.cache: Filename too long
+2026-11-02T18:16:23.9858602Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9858910Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9859457Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus/obj/Release/Flow.Launcher.Plugin.ClipboardPlus.csproj.CoreCompileInputs.cache: Filename too long
+2026-11-02T18:16:23.9859959Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9860264Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9860792Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus/obj/Release/Flow.Launcher.Plugin.ClipboardPlus.csproj.FileListAbsolute.txt: Filename too long
+2026-11-02T18:16:23.9861281Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9861590Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9862165Z warning: failed to remove src/Flow.Launcher.Plugin.ClipboardPlus/obj/Release/Flow.Launcher.Plugin.ClipboardPlus.GeneratedMSBuildEditorConfig.editorconfig: Filename too long
+2026-11-02T18:16:23.9862690Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9863101Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9863346Z Removing build/bin/
+2026-11-02T18:16:23.9863509Z Removing build/obj/
+2026-11-02T18:16:23.9863885Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/Images/clipboard.png
+2026-11-02T18:16:23.9864406Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/Dapper.dll
+2026-11-02T18:16:23.9865331Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/Newtonsoft.Json.dll
+2026-11-02T18:16:23.9866730Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/SQLitePCLRaw.core.dll
+2026-11-02T18:16:23.9868032Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/testhost.dll
+2026-11-02T18:16:23.9869194Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/testhost.exe
+2026-11-02T18:16:23.9869899Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/WinRT.Runtime.dll
+2026-11-02T18:16:23.9870441Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/xunit.abstractions.dll
+2026-11-02T18:16:23.9870977Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/xunit.assert.dll
+2026-11-02T18:16:23.9871480Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/bin/Release/net9.0-windows10.0.19041.0/xunit.core.dll
+2026-11-02T18:16:23.9871936Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/obj/project.assets.json
+2026-11-02T18:16:23.9872318Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/obj/project.nuget.cache
+2026-11-02T18:16:23.9872793Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Core/obj/Flow.Launcher.Plugin.ClipboardPlus.Core.csproj.nuget.g.props
+2026-11-02T18:16:23.9873369Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Core/obj/Flow.Launcher.Plugin.ClipboardPlus.Core.csproj.nuget.g.targets
+2026-11-02T18:16:23.9873834Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Core/obj/project.assets.json
+2026-11-02T18:16:23.9874202Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Core/obj/project.nuget.cache
+2026-11-02T18:16:23.9874644Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Dapper.dll
+2026-11-02T18:16:23.9875136Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Images
+2026-11-02T18:16:23.9875647Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/iNKORE.UI.WPF.dll
+2026-11-02T18:16:23.9876150Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/Languages
+2026-11-02T18:16:23.9876643Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/param_data.csv
+2026-11-02T18:16:23.9877190Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/System.Text.Json.dll
+2026-11-02T18:16:23.9877713Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/bin/Release/net9.0-windows10.0.26100.0/WinRT.Runtime.dll
+2026-11-02T18:16:23.9878205Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/App.baml
+2026-11-02T18:16:23.9878687Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/App.g.cs
+2026-11-02T18:16:23.9879172Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/apphost.exe
+2026-11-02T18:16:23.9879671Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/MainWindow.baml
+2026-11-02T18:16:23.9880180Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/Release/net9.0-windows10.0.26100.0/MainWindow.g.cs
+2026-11-02T18:16:23.9880740Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/project.assets.json
+2026-11-02T18:16:23.9881126Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Panels.Test/obj/project.nuget.cache
+2026-11-02T18:16:23.9881584Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Release/net9.0-windows10.0.19041.0/Views/PreviewPanel.baml
+2026-11-02T18:16:23.9882100Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Release/net9.0-windows10.0.19041.0/Views/PreviewPanel.g.cs
+2026-11-02T18:16:23.9882618Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Release/net9.0-windows10.0.19041.0/Views/SettingsPanel.baml
+2026-11-02T18:16:23.9883142Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Release/net9.0-windows10.0.19041.0/Views/SettingsPanel.g.cs
+2026-11-02T18:16:23.9883667Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/Release/net9.0-windows10.0.19041.0/Flow.Lau.D4956B52.Up2Date
+2026-11-02T18:16:23.9884199Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/project.assets.json
+2026-11-02T18:16:23.9884569Z Removing src/Flow.Launcher.Plugin.ClipboardPlus.Panels/obj/project.nuget.cache
+2026-11-02T18:16:23.9884885Z Removing src/Flow.Launcher.Plugin.ClipboardPlus/bin/
+2026-11-02T18:16:23.9885464Z Removing src/Flow.Launcher.Plugin.warning: failed to remove tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Panels.dll: Filename too long
+2026-11-02T18:16:23.9886010Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9886360Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9887526Z warning: failed to remove tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll: Filename too long
+2026-11-02T18:16:23.9888622Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9888972Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9889519Z warning: failed to remove tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/runtimes/browser-wasm/nativeassets/net9.0/e_sqlite3.a: Filename too long
+2026-11-02T18:16:23.9890000Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9890301Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9890823Z warning: failed to remove tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-musl-arm/native/libe_sqlite3.so: Filename too long
+2026-11-02T18:16:23.9891299Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9891597Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9892103Z warning: failed to remove tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-musl-arm64/native/libe_sqlite3.so: Filename too long
+2026-11-02T18:16:23.9892578Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9892876Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9893383Z warning: failed to remove tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-musl-riscv64/native/libe_sqlite3.so: Filename too long
+2026-11-02T18:16:23.9893846Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9894142Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9894649Z warning: failed to remove tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-musl-s390x/native/libe_sqlite3.so: Filename too long
+2026-11-02T18:16:23.9895102Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9896064Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9897279Z warning: failed to remove tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-musl-x64/native/libe_sqlite3.so: Filename too long
+2026-11-02T18:16:23.9899314Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9899949Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9900928Z warning: failed to remove tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-ppc64le/native/libe_sqlite3.so: Filename too long
+2026-11-02T18:16:23.9901847Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9902443Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9903406Z warning: failed to remove tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-riscv64/native/libe_sqlite3.so: Filename too long
+2026-11-02T18:16:23.9904286Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9905569Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9906663Z warning: failed to remove tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/runtimes/maccatalyst-arm64/native/libe_sqlite3.dylib: Filename too long
+2026-11-02T18:16:23.9907821Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9908440Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9909457Z warning: failed to remove tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/runtimes/maccatalyst-x64/native/libe_sqlite3.dylib: Filename too long
+2026-11-02T18:16:23.9910515Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9910983Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9911319Z ClipboardPlus/obj/Release/.NETCoreApp,Version=v9.0.AssemblyAttributes.cs
+2026-11-02T18:16:23.9911702Z Removing src/Flow.Launcher.Plugin.ClipboardPlus/obj/Release/Flow.Lau.95CBBB70.Up2Date
+2026-11-02T18:16:23.9912158Z Removing src/Flow.Launcher.Plugin.ClipboardPlus/obj/Release/Flow.Launcher.Plugin.ClipboardPlus.AssemblyInfo.cs
+2026-11-02T18:16:23.9912690Z Removing src/Flow.Launcher.Plugin.ClipboardPlus/obj/Release/Flow.Launcher.Plugin.ClipboardPlus.AssemblyInfoInputs.cache
+2026-11-02T18:16:23.9913216Z Removing src/Flow.Launcher.Plugin.ClipboardPlus/obj/Release/Flow.Launcher.Plugin.ClipboardPlus.assets.cache
+2026-11-02T18:16:23.9913691Z Removing src/Flow.Launcher.Plugin.ClipboardPlus/obj/Release/Flow.Launcher.Plugin.ClipboardPlus.dll
+2026-11-02T18:16:23.9914066Z Removing src/Flow.Launcher.Plugin.ClipboardPlus/obj/Release/ref
+2026-11-02T18:16:23.9914365Z Removing src/Flow.Launcher.Plugin.ClipboardPlus/obj/Release/refint
+2026-11-02T18:16:23.9914781Z Removing src/Flow.Launcher.Plugin.ClipboardPlus/obj/Flow.Launcher.Plugin.ClipboardPlus.csproj.nuget.dgspec.json
+2026-11-02T18:16:23.9915291Z Removing src/Flow.Launcher.Plugin.ClipboardPlus/obj/Flow.Launcher.Plugin.ClipboardPlus.csproj.nuget.g.props
+2026-11-02T18:16:23.9915795Z Removing src/Flow.Launcher.Plugin.ClipboardPlus/obj/Flow.Launcher.Plugin.ClipboardPlus.csproj.nuget.g.targets
+2026-11-02T18:16:23.9916204Z Removing src/Flow.Launcher.Plugin.ClipboardPlus/obj/project.assets.json
+2026-11-02T18:16:23.9916526Z Removing src/Flow.Launcher.Plugin.ClipboardPlus/obj/project.nuget.cache
+2026-11-02T18:16:23.9916817Z Removing tools/github_actions_runner/__pycache__/
+2026-11-02T18:16:23.9917162Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-arm
+2026-11-02T18:16:23.9917585Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-arm64
+2026-11-02T18:16:23.9917995Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-armel
+2026-11-02T18:16:23.9918411Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-mips64
+2026-11-02T18:16:23.9919267Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-s390x
+2026-11-02T18:16:23.9919670Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-x64
+2026-11-02T18:16:23.9920067Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/runtimes/linux-x86
+2026-11-02T18:16:23.9920465Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/runtimes/osx-arm64
+2026-11-02T18:16:23.9920860Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/runtimes/osx-x64
+2026-11-02T18:16:23.9921250Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/runtimes/win-arm
+2026-11-02T18:16:23.9921638Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/runtimes/win-arm64
+2026-11-02T18:16:23.9922029Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/runtimes/win-x64
+2026-11-02T18:16:23.9922589Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/runtimes/win-x86
+2026-11-02T18:16:23.9923007Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/CommunityToolkit.Mvvm.dll
+2026-11-02T18:16:23.9923415Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/Dapper.dll
+2026-11-02T18:16:23.9923871Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Localization.Attributes.dll
+2026-11-02T18:16:23.9924391Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.Core.dll
+2026-11-02T18:16:23.9924900Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.ClipboardPlus.dll
+2026-11-02T18:16:23.9925362Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/Flow.Launcher.Plugin.dll
+2026-11-02T18:16:23.9925784Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/H.InputSimulator.dll
+2026-11-02T18:16:23.9926170Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/Images
+2026-11-02T18:16:23.9926563Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/JetBrains.Annotations.dll
+2026-11-02T18:16:23.9927209Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/Languages
+2026-11-02T18:16:23.9928135Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/Microsoft.Data.Sqlite.dll
+2026-11-02T18:16:23.9929083Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/Microsoft.Extensions.DependencyInjection.dll
+2026-11-02T18:16:23.9930026Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/Microsoft.Windows.SDK.NET.dll
+2026-11-02T18:16:23.9930890Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/PerformanceBaseline.deps.json
+2026-11-02T18:16:23.9931710Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/PerformanceBaseline.dll
+2026-11-02T18:16:23.9933125Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/PerformanceBasewarning: failed to remove tools/performance-baseline/obj/Release/net9.0-windows10.0.19041.0/.NETCoreApp,Version=v9.0.AssemblyAttributes.cs: Filename too long
+2026-11-02T18:16:23.9934534Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9935122Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9936101Z warning: failed to remove tools/performance-baseline/obj/Release/net9.0-windows10.0.19041.0/PerformanceBaseline.csproj.AssemblyReference.cache: Filename too long
+2026-11-02T18:16:23.9937049Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9937610Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9938693Z warning: failed to remove tools/performance-baseline/obj/Release/net9.0-windows10.0.19041.0/PerformanceBaseline.csproj.CoreCompileInputs.cache: Filename too long
+2026-11-02T18:16:23.9939741Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9940067Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9940594Z warning: failed to remove tools/performance-baseline/obj/Release/net9.0-windows10.0.19041.0/PerformanceBaseline.csproj.FileListAbsolute.txt: Filename too long
+2026-11-02T18:16:23.9941070Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9941364Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9941925Z warning: failed to remove tools/performance-baseline/obj/Release/net9.0-windows10.0.19041.0/PerformanceBaseline.GeneratedMSBuildEditorConfig.editorconfig: Filename too long
+2026-11-02T18:16:23.9942437Z hint: Setting `core.longPaths` may allow the deletion to succeed.
+2026-11-02T18:16:23.9942735Z hint: Disable this message with "git config set advice.nameTooLong false"
+2026-11-02T18:16:23.9943187Z line.exe
+2026-11-02T18:16:23.9943480Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/PerformanceBaseline.pdb
+2026-11-02T18:16:23.9943952Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/PerformanceBaseline.runtimeconfig.json
+2026-11-02T18:16:23.9944394Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/plugin.json
+2026-11-02T18:16:23.9944807Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/SQLitePCLRaw.batteries_v2.dll
+2026-11-02T18:16:23.9945237Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/SQLitePCLRaw.core.dll
+2026-11-02T18:16:23.9945694Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/SQLitePCLRaw.provider.e_sqlite3.dll
+2026-11-02T18:16:23.9946123Z Removing tools/performance-baseline/bin/Release/net9.0-windows10.0.19041.0/WinRT.Runtime.dll
+2026-11-02T18:16:23.9946508Z Removing tools/performance-baseline/obj/Release/net9.0-windows10.0.19041.0/apphost.exe
+2026-11-02T18:16:23.9946940Z Removing tools/performance-baseline/obj/Release/net9.0-windows10.0.19041.0/Performa.CF47F182.Up2Date
+2026-11-02T18:16:23.9947428Z Removing tools/performance-baseline/obj/Release/net9.0-windows10.0.19041.0/PerformanceBaseline.AssemblyInfo.cs
+2026-11-02T18:16:23.9947927Z Removing tools/performance-baseline/obj/Release/net9.0-windows10.0.19041.0/PerformanceBaseline.AssemblyInfoInputs.cache
+2026-11-02T18:16:23.9948413Z Removing tools/performance-baseline/obj/Release/net9.0-windows10.0.19041.0/PerformanceBaseline.assets.cache
+2026-11-02T18:16:23.9948859Z Removing tools/performance-baseline/obj/Release/net9.0-windows10.0.19041.0/PerformanceBaseline.dll
+2026-11-02T18:16:23.9949326Z Removing tools/performance-baseline/obj/Release/net9.0-windows10.0.19041.0/PerformanceBaseline.genruntimeconfig.cache
+2026-11-02T18:16:23.9949821Z Removing tools/performance-baseline/obj/Release/net9.0-windows10.0.19041.0/PerformanceBaseline.GlobalUsings.g.cs
+2026-11-02T18:16:23.9950285Z Removing tools/performance-baseline/obj/Release/net9.0-windows10.0.19041.0/PerformanceBaseline.pdb
+2026-11-02T18:16:23.9950739Z Removing tools/performance-baseline/obj/Release/net9.0-windows10.0.19041.0/PerformanceBaseline.sourcelink.json
+2026-11-02T18:16:23.9951146Z Removing tools/performance-baseline/obj/Release/net9.0-windows10.0.19041.0/ref
+2026-11-02T18:16:23.9951492Z Removing tools/performance-baseline/obj/Release/net9.0-windows10.0.19041.0/refint
+2026-11-02T18:16:23.9951861Z Removing tools/performance-baseline/obj/PerformanceBaseline.csproj.nuget.dgspec.json
+2026-11-02T18:16:23.9952043Z Removing tools/performance-baseline/obj/PerformanceBaseline.csproj.nuget.g.props
+2026-11-02T18:16:23.9952227Z Removing tools/performance-baseline/obj/PerformanceBaseline.csproj.nuget.g.targets
+2026-11-02T18:16:23.9952358Z Removing tools/performance-baseline/obj/project.assets.json
+2026-11-02T18:16:23.9952491Z Removing tools/performance-baseline/obj/project.nuget.cache
+2026-11-02T18:16:23.9955380Z ##[endgroup]
+2026-11-02T18:16:23.9964565Z ##[warning]Unable to clean or reset the repository. The repository will be recreated instead.
+2026-11-02T18:16:23.9967820Z Deleting the contents of 'C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus'
+2026-11-02T18:16:24.0430563Z ##[group]Initializing the repository
+2026-11-02T18:16:24.0437145Z [command]"C:\Program Files\Git\cmd\git.exe" init C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus
+2026-11-02T18:16:24.0743761Z Initialized empty Git repository in C:/actions-runners/JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session/_work/Flow.Launcher.Plugin.ClipboardPlus/Flow.Launcher.Plugin.ClipboardPlus/.git/
+2026-11-02T18:16:24.0773835Z [command]"C:\Program Files\Git\cmd\git.exe" remote add origin https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus
+2026-11-02T18:16:24.1000035Z ##[endgroup]
+2026-11-02T18:16:24.1000274Z ##[group]Disabling automatic garbage collection
+2026-11-02T18:16:24.1006818Z [command]"C:\Program Files\Git\cmd\git.exe" config --local gc.auto 0
+2026-11-02T18:16:24.1205735Z ##[endgroup]
+2026-11-02T18:16:24.1206143Z ##[group]Setting up auth
+2026-11-02T18:16:24.1214413Z [command]"C:\Program Files\Git\cmd\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-02T18:16:24.1420477Z [command]"C:\Program Files\Git\cmd\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-02T18:16:24.4839700Z [command]"C:\Program Files\Git\cmd\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-02T18:16:24.5056232Z [command]"C:\Program Files\Git\cmd\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-02T18:16:24.8407564Z [command]"C:\Program Files\Git\cmd\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-02T18:16:24.8608417Z [command]"C:\Program Files\Git\cmd\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-02T18:16:25.1979508Z [command]"C:\Program Files\Git\cmd\git.exe" config --local http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-11-02T18:16:25.2248090Z ##[endgroup]
+2026-11-02T18:16:25.2248373Z ##[group]Fetching the repository
+2026-11-02T18:16:25.2258443Z [command]"C:\Program Files\Git\cmd\git.exe" -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+2026-11-02T18:17:30.8051083Z From https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus
+2026-11-02T18:17:30.8051448Z  * [new branch]      actions-logs        -> origin/actions-logs
+2026-11-02T18:17:30.8052061Z  * [new branch]      arena/1e362655-flow-launcher-plugin-clipboard -> origin/arena/1e362655-flow-launcher-plugin-clipboard
+2026-11-02T18:17:30.8052645Z  * [new branch]      arena/9261f4f4-flow-launcher-plugin-clipboard -> origin/arena/9261f4f4-flow-launcher-plugin-clipboard
+2026-11-02T18:17:30.8053145Z  * [new branch]      arena/97f8d35f-flow-launcher-plugin-clipboard -> origin/arena/97f8d35f-flow-launcher-plugin-clipboard
+2026-11-02T18:17:30.8053512Z  * [new branch]      branch              -> origin/branch
+2026-11-02T18:17:30.8053742Z  * [new branch]      master              -> origin/master
+2026-11-02T18:17:30.8053998Z  * [new branch]      test_init_initasync -> origin/test_init_initasync
+2026-11-02T18:17:30.8054263Z  * [new tag]         v1.0.1              -> v1.0.1
+2026-11-02T18:17:30.8054667Z  * [new tag]         v1.0.2              -> v1.0.2
+2026-11-02T18:17:30.8055288Z  * [new tag]         v1.0.3              -> v1.0.3
+2026-11-02T18:17:30.8058118Z  * [new tag]         v1.0.4              -> v1.0.4
+2026-11-02T18:17:30.8058520Z  * [new tag]         v1.0.5              -> v1.0.5
+2026-11-02T18:17:30.8058878Z  * [new tag]         v1.0.6              -> v1.0.6
+2026-11-02T18:17:30.8059235Z  * [new tag]         v1.0.7              -> v1.0.7
+2026-11-02T18:17:30.8059596Z  * [new tag]         v1.0.8              -> v1.0.8
+2026-11-02T18:17:30.8059946Z  * [new tag]         v1.0.9              -> v1.0.9
+2026-11-02T18:17:30.8060316Z  * [new tag]         v1.1.0              -> v1.1.0
+2026-11-02T18:17:30.8060664Z  * [new tag]         v1.1.1              -> v1.1.1
+2026-11-02T18:17:30.8061004Z  * [new tag]         v1.1.2              -> v1.1.2
+2026-11-02T18:17:30.8061339Z  * [new tag]         v1.1.3              -> v1.1.3
+2026-11-02T18:17:30.8061676Z  * [new tag]         v1.1.4              -> v1.1.4
+2026-11-02T18:17:30.8062011Z  * [new tag]         v1.1.5              -> v1.1.5
+2026-11-02T18:17:30.8062693Z  * [new tag]         v1.1.6              -> v1.1.6
+2026-11-02T18:17:30.8063205Z  * [new tag]         v1.1.7              -> v1.1.7
+2026-11-02T18:17:30.8063451Z  * [new tag]         v1.1.8              -> v1.1.8
+2026-11-02T18:17:30.8063896Z  * [new tag]         v1.1.9              -> v1.1.9
+2026-11-02T18:17:30.8064120Z  * [new tag]         v2.0.0              -> v2.0.0
+2026-11-02T18:17:30.8064315Z  * [new tag]         v2.1.1              -> v2.1.1
+2026-11-02T18:17:30.8064507Z  * [new tag]         v2.2.2              -> v2.2.2
+2026-11-02T18:17:30.8064694Z  * [new tag]         v2.2.3              -> v2.2.3
+2026-11-02T18:17:30.8064881Z  * [new tag]         v2.3.0              -> v2.3.0
+2026-11-02T18:17:30.8065064Z  * [new tag]         v2.4.0              -> v2.4.0
+2026-11-02T18:17:30.8065249Z  * [new tag]         v2.4.1              -> v2.4.1
+2026-11-02T18:17:30.8065450Z  * [new tag]         v2.4.2              -> v2.4.2
+2026-11-02T18:17:30.8065636Z  * [new tag]         v2.4.3              -> v2.4.3
+2026-11-02T18:17:30.8065827Z  * [new tag]         v2.4.4              -> v2.4.4
+2026-11-02T18:17:30.8066032Z  * [new tag]         v2.4.5              -> v2.4.5
+2026-11-02T18:17:30.8066217Z  * [new tag]         v2.4.6              -> v2.4.6
+2026-11-02T18:17:30.8066400Z  * [new tag]         v3.0.0              -> v3.0.0
+2026-11-02T18:17:30.8066591Z  * [new tag]         v3.0.1              -> v3.0.1
+2026-11-02T18:17:30.8066773Z  * [new tag]         v3.0.2              -> v3.0.2
+2026-11-02T18:17:30.8066952Z  * [new tag]         v3.0.3              -> v3.0.3
+2026-11-02T18:17:30.8067133Z  * [new tag]         v3.0.4              -> v3.0.4
+2026-11-02T18:17:30.8067314Z  * [new tag]         v3.0.5              -> v3.0.5
+2026-11-02T18:17:30.8067494Z  * [new tag]         v3.0.6              -> v3.0.6
+2026-11-02T18:17:30.8067674Z  * [new tag]         v3.1.0              -> v3.1.0
+2026-11-02T18:17:30.8067859Z  * [new tag]         v3.1.1              -> v3.1.1
+2026-11-02T18:17:30.8068038Z  * [new tag]         v3.1.2              -> v3.1.2
+2026-11-02T18:17:30.8623117Z [command]"C:\Program Files\Git\cmd\git.exe" branch --list --remote origin/arena/1e362655-flow-launcher-plugin-clipboard
+2026-11-02T18:17:30.8827052Z   origin/arena/1e362655-flow-launcher-plugin-clipboard
+2026-11-02T18:17:30.8857065Z [command]"C:\Program Files\Git\cmd\git.exe" rev-parse refs/remotes/origin/arena/1e362655-flow-launcher-plugin-clipboard
+2026-11-02T18:17:30.9022942Z 7ec85f116c45bdb48856668c080ca4a46f466dbb
+2026-11-02T18:17:30.9046403Z ##[endgroup]
+2026-11-02T18:17:30.9046660Z ##[group]Determining the checkout info
+2026-11-02T18:17:30.9047028Z ##[endgroup]
+2026-11-02T18:17:30.9054998Z [command]"C:\Program Files\Git\cmd\git.exe" sparse-checkout disable
+2026-11-02T18:17:30.9298320Z [command]"C:\Program Files\Git\cmd\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-11-02T18:17:30.9501807Z ##[group]Checking out the ref
+2026-11-02T18:17:30.9511142Z [command]"C:\Program Files\Git\cmd\git.exe" checkout --progress --force -B arena/1e362655-flow-launcher-plugin-clipboard refs/remotes/origin/arena/1e362655-flow-launcher-plugin-clipboard
+2026-11-02T18:17:31.0621478Z Switched to a new branch 'arena/1e362655-flow-launcher-plugin-clipboard'
+2026-11-02T18:17:31.0642813Z branch 'arena/1e362655-flow-launcher-plugin-clipboard' set up to track 'origin/arena/1e362655-flow-launcher-plugin-clipboard'.
+2026-11-02T18:17:31.0670634Z ##[endgroup]
+2026-11-02T18:17:31.0891446Z [command]"C:\Program Files\Git\cmd\git.exe" log -1 --format=%H
+2026-11-02T18:17:31.1076783Z 7ec85f116c45bdb48856668c080ca4a46f466dbb
+2026-11-02T18:17:31.1318941Z ##[group]Run $resolved = $null
+2026-11-02T18:17:31.1319166Z $resolved = $null
+2026-11-02T18:17:31.1319348Z foreach ($candidate in @('py', 'python', 'python3')) {
+2026-11-02T18:17:31.1319613Z   $command = Get-Command $candidate -ErrorAction SilentlyContinue
+2026-11-02T18:17:31.1319830Z   if (-not $command) { continue }
+2026-11-02T18:17:31.1320075Z   $executable = & $command.Source -c "import sys; print(sys.executable)" 2>$null
+2026-11-02T18:17:31.1320335Z   if ($LASTEXITCODE -eq 0 -and $executable) {
+2026-11-02T18:17:31.1320514Z     $resolved = "$executable".Trim()
+2026-11-02T18:17:31.1320668Z     break
+2026-11-02T18:17:31.1320781Z   }
+2026-11-02T18:17:31.1320886Z }
+2026-11-02T18:17:31.1321066Z if (-not $resolved) { throw "No usable Python found on this runner." }
+2026-11-02T18:17:31.1321373Z "PYTHON=$resolved" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+2026-11-02T18:17:31.1321607Z & $resolved --version
+2026-11-02T18:17:31.1326591Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-02T18:17:31.1326789Z ##[endgroup]
+2026-11-02T18:17:31.3778776Z Python 3.13.14
+2026-11-02T18:17:31.4364970Z ##[group]Run # Family and architecture only: the exact build is a finding aid for
+2026-11-02T18:17:31.4365303Z # Family and architecture only: the exact build is a finding aid for
+2026-11-02T18:17:31.4365554Z # an attacker, and these logs are public. See
+2026-11-02T18:17:31.4365749Z # tools/github_actions_runner/machine_label.py.
+2026-11-02T18:17:31.4366263Z & $env:PYTHON -c "import sqlite3, sys; sys.path.insert(0, 'tools/github_actions_runner'); from machine_label import describe_machine; print('python', sys.version.split()[0], '| sqlite', sqlite3.sqlite_version, '|', describe_machine())"
+2026-11-02T18:17:31.4369101Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-02T18:17:31.4369275Z env:
+2026-11-02T18:17:31.4369429Z   PYTHON: C:\Users\<user>\AppData\Local\Programs\Python\Python313\python.exe
+2026-11-02T18:17:31.4369619Z ##[endgroup]
+2026-11-02T18:17:31.6486677Z python 3.13.14 | sqlite 3.50.4 | Windows / AMD64
+2026-11-02T18:17:31.7161806Z ##[group]Run & $env:PYTHON tools/github_actions_runner/probe.py .github/runner-request.toml
+2026-11-02T18:17:31.7162186Z & $env:PYTHON tools/github_actions_runner/probe.py .github/runner-request.toml
+2026-11-02T18:17:31.7164589Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-02T18:17:31.7164764Z env:
+2026-11-02T18:17:31.7164920Z   PYTHON: C:\Users\<user>\AppData\Local\Programs\Python\Python313\python.exe
+2026-11-02T18:17:31.7165107Z ##[endgroup]
+2026-11-02T18:17:31.9597320Z {
+2026-11-02T18:17:31.9597483Z   "architecture": "AMD64",
+2026-11-02T18:17:31.9597691Z   "commit": "7ec85f116c45bdb48856668c080ca4a46f466dbb",
+2026-11-02T18:17:31.9597909Z   "job_name": "Cleanup Orchestration Measurement",
+2026-11-02T18:17:31.9598102Z   "operating_system": "Windows / AMD64",
+2026-11-02T18:17:31.9598276Z   "python_version": "3.13.14",
+2026-11-02T18:17:31.9598484Z   "repository": "JdotCarver/Flow.Launcher.Plugin.ClipboardPlus",
+2026-11-02T18:17:31.9598767Z   "request_id": "f0ad9756-4328-4bf9-9adf-08ad81c99c3f",
+2026-11-02T18:17:31.9598940Z   "run_id": "41498753934",
+2026-11-02T18:17:31.9599753Z   "runner_environment": "self-hosted",
+2026-11-02T18:17:31.9599913Z   "target": "local-windows"
+2026-11-02T18:17:31.9600032Z }
+2026-11-02T18:17:32.0342988Z ##[group]Run # The tests live in dev/ and are not part of what a consumer
+2026-11-02T18:17:32.0343293Z # The tests live in dev/ and are not part of what a consumer
+2026-11-02T18:17:32.0343527Z # repository copies, so their absence is expected there and is
+2026-11-02T18:17:32.0343736Z # reported rather than treated as a failure.
+2026-11-02T18:17:32.0343895Z $testDirectory = "dev/tests"
+2026-11-02T18:17:32.0344045Z if (-not (Test-Path $testDirectory)) {
+2026-11-02T18:17:32.0344306Z   Write-Host "No dev/tests directory; this repository ships the kit without its tests. Skipping."
+2026-11-02T18:17:32.0344551Z   exit 0
+2026-11-02T18:17:32.0344646Z }
+2026-11-02T18:17:32.0344793Z # `unittest discover` exits 0 when it finds no tests at all, so a
+2026-11-02T18:17:32.0345048Z # renamed test directory would report green having run nothing. Count
+2026-11-02T18:17:32.0345300Z # them and fail below the expected floor instead.
+2026-11-02T18:17:32.0345594Z & $env:PYTHON -m unittest discover -s $testDirectory -p "test_*.py" -v 2>&1 | Tee-Object -Variable testOutput
+2026-11-02T18:17:32.0345886Z if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+2026-11-02T18:17:32.0346132Z $summary = ($testOutput | Select-String -Pattern '^Ran (\d+) tests').Matches
+2026-11-02T18:17:32.0346389Z if (-not $summary -or [int]$summary.Groups[1].Value -lt 20) {
+2026-11-02T18:17:32.0346639Z   throw "Expected at least 20 tests to run; discovery found none or too few."
+2026-11-02T18:17:32.0346827Z }
+2026-11-02T18:17:32.0349122Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-02T18:17:32.0349292Z env:
+2026-11-02T18:17:32.0349452Z   PYTHON: C:\Users\<user>\AppData\Local\Programs\Python\Python313\python.exe
+2026-11-02T18:17:32.0349641Z ##[endgroup]
+2026-11-02T18:17:32.2154300Z No dev/tests directory; this repository ships the kit without its tests. Skipping.
+2026-11-02T18:17:32.2556376Z ##[group]Run $drive = @('Z','Y','X','W','V') | Where-Object { -not (Test-Path "${_}:\") } | Select-Object -First 1
+2026-11-02T18:17:32.2556793Z $drive = @('Z','Y','X','W','V') | Where-Object { -not (Test-Path "${_}:\") } | Select-Object -First 1
+2026-11-02T18:17:32.2557077Z if (-not $drive) { throw "No temporary drive letter available" }
+2026-11-02T18:17:32.2557287Z subst "${drive}:" "$env:GITHUB_WORKSPACE"
+2026-11-02T18:17:32.2557470Z if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+2026-11-02T18:17:32.2557633Z try {
+2026-11-02T18:17:32.2557740Z   Set-Location "${drive}:\"
+2026-11-02T18:17:32.2558089Z   dotnet restore Flow.Launcher.Plugin.ClipboardPlus.sln --source https://api.nuget.org/v3/index.json *> "$env:RUNNER_TEMP\clipboardplus-build.log"
+2026-11-02T18:17:32.2558482Z   if ($LASTEXITCODE -ne 0) { throw "Restore failed" }
+2026-11-02T18:17:32.2558870Z   dotnet build Flow.Launcher.Plugin.ClipboardPlus.sln --configuration Release --no-restore *> "$env:RUNNER_TEMP\clipboardplus-build.log"
+2026-11-02T18:17:32.2559208Z   if ($LASTEXITCODE -ne 0) {
+2026-11-02T18:17:32.2559607Z     $codes = @(Get-Content "$env:RUNNER_TEMP\clipboardplus-build.log" | Select-String -Pattern 'error (CS[0-9]+)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
+2026-11-02T18:17:32.2560090Z     if ($codes.Count -gt 0) { Write-Host ("Compiler error codes: " + ($codes -join ', ')) }
+2026-11-02T18:17:32.2560319Z     throw "Build failed"
+2026-11-02T18:17:32.2560444Z   }
+2026-11-02T18:17:32.2560729Z   dotnet test Flow.Launcher.Plugin.ClipboardPlus.sln --configuration Release --no-build *> "$env:RUNNER_TEMP\clipboardplus-build.log"
+2026-11-02T18:17:32.2561484Z   if ($LASTEXITCODE -ne 0) {
+2026-11-02T18:17:32.2561968Z     $names = @(Get-Content "$env:RUNNER_TEMP\clipboardplus-build.log" | Select-String -Pattern 'Failed (Flow\.Launcher\.Plugin\.ClipboardPlus\.[A-Za-z0-9_.]+)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
+2026-11-02T18:17:32.2562552Z     if ($names.Count -gt 0) { Write-Host ("Failed synthetic test names: " + ($names -join ', ')) }
+2026-11-02T18:17:32.2563051Z     foreach ($testClass in @('SerialAsyncQueueTests', 'VerifiedDuplicateDatabaseTests', 'BulkInsertTests', 'ImagePersistenceTests', 'ImagePinTests', 'DatabaseHelperTest')) {
+2026-11-02T18:17:32.2563717Z       dotnet test Flow.Launcher.Plugin.ClipboardPlus.sln --configuration Release --no-build --filter "FullyQualifiedName~$testClass" *> "$env:RUNNER_TEMP\clipboardplus-filtered.log"
+2026-11-02T18:17:32.2564182Z       Write-Host "Synthetic test class $testClass exit code: $LASTEXITCODE"
+2026-11-02T18:17:32.2564381Z     }
+2026-11-02T18:17:32.2564578Z     Remove-Item "$env:RUNNER_TEMP\clipboardplus-filtered.log" -ErrorAction SilentlyContinue
+2026-11-02T18:17:32.2564867Z     throw "Tests failed (details suppressed for privacy)"
+2026-11-02T18:17:32.2565030Z   }
+2026-11-02T18:17:32.2565157Z   Write-Host "Solution build and tests passed."
+2026-11-02T18:17:32.2565308Z } finally {
+2026-11-02T18:17:32.2565419Z   Set-Location $env:RUNNER_TEMP
+2026-11-02T18:17:32.2565644Z   Remove-Item "$env:RUNNER_TEMP\clipboardplus-build.log" -ErrorAction SilentlyContinue
+2026-11-02T18:17:32.2565871Z   subst "${drive}:" /d
+2026-11-02T18:17:32.2565988Z }
+2026-11-02T18:17:32.2568324Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-02T18:17:32.2568496Z env:
+2026-11-02T18:17:32.2568653Z   PYTHON: C:\Users\<user>\AppData\Local\Programs\Python\Python313\python.exe
+2026-11-02T18:17:32.2568855Z ##[endgroup]
+2026-11-02T18:17:45.0253881Z Solution build and tests passed.
+2026-11-02T18:17:45.0580793Z ##[group]Run $drive = @('Z','Y','X','W','V') | Where-Object { -not (Test-Path "${_}:\") } | Select-Object -First 1
+2026-11-02T18:17:45.0581207Z $drive = @('Z','Y','X','W','V') | Where-Object { -not (Test-Path "${_}:\") } | Select-Object -First 1
+2026-11-02T18:17:45.0581479Z if (-not $drive) { throw "No temporary drive letter available" }
+2026-11-02T18:17:45.0581680Z subst "${drive}:" "$env:GITHUB_WORKSPACE"
+2026-11-02T18:17:45.0581853Z if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+2026-11-02T18:17:45.0582003Z try {
+2026-11-02T18:17:45.0582106Z   Set-Location "${drive}:\"
+2026-11-02T18:17:45.0582492Z   dotnet restore tools/performance-baseline/PerformanceBaseline.csproj --source https://api.nuget.org/v3/index.json *> "$env:RUNNER_TEMP\clipboardplus-benchmark.log"
+2026-11-02T18:17:45.0582924Z   if ($LASTEXITCODE -ne 0) { throw "Baseline restore failed" }
+2026-11-02T18:17:45.0583367Z   dotnet run --project tools/performance-baseline/PerformanceBaseline.csproj --configuration Release --no-restore *> "$env:RUNNER_TEMP\clipboardplus-benchmark.log"
+2026-11-02T18:17:45.0583744Z   $exitCode = $LASTEXITCODE
+2026-11-02T18:17:45.0583938Z   # Only publish recognized synthetic measurement lines, never arbitrary
+2026-11-02T18:17:45.0584199Z   # build diagnostics, exceptions, environment values or file paths.
+2026-11-02T18:17:45.0584464Z   Get-Content "$env:RUNNER_TEMP\clipboardplus-benchmark.log" | Where-Object {
+2026-11-02T18:17:45.0585443Z     $_ -match '^(text create and display|image hashing only|image construct and serialize|two forced collections and finalizer wait|SQLite disk bulk insert and read|SQLite reopen and materialize|10000 live synthetic text records|plugin query|plugin synthetic text add|plugin repeated query managed heap delta|plugin capture lock wait during query|dedup planner|SQLite transaction experiment|image experiment|query experiment|image pin)[A-Za-z0-9 ,.;/():=+\-]*$'
+2026-11-02T18:17:45.0586924Z   } | ForEach-Object { Write-Host $_ }
+2026-11-02T18:17:45.0587076Z   if ($exitCode -ne 0) {
+2026-11-02T18:17:45.0587477Z     $codes = @(Get-Content "$env:RUNNER_TEMP\clipboardplus-benchmark.log" | Select-String -Pattern 'error (CS[0-9]+)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
+2026-11-02T18:17:45.0587971Z     if ($codes.Count -gt 0) { Write-Host ("Compiler error codes: " + ($codes -join ', ')) }
+2026-11-02T18:17:45.0588244Z     throw "Baseline failed (details suppressed for privacy)"
+2026-11-02T18:17:45.0588419Z   }
+2026-11-02T18:17:45.0588513Z } finally {
+2026-11-02T18:17:45.0588630Z   Set-Location $env:RUNNER_TEMP
+2026-11-02T18:17:45.0588871Z   Remove-Item "$env:RUNNER_TEMP\clipboardplus-benchmark.log" -ErrorAction SilentlyContinue
+2026-11-02T18:17:45.0589120Z   subst "${drive}:" /d
+2026-11-02T18:17:45.0589233Z }
+2026-11-02T18:17:45.0591446Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-02T18:17:45.0591616Z env:
+2026-11-02T18:17:45.0591769Z   PYTHON: C:\Users\<user>\AppData\Local\Programs\Python\Python313\python.exe
+2026-11-02T18:17:45.0591961Z ##[endgroup]
+2026-11-02T18:18:29.2970900Z text create and display, 100 records: ms min/median/max=0,18/0,19/0,20; median allocated=0,12 MiB; working set snapshot=35,89 MiB
+2026-11-02T18:18:29.2974412Z text create and display, 1000 records: ms min/median/max=1,84/1,91/1,96; median allocated=1,20 MiB; working set snapshot=43,00 MiB
+2026-11-02T18:18:29.2977320Z text create and display, 10000 records: ms min/median/max=19,02/21,62/23,41; median allocated=12,19 MiB; working set snapshot=64,57 MiB
+2026-11-02T18:18:29.2982864Z image hashing only, 512x512, solid: ms min/median/max=1,68/1,73/2,05; median allocated=0,01 MiB; working set snapshot=74,35 MiB
+2026-11-02T18:18:29.2988158Z image hashing only, 512x512, noise: ms min/median/max=24,00/24,85/25,14; median allocated=9,95 MiB; working set snapshot=80,66 MiB
+2026-11-02T18:18:29.2990367Z image construct and serialize, 1024x1024: ms min/median/max=188,76/191,65/219,25; median allocated=74,58 MiB; working set snapshot=189,27 MiB
+2026-11-02T18:18:29.2992958Z two forced collections and finalizer wait, isolated: ms min/median/max=0,15/0,22/0,49; median allocated=0,00 MiB; working set snapshot=133,52 MiB
+2026-11-02T18:18:29.2995737Z SQLite disk bulk insert and read, 100 records: ms min/median/max=41,31/42,38/42,51; median allocated=1,08 MiB; working set snapshot=148,05 MiB
+2026-11-02T18:18:29.2998503Z SQLite disk bulk insert and read, 1000 records: ms min/median/max=70,39/73,43/75,37; median allocated=9,99 MiB; working set snapshot=97,81 MiB
+2026-11-02T18:18:29.3001347Z SQLite reopen and materialize 1000 text records: ms min/median/max=4,57/4,70/13,17; median allocated=1,68 MiB; working set snapshot=100,73 MiB
+2026-11-02T18:18:29.3004053Z SQLite reopen and materialize 10 noisy 256x256 images: ms min/median/max=73,67/77,56/82,12; median allocated=36,17 MiB; working set snapshot=145,76 MiB
+2026-11-02T18:18:29.3006537Z 10000 live synthetic text records: managed heap delta=3,96 MiB (after full GC; excludes native memory)
+2026-11-02T18:18:29.3009158Z plugin query 100, empty: ms min/median/max=0,08/0,11/0,41; median allocated=0,07 MiB
+2026-11-02T18:18:29.3011526Z plugin query 100, all-match: ms min/median/max=0,24/0,28/0,31; median allocated=0,21 MiB
+2026-11-02T18:18:29.3013976Z plugin query 100, no-match: ms min/median/max=0,13/0,17/0,20; median allocated=0,05 MiB
+2026-11-02T18:18:29.3017021Z plugin query 333, empty: ms min/median/max=0,22/0,23/0,28; median allocated=0,24 MiB
+2026-11-02T18:18:29.3021573Z plugin query 333, all-match: ms min/median/max=0,70/0,74/1,03; median allocated=0,71 MiB
+2026-11-02T18:18:29.3025481Z plugin query 333, no-match: ms min/median/max=0,32/0,33/0,38; median allocated=0,15 MiB
+2026-11-02T18:18:29.3029335Z plugin query 334, empty: ms min/median/max=0,22/0,23/0,25; median allocated=0,24 MiB
+2026-11-02T18:18:29.3032164Z plugin query 334, all-match: ms min/median/max=0,60/0,61/0,80; median allocated=0,80 MiB
+2026-11-02T18:18:29.3035161Z plugin query 334, no-match: ms min/median/max=0,43/0,50/4,25; median allocated=0,18 MiB
+2026-11-02T18:18:29.3038078Z plugin query 1000, empty: ms min/median/max=0,66/0,68/0,75; median allocated=0,70 MiB
+2026-11-02T18:18:29.3040979Z plugin query 1000, all-match: ms min/median/max=1,30/1,44/6,25; median allocated=2,35 MiB
+2026-11-02T18:18:29.3043443Z plugin query 1000, no-match: ms min/median/max=1,01/1,04/1,13; median allocated=0,49 MiB
+2026-11-02T18:18:29.3047739Z plugin query 10000, empty: ms min/median/max=7,02/8,58/22,69; median allocated=7,12 MiB
+2026-11-02T18:18:29.3050263Z plugin query 10000, all-match: ms min/median/max=14,94/21,80/29,94; median allocated=23,74 MiB
+2026-11-02T18:18:29.3054836Z plugin query 10000, no-match: ms min/median/max=1,56/4,03/12,53; median allocated=4,62 MiB
+2026-11-02T18:18:29.3058378Z query experiment 50 short all matcher only: ms min/median/max=0,06/0,06/0,06; median allocated=0,07 MiB
+2026-11-02T18:18:29.3062773Z query experiment 50 short all serial results: ms min/median/max=0,10/0,10/0,10; median allocated=0,11 MiB
+2026-11-02T18:18:29.3066294Z query experiment 50 short all parallel results: ms min/median/max=0,05/0,06/0,08; median allocated=0,13 MiB
+2026-11-02T18:18:29.3069158Z query experiment 50 short half matcher only: ms min/median/max=0,05/0,05/0,05; median allocated=0,04 MiB
+2026-11-02T18:18:29.3071711Z query experiment 50 short half serial results: ms min/median/max=0,07/0,07/0,08; median allocated=0,06 MiB
+2026-11-02T18:18:29.3074313Z query experiment 50 short half parallel results: ms min/median/max=0,05/0,07/0,07; median allocated=0,08 MiB
+2026-11-02T18:18:29.3076824Z query experiment 50 short none matcher only: ms min/median/max=0,04/0,04/0,05; median allocated=0,01 MiB
+2026-11-02T18:18:29.3079467Z query experiment 50 short none serial results: ms min/median/max=0,04/0,04/0,05; median allocated=0,02 MiB
+2026-11-02T18:18:29.3081181Z query experiment 50 short none parallel results: ms min/median/max=0,03/0,03/0,04; median allocated=0,04 MiB
+2026-11-02T18:18:29.3083343Z query experiment 100 short all matcher only: ms min/median/max=0,12/0,12/0,13; median allocated=0,14 MiB
+2026-11-02T18:18:29.3085236Z query experiment 100 short all serial results: ms min/median/max=0,20/0,20/0,21; median allocated=0,21 MiB
+2026-11-02T18:18:29.3087313Z query experiment 100 short all parallel results: ms min/median/max=0,10/0,11/0,12; median allocated=0,26 MiB
+2026-11-02T18:18:29.3089699Z query experiment 100 short half matcher only: ms min/median/max=0,10/0,10/0,10; median allocated=0,07 MiB
+2026-11-02T18:18:29.3091898Z query experiment 100 short half serial results: ms min/median/max=0,14/0,15/0,16; median allocated=0,12 MiB
+2026-11-02T18:18:29.3093919Z query experiment 100 short half parallel results: ms min/median/max=0,06/0,08/0,15; median allocated=0,15 MiB
+2026-11-02T18:18:29.3095898Z query experiment 100 short none matcher only: ms min/median/max=0,08/0,08/0,08; median allocated=0,03 MiB
+2026-11-02T18:18:29.3098411Z query experiment 100 short none serial results: ms min/median/max=0,09/0,09/0,09; median allocated=0,05 MiB
+2026-11-02T18:18:29.3100556Z query experiment 100 short none parallel results: ms min/median/max=0,04/0,04/0,05; median allocated=0,06 MiB
+2026-11-02T18:18:29.3102494Z query experiment 200 short all matcher only: ms min/median/max=0,25/0,25/0,26; median allocated=0,27 MiB
+2026-11-02T18:18:29.3104983Z query experiment 200 short all serial results: ms min/median/max=0,39/0,40/0,52; median allocated=0,43 MiB
+2026-11-02T18:18:29.3106871Z query experiment 200 short all parallel results: ms min/median/max=0,18/0,19/2,07; median allocated=0,51 MiB
+2026-11-02T18:18:29.3109056Z query experiment 200 short half matcher only: ms min/median/max=0,20/0,21/0,21; median allocated=0,14 MiB
+2026-11-02T18:18:29.3111042Z query experiment 200 short half serial results: ms min/median/max=0,31/0,33/0,44; median allocated=0,24 MiB
+2026-11-02T18:18:29.3113083Z query experiment 200 short half parallel results: ms min/median/max=0,11/0,11/0,13; median allocated=0,29 MiB
+2026-11-02T18:18:29.3114963Z query experiment 200 short none matcher only: ms min/median/max=0,16/0,16/0,16; median allocated=0,05 MiB
+2026-11-02T18:18:29.3116933Z query experiment 200 short none serial results: ms min/median/max=0,18/0,18/0,18; median allocated=0,09 MiB
+2026-11-02T18:18:29.3119268Z query experiment 200 short none parallel results: ms min/median/max=0,05/0,06/0,06; median allocated=0,11 MiB
+2026-11-02T18:18:29.3121178Z query experiment 333 short all matcher only: ms min/median/max=0,42/0,42/0,43; median allocated=0,46 MiB
+2026-11-02T18:18:29.3123104Z query experiment 333 short all serial results: ms min/median/max=0,67/0,71/2,27; median allocated=0,71 MiB
+2026-11-02T18:18:29.3125077Z query experiment 333 short all parallel results: ms min/median/max=0,26/0,29/0,31; median allocated=0,84 MiB
+2026-11-02T18:18:29.3127080Z query experiment 333 short half matcher only: ms min/median/max=0,33/0,34/0,35; median allocated=0,24 MiB
+2026-11-02T18:18:29.3129882Z query experiment 333 short half serial results: ms min/median/max=0,48/0,48/0,49; median allocated=0,40 MiB
+2026-11-02T18:18:29.3131862Z query experiment 333 short half parallel results: ms min/median/max=0,15/0,17/0,25; median allocated=0,48 MiB
+2026-11-02T18:18:29.3134070Z query experiment 333 short none matcher only: ms min/median/max=0,27/0,27/0,27; median allocated=0,08 MiB
+2026-11-02T18:18:29.3135977Z query experiment 333 short none serial results: ms min/median/max=0,30/0,30/0,31; median allocated=0,15 MiB
+2026-11-02T18:18:29.3138512Z query experiment 333 short none parallel results: ms min/median/max=0,08/0,09/0,11; median allocated=0,17 MiB
+2026-11-02T18:18:29.3140632Z query experiment 1000 short all matcher only: ms min/median/max=1,27/1,29/1,61; median allocated=1,37 MiB
+2026-11-02T18:18:29.3142711Z query experiment 1000 short all serial results: ms min/median/max=2,01/2,08/2,14; median allocated=2,12 MiB
+2026-11-02T18:18:29.3145117Z query experiment 1000 short all parallel results: ms min/median/max=0,78/0,82/5,56; median allocated=2,43 MiB
+2026-11-02T18:18:29.3148112Z query experiment 1000 short half matcher only: ms min/median/max=1,01/1,08/2,83; median allocated=0,72 MiB
+2026-11-02T18:18:29.3151575Z query experiment 1000 short half serial results: ms min/median/max=1,45/1,50/2,12; median allocated=1,20 MiB
+2026-11-02T18:18:29.3155252Z query experiment 1000 short half parallel results: ms min/median/max=0,36/0,38/2,40; median allocated=1,39 MiB
+2026-11-02T18:18:29.3158886Z query experiment 1000 short none matcher only: ms min/median/max=0,82/0,83/0,93; median allocated=0,25 MiB
+2026-11-02T18:18:29.3162434Z query experiment 1000 short none serial results: ms min/median/max=0,88/0,91/0,96; median allocated=0,46 MiB
+2026-11-02T18:18:29.3165095Z query experiment 1000 short none parallel results: ms min/median/max=0,17/0,21/0,25; median allocated=0,48 MiB
+2026-11-02T18:18:29.3167203Z query experiment 10000 short all matcher only: ms min/median/max=12,15/12,51/15,83; median allocated=13,73 MiB
+2026-11-02T18:18:29.3169363Z query experiment 10000 short all serial results: ms min/median/max=28,41/35,76/43,63; median allocated=21,32 MiB
+2026-11-02T18:18:29.3171532Z query experiment 10000 short all parallel results: ms min/median/max=7,19/13,89/17,91; median allocated=24,23 MiB
+2026-11-02T18:18:29.3174171Z query experiment 10000 short half matcher only: ms min/median/max=13,48/13,76/22,00; median allocated=7,21 MiB
+2026-11-02T18:18:29.3176553Z query experiment 10000 short half serial results: ms min/median/max=17,54/25,60/35,23; median allocated=12,08 MiB
+2026-11-02T18:18:29.3178916Z query experiment 10000 short half parallel results: ms min/median/max=1,70/3,71/9,57; median allocated=12,91 MiB
+2026-11-02T18:18:29.3181087Z query experiment 10000 short none matcher only: ms min/median/max=1,27/1,28/1,43; median allocated=2,52 MiB
+2026-11-02T18:18:29.3183379Z query experiment 10000 short none serial results: ms min/median/max=1,57/1,68/2,13; median allocated=4,58 MiB
+2026-11-02T18:18:29.3186888Z query experiment 10000 short none parallel results: ms min/median/max=0,61/0,65/1,03; median allocated=4,62 MiB
+2026-11-02T18:18:29.3190650Z query experiment 1000 long all matcher only: ms min/median/max=5,71/5,84/8,83; median allocated=1,37 MiB
+2026-11-02T18:18:29.3193599Z query experiment 1000 long all serial results: ms min/median/max=6,52/7,34/15,44; median allocated=2,78 MiB
+2026-11-02T18:18:29.3196175Z query experiment 1000 long all parallel results: ms min/median/max=0,95/1,04/3,23; median allocated=2,95 MiB
+2026-11-02T18:18:29.3199809Z query experiment 1000 long half matcher only: ms min/median/max=5,62/5,91/6,56; median allocated=0,72 MiB
+2026-11-02T18:18:29.3202818Z query experiment 1000 long half serial results: ms min/median/max=6,08/6,15/6,59; median allocated=1,53 MiB
+2026-11-02T18:18:29.3205570Z query experiment 1000 long half parallel results: ms min/median/max=0,77/0,84/3,36; median allocated=1,61 MiB
+2026-11-02T18:18:29.3208139Z query experiment 1000 long none matcher only: ms min/median/max=5,52/5,56/6,21; median allocated=0,25 MiB
+2026-11-02T18:18:29.3210286Z query experiment 1000 long none serial results: ms min/median/max=5,53/5,89/6,30; median allocated=0,46 MiB
+2026-11-02T18:18:29.3213467Z query experiment 1000 long none parallel results: ms min/median/max=0,68/0,72/0,78; median allocated=0,48 MiB
+2026-11-02T18:18:29.3216319Z query experiment result equivalence checks passed
+2026-11-02T18:18:29.3226997Z plugin repeated query managed heap delta: 0,00 MiB (20 queries, full GC)
+2026-11-02T18:18:29.3227312Z plugin capture lock wait during query: ms min/median/max=5,29/12,35/17,79
+2026-11-02T18:18:29.3227662Z plugin synthetic text add (includes forced GC): ms min/median/max=1,14/1,38/1,83; median allocated=0,00 MiB
+2026-11-02T18:18:29.3229633Z dedup planner 1000 text best effort: ms min/median/max=0,74/0,77/3,83
+2026-11-02T18:18:29.3232449Z dedup planner 1000 text thorough: ms min/median/max=1,01/1,01/1,09
+2026-11-02T18:18:29.3235125Z dedup planner 10000 text best effort: ms min/median/max=5,19/5,70/13,50
+2026-11-02T18:18:29.3237279Z dedup planner 10000 text thorough: ms min/median/max=4,69/4,72/6,90
+2026-11-02T18:18:29.3239714Z dedup planner 4 noisy 1024 images best effort: ms min/median/max=0,01/0,01/0,01
+2026-11-02T18:18:29.3242208Z dedup planner 4 noisy 1024 images thorough: ms min/median/max=557,51/569,42/569,86
+2026-11-02T18:18:29.3244328Z SQLite transaction experiment 500 records autocommit: ms min/median/max=4475,80/4829,53/4982,72
+2026-11-02T18:18:29.3246337Z SQLite transaction experiment 500 records transaction: ms min/median/max=10,43/11,37/11,58
+2026-11-02T18:18:29.3248827Z SQLite transaction experiment integrity and rollback checks passed
+2026-11-02T18:18:29.3251271Z image experiment 512 solid png base64: ms min/median/max=2,72/2,76/2,86; median allocated=0,01 MiB
+2026-11-02T18:18:29.3253878Z image experiment 512 solid hash encoded: ms min/median/max=0,01/0,01/0,01; median allocated=0,00 MiB
+2026-11-02T18:18:29.3256130Z image experiment 512 solid current hash and asset: ms min/median/max=5,40/5,44/5,94; median allocated=0,03 MiB
+2026-11-02T18:18:29.3259583Z image experiment 512 solid reuse hash and asset: ms min/median/max=2,63/2,71/2,98; median allocated=0,02 MiB
+2026-11-02T18:18:29.3262304Z image experiment 512 noise png base64: ms min/median/max=21,65/22,42/22,81; median allocated=6,03 MiB
+2026-11-02T18:18:29.3265504Z image experiment 512 noise hash encoded: ms min/median/max=1,92/2,00/2,14; median allocated=1,17 MiB
+2026-11-02T18:18:29.3268110Z image experiment 512 noise current hash and asset: ms min/median/max=44,95/45,58/47,38; median allocated=13,24 MiB
+2026-11-02T18:18:29.3270692Z image experiment 512 noise reuse hash and asset: ms min/median/max=23,04/23,35/24,45; median allocated=7,20 MiB
+2026-11-02T18:18:29.3273171Z image experiment 512 noise current hash and cache: ms min/median/max=45,56/46,17/46,88; median allocated=8,09 MiB
+2026-11-02T18:18:29.3275312Z image experiment 512 noise reuse hash and cache: ms min/median/max=26,09/26,57/26,66; median allocated=8,08 MiB
+2026-11-02T18:18:29.3277773Z image experiment 1024 noise png base64: ms min/median/max=85,49/87,45/89,08; median allocated=24,24 MiB
+2026-11-02T18:18:29.3279948Z image experiment 1024 noise hash encoded: ms min/median/max=7,02/7,75/8,08; median allocated=4,66 MiB
+2026-11-02T18:18:29.3282143Z image experiment 1024 noise current hash and asset: ms min/median/max=182,47/185,50/187,78; median allocated=53,13 MiB
+2026-11-02T18:18:29.3284167Z image experiment 1024 noise reuse hash and asset: ms min/median/max=95,74/96,31/97,24; median allocated=28,90 MiB
+2026-11-02T18:18:29.3286240Z image experiment representation and pixel checks passed
+2026-11-02T18:18:29.3288608Z image pin 512 solid: ms min/median/max=0,00/0,00/0,00; median allocated=0,00 MiB
+2026-11-02T18:18:29.3290704Z image pin 512 noise: ms min/median/max=0,00/0,00/0,00; median allocated=0,00 MiB
+2026-11-02T18:18:29.3292827Z image pin 1024 noise: ms min/median/max=0,00/0,00/0,00; median allocated=0,00 MiB
+2026-11-02T18:18:29.3294878Z image pin text control: ms min/median/max=0,00/0,00/0,00; median allocated=0,00 MiB
+2026-11-02T18:18:29.3296876Z image pin identity and state checks passed
+2026-11-02T18:18:29.3644323Z ##[group]Run $drive = @('Z','Y','X','W','V') | Where-Object { -not (Test-Path "${_}:\") } | Select-Object -First 1
+2026-11-02T18:18:29.3644754Z $drive = @('Z','Y','X','W','V') | Where-Object { -not (Test-Path "${_}:\") } | Select-Object -First 1
+2026-11-02T18:18:29.3645033Z if (-not $drive) { throw "No temporary drive letter available" }
+2026-11-02T18:18:29.3645238Z subst "${drive}:" "$env:GITHUB_WORKSPACE"
+2026-11-02T18:18:29.3645412Z if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+2026-11-02T18:18:29.3645592Z $scratch = "${drive}:\.benchmark-ab"
+2026-11-02T18:18:29.3645781Z $diagnostic = "$env:RUNNER_TEMP\clipboardplus-ab.log"
+2026-11-02T18:18:29.3645944Z try {
+2026-11-02T18:18:29.3646049Z   Set-Location "${drive}:\"
+2026-11-02T18:18:29.3646285Z   New-Item -ItemType Directory -Path "$scratch\before", "$scratch\after" -Force | Out-Null
+2026-11-02T18:18:29.3646613Z   git archive --format=tar --output="$scratch\snapshot.tar" HEAD *>> $diagnostic
+2026-11-02T18:18:29.3646855Z   if ($LASTEXITCODE -ne 0) { throw "Snapshot failed" }
+2026-11-02T18:18:29.3647039Z   foreach ($variant in @('before', 'after')) {
+2026-11-02T18:18:29.3647264Z     tar -xf "$scratch\snapshot.tar" -C "$scratch\$variant" *>> $diagnostic
+2026-11-02T18:18:29.3647509Z     if ($LASTEXITCODE -ne 0) { throw "Snapshot extraction failed" }
+2026-11-02T18:18:29.3647683Z   }
+2026-11-02T18:18:29.3647943Z   git show 077bf9c:src/Flow.Launcher.Plugin.ClipboardPlus.Core/Data/Models/Database/SqliteDatabase.cs 2>> $diagnostic |
+2026-11-02T18:18:29.3648411Z     Set-Content -Encoding utf8 "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus.Core\Data\Models\Database\SqliteDatabase.cs"
+2026-11-02T18:18:29.3648763Z   if ($LASTEXITCODE -ne 0) { throw "Baseline source unavailable" }
+2026-11-02T18:18:29.3649001Z   # The old database lacks the new image-reuse API, so use the
+2026-11-02T18:18:29.3649222Z   # pre-image versions of its callers in the bulk baseline too.
+2026-11-02T18:18:29.3649450Z   foreach ($relative in @(
+2026-11-02T18:18:29.3649616Z     'src/Flow.Launcher.Plugin.ClipboardPlus/Main.cs',
+2026-11-02T18:18:29.3649883Z     'src/Flow.Launcher.Plugin.ClipboardPlus.Core/Data/Models/Clipboard/ClipboardData.cs'
+2026-11-02T18:18:29.3650114Z   )) {
+2026-11-02T18:18:29.3650327Z     git show "6a8203d:$relative" 2>> $diagnostic | Set-Content -Encoding utf8 "$scratch\before\$relative"
+2026-11-02T18:18:29.3650772Z     if ($LASTEXITCODE -ne 0) { throw "Bulk baseline caller source unavailable" }
+2026-11-02T18:18:29.3650968Z   }
+2026-11-02T18:18:29.3651089Z   foreach ($variant in @('before', 'after')) {
+2026-11-02T18:18:29.3651256Z     Set-Location "$scratch\$variant"
+2026-11-02T18:18:29.3651595Z     dotnet restore tools/performance-baseline/PerformanceBaseline.csproj --source https://api.nuget.org/v3/index.json *> $diagnostic
+2026-11-02T18:18:29.3651959Z     if ($LASTEXITCODE -ne 0) { throw "A/B restore failed" }
+2026-11-02T18:18:29.3652342Z     dotnet run --project tools/performance-baseline/PerformanceBaseline.csproj --configuration Release --no-restore -- --bulk-only *> $diagnostic
+2026-11-02T18:18:29.3652687Z     $exitCode = $LASTEXITCODE
+2026-11-02T18:18:29.3652982Z     $measurement = @(Get-Content $diagnostic | Where-Object { $_ -match '^actual bulk insert 500 records: ms min/median/max=[0-9,./]+$' })
+2026-11-02T18:18:29.3653412Z     if ($exitCode -ne 0 -or $measurement.Count -ne 1) { throw "A/B benchmark failed (details suppressed for privacy)" }
+2026-11-02T18:18:29.3653691Z     Write-Host "$variant $($measurement[0])"
+2026-11-02T18:18:29.3653834Z   }
+2026-11-02T18:18:29.3654656Z   # Replace only the three pre-image-change production files in the
+2026-11-02T18:18:29.3654916Z   # before snapshot; the same current harness runs in both copies.
+2026-11-02T18:18:29.3655106Z   Set-Location "${drive}:\"
+2026-11-02T18:18:29.3655243Z   foreach ($relative in @(
+2026-11-02T18:18:29.3655408Z     'src/Flow.Launcher.Plugin.ClipboardPlus/Main.cs',
+2026-11-02T18:18:29.3655688Z     'src/Flow.Launcher.Plugin.ClipboardPlus.Core/Data/Models/Clipboard/ClipboardData.cs',
+2026-11-02T18:18:29.3656031Z     'src/Flow.Launcher.Plugin.ClipboardPlus.Core/Data/Models/Database/SqliteDatabase.cs'
+2026-11-02T18:18:29.3656265Z   )) {
+2026-11-02T18:18:29.3656476Z     git show "6a8203d:$relative" 2>> $diagnostic | Set-Content -Encoding utf8 "$scratch\before\$relative"
+2026-11-02T18:18:29.3656780Z     if ($LASTEXITCODE -ne 0) { throw "Image baseline source unavailable" }
+2026-11-02T18:18:29.3656978Z   }
+2026-11-02T18:18:29.3657112Z   foreach ($variant in @('before', 'after')) {
+2026-11-02T18:18:29.3657274Z     Set-Location "$scratch\$variant"
+2026-11-02T18:18:29.3657637Z     dotnet run --project tools/performance-baseline/PerformanceBaseline.csproj --configuration Release --no-restore -- --image-capture-only *> $diagnostic
+2026-11-02T18:18:29.3658029Z     $exitCode = $LASTEXITCODE
+2026-11-02T18:18:29.3658465Z     $measurement = @(Get-Content $diagnostic | Where-Object { $_ -match '^actual image capture save 1024 noise: ms min/median/max=[0-9,./]+$' })
+2026-11-02T18:18:29.3658809Z     if ($exitCode -ne 0 -or $measurement.Count -ne 1) {
+2026-11-02T18:18:29.3659176Z       $codes = @(Get-Content $diagnostic | Select-String -Pattern 'error (CS[0-9]+)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
+2026-11-02T18:18:29.3659593Z       if ($codes.Count -gt 0) { Write-Host ("Compiler error codes: " + ($codes -join ', ')) }
+2026-11-02T18:18:29.3660043Z       $exceptions = @(Get-Content $diagnostic | Select-String -Pattern '(System\.[A-Za-z.]+Exception)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
+2026-11-02T18:18:29.3660505Z       if ($exceptions.Count -gt 0) { Write-Host ("Exception types: " + ($exceptions -join ', ')) }
+2026-11-02T18:18:29.3660791Z       throw "Image capture A/B failed (details suppressed for privacy)"
+2026-11-02T18:18:29.3660972Z     }
+2026-11-02T18:18:29.3661176Z     Write-Host "$variant $($measurement[0])"
+2026-11-02T18:18:29.3661315Z   }
+2026-11-02T18:18:29.3661460Z   # Pinning baseline differs only in the record implementation.
+2026-11-02T18:18:29.3661649Z   Set-Location "${drive}:\"
+2026-11-02T18:18:29.3661935Z   git show 537ba8c:src/Flow.Launcher.Plugin.ClipboardPlus.Core/Data/Models/Clipboard/ClipboardData.cs 2>> $diagnostic |
+2026-11-02T18:18:29.3662394Z     Set-Content -Encoding utf8 "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus.Core\Data\Models\Clipboard\ClipboardData.cs"
+2026-11-02T18:18:29.3662757Z   if ($LASTEXITCODE -ne 0) { throw "Pin baseline source unavailable" }
+2026-11-02T18:18:29.3662999Z   # Restore the current image-capture implementation in the before
+2026-11-02T18:18:29.3663211Z   # tree, so that only the hash-reuse change differs.
+2026-11-02T18:18:29.3663372Z   foreach ($relative in @(
+2026-11-02T18:18:29.3663534Z     'src/Flow.Launcher.Plugin.ClipboardPlus/Main.cs',
+2026-11-02T18:18:29.3663800Z     'src/Flow.Launcher.Plugin.ClipboardPlus.Core/Data/Models/Database/SqliteDatabase.cs'
+2026-11-02T18:18:29.3664023Z   )) {
+2026-11-02T18:18:29.3664224Z     git show "HEAD:$relative" 2>> $diagnostic | Set-Content -Encoding utf8 "$scratch\before\$relative"
+2026-11-02T18:18:29.3664748Z     if ($LASTEXITCODE -ne 0) { throw "Pin baseline source unavailable" }
+2026-11-02T18:18:29.3664937Z   }
+2026-11-02T18:18:29.3665065Z   foreach ($variant in @('before', 'after')) {
+2026-11-02T18:18:29.3665228Z     Set-Location "$scratch\$variant"
+2026-11-02T18:18:29.3665583Z     dotnet run --project tools/performance-baseline/PerformanceBaseline.csproj --configuration Release --no-restore -- --image-pin-only *> $diagnostic
+2026-11-02T18:18:29.3665939Z     $exitCode = $LASTEXITCODE
+2026-11-02T18:18:29.3666282Z     $measurement = @(Get-Content $diagnostic | Where-Object { $_ -match '^actual image pin 1024 noise: ms min/median/max=[0-9,./]+; median allocated=[0-9,.]+ MiB$' })
+2026-11-02T18:18:29.3666759Z     if ($exitCode -ne 0 -or $measurement.Count -ne 1) { throw "Image pin A/B failed (details suppressed for privacy)" }
+2026-11-02T18:18:29.3667037Z     Write-Host "$variant $($measurement[0])"
+2026-11-02T18:18:29.3667195Z   }
+2026-11-02T18:18:29.3667290Z } finally {
+2026-11-02T18:18:29.3667402Z   Set-Location "${drive}:\"
+2026-11-02T18:18:29.3667601Z   Remove-Item $scratch -Recurse -Force -ErrorAction SilentlyContinue
+2026-11-02T18:18:29.3667805Z   Set-Location $env:RUNNER_TEMP
+2026-11-02T18:18:29.3667982Z   Remove-Item $diagnostic -ErrorAction SilentlyContinue
+2026-11-02T18:18:29.3668155Z   subst "${drive}:" /d
+2026-11-02T18:18:29.3668270Z }
+2026-11-02T18:18:29.3671261Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-02T18:18:29.3671437Z env:
+2026-11-02T18:18:29.3671589Z   PYTHON: C:\Users\<user>\AppData\Local\Programs\Python\Python313\python.exe
+2026-11-02T18:18:29.3671773Z ##[endgroup]
+2026-11-02T18:19:02.2770777Z before actual bulk insert 500 records: ms min/median/max=3760,76/4690,57/4886,58
+2026-11-02T18:19:06.9441117Z after actual bulk insert 500 records: ms min/median/max=19,84/20,33/23,40
+2026-11-02T18:19:12.2727099Z before actual image capture save 1024 noise: ms min/median/max=208,55/211,99/213,54
+2026-11-02T18:19:15.2019065Z after actual image capture save 1024 noise: ms min/median/max=122,52/123,87/124,45
+2026-11-02T18:19:18.9089885Z before actual image pin 1024 noise: ms min/median/max=105,45/107,42/108,75; median allocated=28,90 MiB
+2026-11-02T18:19:20.4429013Z after actual image pin 1024 noise: ms min/median/max=3,82/3,91/4,31; median allocated=0,00 MiB
+2026-11-02T18:19:20.6322877Z ##[group]Run # The redactor harvests identifiers from the log itself, so it must be
+2026-11-02T18:19:20.6323327Z # The redactor harvests identifiers from the log itself, so it must be
+2026-11-02T18:19:20.6323590Z # checked against text shaped like a real self-hosted job rather than
+2026-11-02T18:19:20.6323793Z # only against hand-written fixtures.
+2026-11-02T18:19:20.6323979Z & $env:PYTHON tools/github_actions_runner/check_redaction.py
+2026-11-02T18:19:20.6326290Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-02T18:19:20.6326459Z env:
+2026-11-02T18:19:20.6326609Z   PYTHON: C:\Users\<user>\AppData\Local\Programs\Python\Python313\python.exe
+2026-11-02T18:19:20.6326796Z ##[endgroup]
+2026-11-02T18:19:20.8486533Z clean: <built-in sample, redacted>
+2026-11-02T18:19:20.8486776Z sample had 4 identifiers before redaction, 0 after
+2026-11-02T18:19:20.9283026Z Post job cleanup.
+2026-11-02T18:19:21.0243164Z [command]"C:\Program Files\Git\cmd\git.exe" version
+2026-11-02T18:19:21.0427598Z git version 2.53.0.windows.1
+2026-11-02T18:19:21.0462916Z Copying 'C:\Users\<user>\.gitconfig' to 'C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\_temp\dbddf361-1f40-4ecf-9c82-b8cf3f3ece3c\.gitconfig'
+2026-11-02T18:19:21.0476262Z Temporarily overriding HOME='C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\_temp\dbddf361-1f40-4ecf-9c82-b8cf3f3ece3c' before making global git config changes
+2026-11-02T18:19:21.0477139Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-02T18:19:21.0485902Z [command]"C:\Program Files\Git\cmd\git.exe" config --global --add safe.directory C:\actions-runners\JdotCarver-Flow.Launcher.Plugin.ClipboardPlus-session\_work\Flow.Launcher.Plugin.ClipboardPlus\Flow.Launcher.Plugin.ClipboardPlus
+2026-11-02T18:19:21.0707600Z [command]"C:\Program Files\Git\cmd\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-02T18:19:21.0925474Z [command]"C:\Program Files\Git\cmd\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-02T18:19:21.4444194Z [command]"C:\Program Files\Git\cmd\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-02T18:19:21.4630358Z http.https://github.com/.extraheader
+2026-11-02T18:19:21.4662809Z [command]"C:\Program Files\Git\cmd\git.exe" config --local --unset-all http.https://github.com/.extraheader
+2026-11-02T18:19:21.4878266Z [command]"C:\Program Files\Git\cmd\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-02T18:19:21.9106352Z [command]"C:\Program Files\Git\cmd\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-02T18:19:21.9315200Z [command]"C:\Program Files\Git\cmd\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-02T18:19:22.2918187Z Cleaning up orphan processes
+2026-11-02T18:19:22.3103444Z Terminate orphan process: pid (22076) (dotnet)
+2026-11-02T18:19:22.3201373Z Terminate orphan process: pid (33928) (dotnet)
+2026-11-02T18:19:22.3310069Z Terminate orphan process: pid (6996) (dotnet)
+2026-11-02T18:19:22.3405480Z Terminate orphan process: pid (4536) (dotnet)
+2026-11-02T18:19:22.3466669Z Terminate orphan process: pid (7048) (dotnet)
+2026-11-02T18:19:22.3586504Z Terminate orphan process: pid (18876) (VBCSCompiler)
+2026-11-02T18:19:22.3662114Z Terminate orphan process: pid (40008) (conhost)
+2026-11-02T18:19:22.3704642Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
