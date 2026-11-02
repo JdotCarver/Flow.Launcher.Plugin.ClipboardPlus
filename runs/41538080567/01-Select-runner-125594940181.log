@@ -1,0 +1,139 @@
+﻿2026-11-02T22:32:13.6261268Z Current runner version: '2.338.2'
+2026-11-02T22:32:13.6287148Z ##[group]Runner Image Provisioner
+2026-11-02T22:32:13.6288008Z Hosted Compute Agent
+2026-11-02T22:32:13.6289038Z Version: 20261021.618
+2026-11-02T22:32:13.6289708Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-11-02T22:32:13.6290426Z Build Date: 2026-10-21T00:45:21Z
+2026-11-02T22:32:13.6291237Z Worker ID: {b0c3952a-f5d3-471d-b493-a47b81dc74f7}
+2026-11-02T22:32:13.6291955Z Region: westus
+2026-11-02T22:32:13.6292568Z Cloud: Azure
+2026-11-02T22:32:13.6293141Z ##[endgroup]
+2026-11-02T22:32:13.6294980Z ##[group]Operating System
+2026-11-02T22:32:13.6295767Z Ubuntu
+2026-11-02T22:32:13.6296299Z 24.04.5
+2026-11-02T22:32:13.6296882Z LTS
+2026-11-02T22:32:13.6297426Z ##[endgroup]
+2026-11-02T22:32:13.6297986Z ##[group]Runner Image
+2026-11-02T22:32:13.6298905Z Image: ubuntu-24.04
+2026-11-02T22:32:13.6299718Z Version: 20261025.353.1
+2026-11-02T22:32:13.6301502Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-02T22:32:13.6303134Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261025.353
+2026-11-02T22:32:13.6304251Z ##[endgroup]
+2026-11-02T22:32:13.6305349Z ##[group]GITHUB_TOKEN Permissions
+2026-11-02T22:32:13.6307606Z Contents: read
+2026-11-02T22:32:13.6308227Z Metadata: read
+2026-11-02T22:32:13.6309109Z ##[endgroup]
+2026-11-02T22:32:13.6311322Z Secret source: Actions
+2026-11-02T22:32:13.6312410Z Cache mode: write
+2026-11-02T22:32:13.6313341Z Prepare workflow directory
+2026-11-02T22:32:13.6669050Z Prepare all required actions
+2026-11-02T22:32:13.6719893Z Getting action download info
+2026-11-02T22:32:14.0450877Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-02T22:32:14.2410429Z Complete job name: Select runner
+2026-11-02T22:32:14.3397684Z ##[group]Run actions/checkout@v4
+2026-11-02T22:32:14.3398823Z with:
+2026-11-02T22:32:14.3399405Z   repository: JdotCarver/Flow.Launcher.Plugin.ClipboardPlus
+2026-11-02T22:32:14.3403355Z   token: ***
+2026-11-02T22:32:14.3403784Z   ssh-strict: true
+2026-11-02T22:32:14.3404239Z   ssh-user: git
+2026-11-02T22:32:14.3404687Z   persist-credentials: true
+2026-11-02T22:32:14.3405178Z   clean: true
+2026-11-02T22:32:14.3405630Z   sparse-checkout-cone-mode: true
+2026-11-02T22:32:14.3406160Z   fetch-depth: 1
+2026-11-02T22:32:14.3406603Z   fetch-tags: false
+2026-11-02T22:32:14.3407058Z   show-progress: true
+2026-11-02T22:32:14.3407517Z   lfs: false
+2026-11-02T22:32:14.3407937Z   submodules: false
+2026-11-02T22:32:14.3408535Z   set-safe-directory: true
+2026-11-02T22:32:14.3409053Z   allow-unsafe-pr-checkout: false
+2026-11-02T22:32:14.3409844Z ##[endgroup]
+2026-11-02T22:32:14.6629739Z Syncing repository: JdotCarver/Flow.Launcher.Plugin.ClipboardPlus
+2026-11-02T22:32:14.6633283Z ##[group]Getting Git version info
+2026-11-02T22:32:14.6635568Z Working directory is '/home/<user>/work/Flow.Launcher.Plugin.ClipboardPlus/Flow.Launcher.Plugin.ClipboardPlus'
+2026-11-02T22:32:14.6639083Z [command]/usr/bin/git version
+2026-11-02T22:32:14.6738116Z git version 2.56.0
+2026-11-02T22:32:14.6765440Z ##[endgroup]
+2026-11-02T22:32:14.6782900Z Temporarily overriding HOME='/home/<user>/work/_temp/d035345c-5049-48ad-9035-4ad176447a91' before making global git config changes
+2026-11-02T22:32:14.6787105Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-02T22:32:14.6791830Z [command]/usr/bin/git config --global --add safe.directory /home/<user>/work/Flow.Launcher.Plugin.ClipboardPlus/Flow.Launcher.Plugin.ClipboardPlus
+2026-11-02T22:32:14.6850310Z Deleting the contents of '/home/<user>/work/Flow.Launcher.Plugin.ClipboardPlus/Flow.Launcher.Plugin.ClipboardPlus'
+2026-11-02T22:32:14.6880555Z ##[group]Initializing the repository
+2026-11-02T22:32:14.6887548Z [command]/usr/bin/git init /home/<user>/work/Flow.Launcher.Plugin.ClipboardPlus/Flow.Launcher.Plugin.ClipboardPlus
+2026-11-02T22:32:14.7005225Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-02T22:32:14.7011120Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-02T22:32:14.7014828Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-02T22:32:14.7018197Z hint: call:
+2026-11-02T22:32:14.7020485Z hint:
+2026-11-02T22:32:14.7022657Z hint: 	git config --global init.defaultBranch <name>
+2026-11-02T22:32:14.7025391Z hint:
+2026-11-02T22:32:14.7027919Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-02T22:32:14.7032081Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-02T22:32:14.7035777Z hint:
+2026-11-02T22:32:14.7037614Z hint: 	git branch -m <name>
+2026-11-02T22:32:14.7039783Z hint:
+2026-11-02T22:32:14.7042486Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-02T22:32:14.7048551Z Initialized empty Git repository in /home/<user>/work/Flow.Launcher.Plugin.ClipboardPlus/Flow.Launcher.Plugin.ClipboardPlus/.git/
+2026-11-02T22:32:14.7057306Z [command]/usr/bin/git remote add origin https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus
+2026-11-02T22:32:14.7142700Z ##[endgroup]
+2026-11-02T22:32:14.7171231Z ##[group]Disabling automatic garbage collection
+2026-11-02T22:32:14.7190206Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-02T22:32:14.7199559Z ##[endgroup]
+2026-11-02T22:32:14.7202475Z ##[group]Setting up auth
+2026-11-02T22:32:14.7205396Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-02T22:32:14.7226774Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-02T22:32:14.7754863Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-02T22:32:14.7810222Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-02T22:32:14.8062755Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-02T22:32:14.8111984Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-02T22:32:14.8361445Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-02T22:32:14.8413939Z ##[endgroup]
+2026-11-02T22:32:14.8416059Z ##[group]Fetching the repository
+2026-11-02T22:32:14.8431435Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +be2075b83fe168729185615ff9f8e446e35cd1e5:refs/remotes/origin/arena/1e362655-flow-launcher-plugin-clipboard
+2026-11-02T22:32:15.4314987Z From https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus
+2026-11-02T22:32:15.4316158Z  * [new ref]         be2075b83fe168729185615ff9f8e446e35cd1e5 -> origin/arena/1e362655-flow-launcher-plugin-clipboard
+2026-11-02T22:32:15.4328832Z ##[endgroup]
+2026-11-02T22:32:15.4330073Z ##[group]Determining the checkout info
+2026-11-02T22:32:15.4331553Z ##[endgroup]
+2026-11-02T22:32:15.4332309Z [command]/usr/bin/git sparse-checkout disable
+2026-11-02T22:32:15.4393611Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-02T22:32:15.4433169Z ##[group]Checking out the ref
+2026-11-02T22:32:15.4438090Z [command]/usr/bin/git checkout --progress --force -B arena/1e362655-flow-launcher-plugin-clipboard refs/remotes/origin/arena/1e362655-flow-launcher-plugin-clipboard
+2026-11-02T22:32:15.4905864Z Switched to a new branch 'arena/1e362655-flow-launcher-plugin-clipboard'
+2026-11-02T22:32:15.4910927Z branch 'arena/1e362655-flow-launcher-plugin-clipboard' set up to track 'origin/arena/1e362655-flow-launcher-plugin-clipboard'.
+2026-11-02T22:32:15.4918142Z ##[endgroup]
+2026-11-02T22:32:15.4972446Z [command]/usr/bin/git log -1 --format=%H
+2026-11-02T22:32:15.5007173Z be2075b83fe168729185615ff9f8e446e35cd1e5
+2026-11-02T22:32:15.5252293Z ##[group]Run python3 tools/github_actions_runner/select_runner.py .github/runner-request.toml >> "$GITHUB_OUTPUT"
+2026-11-02T22:32:15.5253551Z python3 tools/github_actions_runner/select_runner.py .github/runner-request.toml >> "$GITHUB_OUTPUT"
+2026-11-02T22:32:15.5278612Z shell: /usr/bin/bash -e {0}
+2026-11-02T22:32:15.5279139Z ##[endgroup]
+2026-11-02T22:32:15.5960777Z ##[group]Run echo "target: local-windows"
+2026-11-02T22:32:15.5961380Z echo "target: local-windows"
+2026-11-02T22:32:15.5961964Z echo "labels: ["self-hosted","windows","arena-session"]"
+2026-11-02T22:32:15.5962611Z echo "workload: Uncertain Candidate Capacity"
+2026-11-02T22:32:15.5983835Z shell: /usr/bin/bash -e {0}
+2026-11-02T22:32:15.5984310Z ##[endgroup]
+2026-11-02T22:32:15.6029497Z target: local-windows
+2026-11-02T22:32:15.6030392Z labels: [self-hosted,windows,arena-session]
+2026-11-02T22:32:15.6031598Z workload: Uncertain Candidate Capacity
+2026-11-02T22:32:15.6176961Z Post job cleanup.
+2026-11-02T22:32:15.7074010Z [command]/usr/bin/git version
+2026-11-02T22:32:15.7229765Z git version 2.56.0
+2026-11-02T22:32:15.7263067Z Temporarily overriding HOME='/home/<user>/work/_temp/c8f79419-2198-4973-abef-5a2215177297' before making global git config changes
+2026-11-02T22:32:15.7264934Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-02T22:32:15.7267052Z [command]/usr/bin/git config --global --add safe.directory /home/<user>/work/Flow.Launcher.Plugin.ClipboardPlus/Flow.Launcher.Plugin.ClipboardPlus
+2026-11-02T22:32:15.7270225Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-02T22:32:15.7295131Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-02T22:32:15.7569254Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-02T22:32:15.7603497Z http.https://github.com/.extraheader
+2026-11-02T22:32:15.7624228Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-02T22:32:15.7664567Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-02T22:32:15.7962493Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-02T22:32:15.8008715Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-02T22:32:15.8407820Z Evaluate and set job outputs
+2026-11-02T22:32:15.8416266Z Set output 'request_id'
+2026-11-02T22:32:15.8418796Z Set output 'target'
+2026-11-02T22:32:15.8419789Z Set output 'workload_name'
+2026-11-02T22:32:15.8420536Z Set output 'runner_labels'
+2026-11-02T22:32:15.8421659Z Cleaning up orphan processes
+2026-11-02T22:32:15.8867205Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
