@@ -1,0 +1,34 @@
+{
+  "capture_note": "Status is captured while Export logs is still in progress; use the final workflow conclusion for that job's result.",
+  "conclusion": null,
+  "event": "push",
+  "head_branch": "arena/1e362655-flow-launcher-plugin-clipboard",
+  "head_sha": "999bffd60c5ad06330425f2ebf07f1e17ff97862",
+  "id": 41537679860,
+  "jobs": [
+    {
+      "conclusion": "success",
+      "id": 125593591798,
+      "name": "Select runner",
+      "status": "completed",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41537679860/job/125593591798"
+    },
+    {
+      "conclusion": "success",
+      "id": 125593664529,
+      "name": "Metadata Collision Regression",
+      "status": "completed",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41537679860/job/125593664529"
+    },
+    {
+      "conclusion": null,
+      "id": 125594700802,
+      "name": "Export logs",
+      "status": "in_progress",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41537679860/job/125594700802"
+    }
+  ],
+  "name": "Runner request",
+  "status": "in_progress",
+  "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41537679860"
+}
