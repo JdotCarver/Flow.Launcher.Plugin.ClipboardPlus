@@ -237,6 +237,7 @@ public class WindowsClipboardHelper : IDisposable
             async Task<bool> UpdatedPinnedItemsAsync(IReadOnlyList<ClipboardHistoryItem> items)
             {
                 // Get current pinned item IDs from Windows clipboard metadata
+                var previouslyTrusted = pinStateTrusted;
                 var currentPinnedIds = GetPinnedClipboardItemIds();
                 if (!pinStateTrusted) return false;
 
@@ -250,7 +251,7 @@ public class WindowsClipboardHelper : IDisposable
                     var wasPinnedBefore = _previousPinnedItemIds.Contains(itemId);
                     
                     // Check if pin status changed
-                    if (isPinnedNow != wasPinnedBefore)
+                    if (!previouslyTrusted || isPinnedNow != wasPinnedBefore)
                     {
                         itemsWithChangedPinStatus.Add((item, isPinnedNow));
                     }
