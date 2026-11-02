@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "f18c4bef-c1e0-4116-aa95-bfc7895e71bd"
+request_id = "84f4491a-4cad-4a62-8932-2017e7e2d586"
 target = "local-windows"
-job_name = "Synthetic Contention Baseline"
+job_name = "Image Pin AB Validation"
