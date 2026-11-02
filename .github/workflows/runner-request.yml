@@ -145,9 +145,17 @@ jobs:
             dotnet restore Flow.Launcher.Plugin.ClipboardPlus.sln --source https://api.nuget.org/v3/index.json *> "$env:RUNNER_TEMP\clipboardplus-build.log"
             if ($LASTEXITCODE -ne 0) { throw "Restore failed" }
             dotnet build Flow.Launcher.Plugin.ClipboardPlus.sln --configuration Release --no-restore *> "$env:RUNNER_TEMP\clipboardplus-build.log"
-            if ($LASTEXITCODE -ne 0) { throw "Build failed" }
+            if ($LASTEXITCODE -ne 0) {
+              $codes = @(Get-Content "$env:RUNNER_TEMP\clipboardplus-build.log" | Select-String -Pattern 'error (CS[0-9]+)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
+              if ($codes.Count -gt 0) { Write-Host ("Compiler error codes: " + ($codes -join ', ')) }
+              throw "Build failed"
+            }
             dotnet test Flow.Launcher.Plugin.ClipboardPlus.sln --configuration Release --no-build *> "$env:RUNNER_TEMP\clipboardplus-build.log"
-            if ($LASTEXITCODE -ne 0) { throw "Tests failed (details suppressed for privacy)" }
+            if ($LASTEXITCODE -ne 0) {
+              $names = @(Get-Content "$env:RUNNER_TEMP\clipboardplus-build.log" | Select-String -Pattern 'Failed (Flow\.Launcher\.Plugin\.ClipboardPlus\.[A-Za-z0-9_.]+)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
+              if ($names.Count -gt 0) { Write-Host ("Failed synthetic test names: " + ($names -join ', ')) }
+              throw "Tests failed (details suppressed for privacy)"
+            }
             Write-Host "Solution build and tests passed."
           } finally {
             Set-Location $env:RUNNER_TEMP
@@ -242,7 +250,11 @@ jobs:
               dotnet run --project tools/performance-baseline/PerformanceBaseline.csproj --configuration Release --no-restore -- --image-capture-only *> $diagnostic
               $exitCode = $LASTEXITCODE
               $measurement = @(Get-Content $diagnostic | Where-Object { $_ -match '^actual image capture save 1024 noise: ms min/median/max=[0-9,./]+$' })
-              if ($exitCode -ne 0 -or $measurement.Count -ne 1) { throw "Image capture A/B failed (details suppressed for privacy)" }
+              if ($exitCode -ne 0 -or $measurement.Count -ne 1) {
+                $codes = @(Get-Content $diagnostic | Select-String -Pattern 'error (CS[0-9]+)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
+                if ($codes.Count -gt 0) { Write-Host ("Compiler error codes: " + ($codes -join ', ')) }
+                throw "Image capture A/B failed (details suppressed for privacy)"
+              }
               Write-Host "$variant $($measurement[0])"
             }
             # Pinning baseline differs only in the record implementation.
