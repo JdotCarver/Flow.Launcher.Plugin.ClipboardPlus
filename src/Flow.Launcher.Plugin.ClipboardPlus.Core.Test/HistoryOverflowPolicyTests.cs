@@ -13,6 +13,18 @@ public class HistoryOverflowPolicyTests
     };
 
     [Fact]
+    public void MissingHashesReserveForPotentiallyMatchingRecords()
+    {
+        ClipboardData Unknown(string id) => new()
+        {
+            HashId = id, SenderApp = "synthetic", InitScore = 0,
+            CreateTime = new DateTime(2026, 1, 1), Pinned = false, Saved = false
+        };
+        var snapshots = new[] { Unknown("a"), Unknown("b") }.Select(record => new ClipboardCleanupSnapshot(record)).ToArray();
+        Assert.Equal(1, HistoryOverflowPolicy.CountUncertain(snapshots, false, new HashSet<int>()));
+    }
+
+    [Fact]
     public void OnlyUnverifiedGroupsReserveBoundedOverflow()
     {
         var image = BitmapSource.Create(1, 1, 96, 96, PixelFormats.Bgra32, null, new byte[] { 1, 2, 3, 255 }, 4);

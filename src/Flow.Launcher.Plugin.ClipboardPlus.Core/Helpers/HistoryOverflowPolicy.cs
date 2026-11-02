@@ -25,8 +25,18 @@ public static class HistoryOverflowPolicy
     {
         var uncertain = new HashSet<int>(failedCandidates);
         var entries = snapshots.Select((snapshot, index) => (Data: snapshot.Original, Index: index))
-            .Where(item => !item.Data.Pinned && !string.IsNullOrEmpty(item.Data.DataMd5));
-        foreach (var group in entries.GroupBy(item => (item.Data.DataType, item.Data.DataMd5)))
+            .Where(item => !item.Data.Pinned).ToArray();
+        // A missing hash cannot establish even a candidate group. Reserve for
+        // potentially comparable records rather than assume they are unique.
+        foreach (var typeGroup in entries.GroupBy(item => item.Data.DataType))
+        {
+            var members = typeGroup.ToArray();
+            if (members.Length > 1)
+                foreach (var member in members.Where(item => string.IsNullOrEmpty(item.Data.DataMd5)).Take(members.Length - 1))
+                    uncertain.Add(member.Index);
+        }
+        foreach (var group in entries.Where(item => !string.IsNullOrEmpty(item.Data.DataMd5))
+                     .GroupBy(item => (item.Data.DataType, item.Data.DataMd5)))
         {
             var members = group.ToArray();
             if (members.Length < 2) continue;
