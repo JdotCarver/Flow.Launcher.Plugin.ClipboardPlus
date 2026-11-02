@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "a60bdb60-044e-4096-af52-8e1f3499355b"
+request_id = "6e367f6a-d0d0-4b75-8a31-85895302370d"
 target = "local-windows"
-job_name = "Manual Action Refresh"
+job_name = "Merged Feature Validation"
