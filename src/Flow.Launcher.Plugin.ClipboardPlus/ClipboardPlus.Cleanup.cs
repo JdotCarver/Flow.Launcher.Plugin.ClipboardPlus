@@ -100,7 +100,9 @@ public partial class ClipboardPlus
         if (work == CleanupWork.ManualExtrasOnly)
         {
             var windowsOnly = await RefreshWindowsEvidenceAsync(work, true, Interlocked.Increment(ref windowsEvidenceGeneration));
-            return windowsOnly + await CleanupRemovedWindowsCacheAsync() + await ScanOrphanCacheDuplicatesAsync();
+            windowsOnly += await CleanupRemovedWindowsCacheAsync();
+            cleanupCoordinator.ReportProgress(windowsOnly);
+            return windowsOnly + await ScanOrphanCacheDuplicatesAsync(scan => cleanupCoordinator.ReportProgress(windowsOnly + scan));
         }
         var automatic = work is CleanupWork.AutomaticBestEffort or CleanupWork.AutomaticThorough;
         var thorough = work is CleanupWork.AutomaticThorough or CleanupWork.ManualThorough;
@@ -197,7 +199,13 @@ public partial class ClipboardPlus
         }
         var windows = await RefreshWindowsEvidenceAsync(work, thorough, Interlocked.Increment(ref windowsEvidenceGeneration));
         report += await CleanupRemovedWindowsCacheAsync();
-        if (!automatic) report += await ScanOrphanCacheDuplicatesAsync();
-        return report + windows;
+        report += windows;
+        if (!automatic)
+        {
+            cleanupCoordinator.ReportProgress(report);
+            var previous = report;
+            report += await ScanOrphanCacheDuplicatesAsync(scan => cleanupCoordinator.ReportProgress(previous + scan));
+        }
+        return report;
     }
 }

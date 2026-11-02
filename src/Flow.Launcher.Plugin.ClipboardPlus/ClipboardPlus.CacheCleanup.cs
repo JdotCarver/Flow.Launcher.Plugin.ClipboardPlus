@@ -104,7 +104,7 @@ public partial class ClipboardPlus
         return total;
     }
 
-    private async Task<CleanupReport> ScanOrphanCacheDuplicatesAsync()
+    private async Task<CleanupReport> ScanOrphanCacheDuplicatesAsync(Action<CleanupReport>? progress = null)
     {
         var root = PathHelper.ImageCachePath;
         if (string.IsNullOrEmpty(root) || !Directory.Exists(root)) return default;
@@ -149,6 +149,7 @@ public partial class ClipboardPlus
                 {
                     if (file.Referenced) continue;
                     report += await DeleteRedundantCacheFileAsync(file.Path, keeper, () => File.Exists(keeper), false);
+                    progress?.Invoke(report);
                     await Task.Yield();
                 }
             }

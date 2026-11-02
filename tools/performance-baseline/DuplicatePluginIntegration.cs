@@ -95,7 +95,7 @@ internal static class DuplicatePluginIntegration
             record.CachedImagePath = keep;
             database.AddOneRecordAsync(record, true).GetAwaiter().GetResult();
             var scan = typeof(Plugin).GetMethod("ScanOrphanCacheDuplicatesAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
-            var report = ((Task<CleanupReport>)scan.Invoke(plugin, null)!).GetAwaiter().GetResult();
+            var report = ((Task<CleanupReport>)scan.Invoke(plugin, [null])!).GetAwaiter().GetResult();
             if (report.CacheFilesRemoved != 1 || report.Errors != 0 || File.Exists(owned) ||
                 !File.Exists(keep) || !File.Exists(unknown))
                 throw new InvalidOperationException("Synthetic cache scan safety failed");
@@ -108,7 +108,7 @@ internal static class DuplicatePluginIntegration
                     ?? throw new InvalidOperationException("Synthetic Windows cache ownership unavailable");
                 settings.OwnedCacheFiles.Add(identity with { WindowsAssociated = true });
             }
-            report = ((Task<CleanupReport>)scan.Invoke(plugin, null)!).GetAwaiter().GetResult();
+            report = ((Task<CleanupReport>)scan.Invoke(plugin, [null])!).GetAwaiter().GetResult();
             if (!File.Exists(windowsFile) || report.CacheFilesRemoved != 0)
                 throw new InvalidOperationException("Manual scan must preserve Windows-associated cache");
 
