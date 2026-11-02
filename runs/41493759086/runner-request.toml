@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "15ddf8f6-ef8f-4993-aa6d-51220f7562e5"
+request_id = "7ab2dd13-e40a-40fe-b263-49e274b70d6b"
 target = "local-windows"
-job_name = "Image Pinning Investigation"
+job_name = "Database Queue Validation"
