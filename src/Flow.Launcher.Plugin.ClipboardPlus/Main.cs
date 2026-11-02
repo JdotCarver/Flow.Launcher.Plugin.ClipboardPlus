@@ -1210,6 +1210,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
             RecordsList.RemoveLast();
         }
 
+        if (Settings.AutomaticCleanup) EnforceCaptureOverflowLimit();
         ScheduleAutomaticCleanup();
         // collect garbage
         GarbageCollect();
@@ -1251,6 +1252,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
             }
         }
 
+        if (Settings.AutomaticCleanup) EnforceCaptureOverflowLimit();
         ScheduleAutomaticCleanup();
         // collect garbage
         GarbageCollect();

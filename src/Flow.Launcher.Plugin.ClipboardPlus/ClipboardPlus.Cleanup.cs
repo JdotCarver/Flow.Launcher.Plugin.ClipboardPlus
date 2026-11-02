@@ -185,6 +185,7 @@ public partial class ClipboardPlus
                 allSnapshots.Add(new ClipboardCleanupSnapshot(data));
             }
         }
+        var failedLoadedCandidates = new HashSet<int>();
         var cacheCandidates = new List<(string Path, string KeeperPath, LinkedListNode<ClipboardDataPair> Keeper, ClipboardCleanupSnapshot Snapshot)>();
         var report = await DuplicateCleanupEngine.RunAsync(allSnapshots, thorough, async (keeperIndex, duplicateIndex) =>
         {
@@ -269,7 +270,11 @@ public partial class ClipboardPlus
             }
             await Task.Yield();
             return DuplicateRemovalResult.Removed;
-        }, automatic ? null : cleanupCoordinator.ReportProgress);
+        }, automatic ? null : cleanupCoordinator.ReportProgress, (_, duplicateIndex, outcome) =>
+        {
+            if (outcome != DuplicateRemovalResult.Removed && duplicateIndex < nodes.Length)
+                failedLoadedCandidates.Add(duplicateIndex);
+        });
 
         report += new CleanupReport(0, 0, 0, databaseSkipped, 0);
         if (report.RecordsRemoved > 0)
@@ -293,15 +298,51 @@ public partial class ClipboardPlus
             var previous = report;
             report += await ScanOrphanCacheDuplicatesAsync(scan => cleanupCoordinator.ReportProgress(previous + scan));
         }
-        if (automatic && report.Skipped == 0 && report.Errors == 0)
-            await TrimVerifiedOverflowAsync(nodes, snapshots, capturedGeneration);
+        if (automatic)
+        {
+            var reserved = HistoryOverflowPolicy.CountUncertain(snapshots, thorough, failedLoadedCandidates);
+            await TrimVerifiedOverflowAsync(nodes, snapshots, capturedGeneration, reserved);
+        }
         if (report.RecordsRemoved > 0 || report.WindowsItemsHidden > 0)
             await PublishCurrentResultsAsync();
         return report;
     }
 
+    // Called under RecordsLock. A hard bound prevents captures outpacing the
+    // worker indefinitely; pinned records remain protected even at the bound.
+    private void EnforceCaptureOverflowLimit()
+    {
+        var removed = new List<ClipboardDataPair>();
+        var limit = HistoryOverflowPolicy.Limit(Settings.MaxRecords, HistoryOverflowPolicy.MaximumOverflow);
+        var node = RecordsList.Last;
+        while (RecordsList.Count > limit && node is not null)
+        {
+            var previous = node.Previous;
+            if (!node.Value.ClipboardData.Pinned)
+            {
+                removed.Add(node.Value);
+                RecordsList.Remove(node);
+            }
+            node = previous;
+        }
+        if (removed.Count == 0) return;
+        ScoreHelper.Reset(RecordsList);
+        foreach (var pair in removed) _ = DisposeDetachedRecordAsync(pair);
+        _ = PublishCurrentResultsAsync();
+    }
+
+    private static async Task DisposeDetachedRecordAsync(ClipboardDataPair pair)
+    {
+        try
+        {
+            if (pair.PreviewPanel.IsValueCreated) await pair.PreviewPanel.Value.Dispatcher.InvokeAsync(pair.Dispose);
+            else pair.Dispose();
+        }
+        catch (Exception) { }
+    }
+
     private async Task TrimVerifiedOverflowAsync(LinkedListNode<ClipboardDataPair>[] nodes,
-        ClipboardCleanupSnapshot[] snapshots, long generation)
+        ClipboardCleanupSnapshot[] snapshots, long generation, int reserved)
     {
         var removed = new List<ClipboardDataPair>();
         await RecordsLock.WaitAsync();
@@ -311,11 +352,12 @@ public partial class ClipboardPlus
             var captured = new Dictionary<ClipboardDataPair, ClipboardCleanupSnapshot>();
             for (var i = 0; i < nodes.Length; i++)
                 if (nodes[i].List == RecordsList) captured[nodes[i].Value] = snapshots[i];
-            if (captured.Count != RecordsList.Count || RecordsList.Any(pair =>
-                !captured.TryGetValue(pair, out var snapshot) || !snapshot.Matches(pair.ClipboardData) ||
-                pair.ClipboardData.FromWindowsClipboardHistory())) return;
+            // Changed or newly materialized records reserve their own slots;
+            // they do not block unrelated capacity management indefinitely.
+            var stale = RecordsList.Count(pair => !captured.TryGetValue(pair, out var snapshot) || !snapshot.Matches(pair.ClipboardData));
+            var limit = HistoryOverflowPolicy.Limit(Settings.MaxRecords, reserved + stale);
             var node = RecordsList.Last;
-            while (RecordsList.Count > Math.Max(0, Settings.MaxRecords) && node is not null)
+            while (RecordsList.Count > limit && node is not null)
             {
                 var previous = node.Previous;
                 if (!node.Value.ClipboardData.Pinned)
@@ -329,14 +371,6 @@ public partial class ClipboardPlus
         }
         finally { RecordsLock.Release(); }
         if (removed.Count > 0) await PublishCurrentResultsAsync();
-        foreach (var pair in removed)
-        {
-            try
-            {
-                if (pair.PreviewPanel.IsValueCreated) await pair.PreviewPanel.Value.Dispatcher.InvokeAsync(pair.Dispose);
-                else pair.Dispose();
-            }
-            catch (Exception) { }
-        }
+        foreach (var pair in removed) await DisposeDetachedRecordAsync(pair);
     }
 }
