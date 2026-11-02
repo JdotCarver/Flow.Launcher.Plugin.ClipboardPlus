@@ -102,6 +102,7 @@ internal static class Program
         DeduplicationDatabaseBenchmark.Run();
         DuplicatePluginIntegration.Run();
         DeduplicationContentionBenchmark.Run();
+        DeduplicationSavedImageBenchmark.Run();
         SqliteTransactionExperiment.Run();
         ImageExperiment.Run();
         ImagePinInvestigation.Run();
