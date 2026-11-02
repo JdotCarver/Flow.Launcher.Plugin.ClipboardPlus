@@ -310,7 +310,7 @@ public partial class ClipboardPlus
 
     // Called under RecordsLock. A hard bound prevents captures outpacing the
     // worker indefinitely; pinned records remain protected even at the bound.
-    private void EnforceCaptureOverflowLimit()
+    private bool EnforceCaptureOverflowLimit(bool notify = true)
     {
         var removed = new List<ClipboardDataPair>();
         var limit = HistoryOverflowPolicy.Limit(Settings.MaxRecords, HistoryOverflowPolicy.MaximumOverflow);
@@ -325,9 +325,15 @@ public partial class ClipboardPlus
             }
             node = previous;
         }
-        if (removed.Count == 0) return;
-        ScoreHelper.Reset(RecordsList);
+        if (removed.Count == 0) return false;
         foreach (var pair in removed) _ = DisposeDetachedRecordAsync(pair);
+        if (notify) NotifyCaptureOverflowTrimmed();
+        return true;
+    }
+
+    private void NotifyCaptureOverflowTrimmed()
+    {
+        ScoreHelper.Reset(RecordsList);
         _ = PublishCurrentResultsAsync();
     }
 

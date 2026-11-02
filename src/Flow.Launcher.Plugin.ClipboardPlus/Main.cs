@@ -1220,6 +1220,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
     {
         var removeCount = RecordsList.Count + clipboardDataList.Count - Settings.MaxRecords;
         if (clipboardDataList.Count > 0) captureGeneration++;
+        var trimmedOverflow = false;
 
         foreach (var clipboardData in clipboardDataList)
         {
@@ -1240,8 +1241,10 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
             {
                 Context.LogDebug(ClassName, $"Record {clipboardData.HashId} added to list");
             }
+            if (Settings.AutomaticCleanup) trimmedOverflow |= EnforceCaptureOverflowLimit(false);
         }
 
+        if (trimmedOverflow) NotifyCaptureOverflowTrimmed();
         // remove last record if needed
         for (int i = 0; !Settings.AutomaticCleanup && i < removeCount; i++)
         {
@@ -1252,7 +1255,6 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
             }
         }
 
-        if (Settings.AutomaticCleanup) EnforceCaptureOverflowLimit();
         ScheduleAutomaticCleanup();
         // collect garbage
         GarbageCollect();

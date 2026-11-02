@@ -238,6 +238,11 @@ internal static class DuplicatePluginIntegration
         ((Task<CleanupReport>)cleanup.Invoke(plugin, [CleanupWork.AutomaticBestEffort])!).GetAwaiter().GetResult();
         if (list.Count != 2 || !list.Any(pair => pair.ClipboardData.HashId == "pinned-windows"))
             throw new InvalidOperationException("Windows-origin records blocked ordinary capacity trimming");
+        var addBatch = typeof(Plugin).GetMethod("AddClipboardDataItem", BindingFlags.Instance | BindingFlags.NonPublic,
+            null, [typeof(List<ClipboardData>)], null)!;
+        addBatch.Invoke(plugin, [Enumerable.Range(0, 60).Select(i => Windows($"batch-{i}")).ToList()]);
+        if (list.Count != 2 + HistoryOverflowPolicy.MaximumOverflow || !list.Any(pair => pair.ClipboardData.HashId == "pinned-windows"))
+            throw new InvalidOperationException("Synthetic batch exceeded the bound or evicted a pinned record");
 
         SetField(plugin, "UseWindowsClipboardHistoryOnly", false);
         list.Clear();
