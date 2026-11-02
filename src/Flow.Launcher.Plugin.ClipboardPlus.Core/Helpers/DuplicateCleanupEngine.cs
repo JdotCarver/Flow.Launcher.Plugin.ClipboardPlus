@@ -25,11 +25,11 @@ public static class DuplicateCleanupEngine
         Func<int, int, Task<DuplicateRemovalResult>> apply)
     {
         var records = snapshots.Select(snapshot => snapshot.CreatePlanningRecord()).ToArray();
-        var plan = DuplicateRecordPlanner.Plan(records, verifyImages);
+        var plan = DuplicateRecordPlanner.PlanDetailed(records, verifyImages);
         var removed = 0;
-        var skipped = 0;
+        var skipped = plan.Skipped;
         var errors = 0;
-        foreach (var candidate in plan)
+        foreach (var candidate in plan.Candidates)
         {
             try
             {

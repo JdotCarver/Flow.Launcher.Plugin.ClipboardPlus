@@ -8,6 +8,8 @@ namespace Flow.Launcher.Plugin.ClipboardPlus.Core.Helpers;
 /// <summary>A proposed deletion, expressed as indexes into the supplied snapshot.</summary>
 public readonly record struct DuplicateRecordCandidate(int KeeperIndex, int DuplicateIndex);
 
+public sealed record DuplicatePlanningResult(IReadOnlyList<DuplicateRecordCandidate> Candidates, int Skipped);
+
 /// <summary>
 /// Plans possible plugin-record consolidation without mutating history. The plan
 /// is advisory: callers must revalidate content, persistence and pin state while
@@ -16,9 +18,13 @@ public readonly record struct DuplicateRecordCandidate(int KeeperIndex, int Dupl
 /// </summary>
 public static class DuplicateRecordPlanner
 {
-    public static IReadOnlyList<DuplicateRecordCandidate> Plan(IReadOnlyList<ClipboardData> records, bool verifyImages)
+    public static IReadOnlyList<DuplicateRecordCandidate> Plan(IReadOnlyList<ClipboardData> records, bool verifyImages) =>
+        PlanDetailed(records, verifyImages).Candidates;
+
+    public static DuplicatePlanningResult PlanDetailed(IReadOnlyList<ClipboardData> records, bool verifyImages)
     {
         var candidates = new List<DuplicateRecordCandidate>();
+        var skipped = 0;
         var groups = records.Select((record, index) => (Record: record, Index: index))
             .Where(item => !item.Record.Pinned && !item.Record.FromWindowsClipboardHistory() &&
                            !string.IsNullOrEmpty(item.Record.DataMd5))
@@ -32,10 +38,13 @@ public static class DuplicateRecordPlanner
             foreach (var item in group.OrderByDescending(item => item.Record.CreateTime).ThenBy(item => item.Index))
             {
                 var matched = false;
+                var verificationUnavailable = false;
                 foreach (var keeper in keepers)
                 {
-                    if (ClipboardContentComparer.Compare(keeper.Record, item.Record, verifyImages) != ClipboardContentComparison.Equal)
+                    var comparison = ClipboardContentComparer.Compare(keeper.Record, item.Record, verifyImages);
+                    if (comparison != ClipboardContentComparison.Equal)
                     {
+                        verificationUnavailable |= comparison == ClipboardContentComparison.Unavailable;
                         continue;
                     }
                     matched = true;
@@ -44,14 +53,19 @@ public static class DuplicateRecordPlanner
                     {
                         candidates.Add(new DuplicateRecordCandidate(keeper.Index, item.Index));
                     }
+                    else
+                    {
+                        skipped++;
+                    }
                     break;
                 }
                 if (!matched)
                 {
+                    if (verificationUnavailable) skipped++;
                     keepers.Add(item);
                 }
             }
         }
-        return candidates;
+        return new DuplicatePlanningResult(candidates, skipped);
     }
 }
