@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "143d3d93-c10e-4b5b-b161-a1af6cfa426c"
+request_id = "69e48dc4-80b1-4a08-808c-5235b77528bc"
 target = "local-windows"
-job_name = "ClipboardPlus Baseline"
+job_name = "Extended ClipboardPlus Baseline"
