@@ -103,6 +103,35 @@ internal static class DuplicatePluginIntegration
         var report = ((Task<CleanupReport>)cleanup.Invoke(plugin, [CleanupWork.AutomaticBestEffort])!).GetAwaiter().GetResult();
         if (report.RecordsRemoved != 1 || list.Count != 2 || !list.Any(pair => pair.ClipboardData.HashId == "unique"))
             throw new InvalidOperationException("Synthetic duplicate cleanup did not protect capacity");
+
+        list.Clear();
+        add.Invoke(plugin, [unique]);
+        var image = BitmapSource.Create(1, 1, 96, 96, PixelFormats.Bgra32, null, new byte[] { 11, 12, 13, 255 }, 4);
+        image.Freeze();
+        ClipboardData Image(string id, int minute) => new(image, DataType.Image, false)
+        {
+            HashId = id, SenderApp = "synthetic", InitScore = 0, CreateTime = new DateTime(2026, 1, 1).AddMinutes(minute),
+            Pinned = false, Saved = false
+        };
+        add.Invoke(plugin, [Image("old-image", 2)]);
+        add.Invoke(plugin, [Image("new-image", 3)]);
+        report = ((Task<CleanupReport>)cleanup.Invoke(plugin, [CleanupWork.AutomaticBestEffort])!).GetAwaiter().GetResult();
+        if (report.Skipped == 0 || list.Count != 3 || !list.Any(pair => pair.ClipboardData.HashId == "unique"))
+            throw new InvalidOperationException("Unverified images did not preserve synthetic overflow");
+
+        list.Clear();
+        for (var i = 0; i < 3; i++)
+        {
+            var item = new ClipboardData($"distinct synthetic {i}", DataType.PlainText, false)
+            {
+                HashId = $"distinct-{i}", SenderApp = "synthetic", InitScore = 0,
+                CreateTime = new DateTime(2026, 1, 1).AddMinutes(i), Pinned = false, Saved = false
+            };
+            add.Invoke(plugin, [item]);
+        }
+        ((Task<CleanupReport>)cleanup.Invoke(plugin, [CleanupWork.AutomaticBestEffort])!).GetAwaiter().GetResult();
+        if (list.Count != 2 || list.Any(pair => pair.ClipboardData.HashId == "distinct-0"))
+            throw new InvalidOperationException("Verified unique overflow was not trimmed");
     }
 
     private static void TestDisabledEvidenceRefresh(Plugin plugin)
