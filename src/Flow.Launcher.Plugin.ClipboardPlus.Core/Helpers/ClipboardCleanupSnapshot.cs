@@ -38,7 +38,7 @@ public sealed class ClipboardCleanupSnapshot
             CreateTime = original.CreateTime, EncryptKeyMd5 = original.EncryptKeyMd5,
             CachedImagePath = original.CachedImagePath, Pinned = original.Pinned,
             Saved = original.Saved, PlainText = original.PlainText,
-            ClipboardHistoryItem = original.ClipboardHistoryItem
+            ClipboardHistoryItem = original.ClipboardHistoryItem, WindowsHistoryOrigin = original.FromWindowsClipboardHistory()
         };
     }
 
