@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "8108d416-9d63-4056-8968-3d3f96a7e9e7"
+request_id = "f18c4bef-c1e0-4116-aa95-bfc7895e71bd"
 target = "local-windows"
-job_name = "ClipboardPlus Baseline"
+job_name = "Synthetic Contention Baseline"
