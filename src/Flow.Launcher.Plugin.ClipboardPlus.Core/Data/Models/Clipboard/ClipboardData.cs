@@ -492,13 +492,6 @@ public partial struct ClipboardData : IEquatable<ClipboardData>, IDisposable
     /// </returns>
     private string subtitle = null!;
     private bool pinned = false;
-    /// <summary>Builds an uncached subtitle with a caller-formatted timestamp.</summary>
-    public readonly string GetSubtitleWithTimestamp(string timestamp)
-    {
-        var value = string.IsNullOrEmpty(SenderApp) ? timestamp : $"{timestamp}: {SenderApp}";
-        return Pinned ? $"{PinSymbol}{value}" : value;
-    }
-
     public string GetSubtitle(CultureInfo cultureInfo)
     {
         if (subtitle == null || currentCultureInfo != cultureInfo || pinned != Pinned)
