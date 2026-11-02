@@ -430,6 +430,85 @@ public class SqliteDatabase : IAsyncDisposable
         });
     }
 
+    /// <summary>
+    /// Deletes a saved duplicate only if both saved records still match the
+    /// supplied snapshots and each other inside one database transaction.
+    /// Callers must also hold the history lock and revalidate the live records.
+    /// This method does not delete cache files or Windows clipboard items.
+    /// </summary>
+    public async Task<bool> TryDeleteVerifiedDuplicateAsync(ClipboardData keeper, ClipboardData duplicate, bool verifyImages)
+    {
+        if (!keeper.Saved || !duplicate.Saved || keeper.Pinned || duplicate.Pinned ||
+            keeper.FromWindowsClipboardHistory() || duplicate.FromWindowsClipboardHistory() ||
+            string.IsNullOrEmpty(keeper.HashId) || string.IsNullOrEmpty(duplicate.HashId) || keeper.HashId == duplicate.HashId)
+        {
+            return false;
+        }
+
+        var deleted = false;
+        await ProcessTaskQueueAsync(async () =>
+        {
+            using var transaction = Connection.BeginTransaction();
+            const string selectRecord = """
+                SELECT r.id as Id, a.data_b64 as DataMd5B64, r.sender_app as SenderApp,
+                    r.cached_image_path as CachedImagePath, r.data_type as DataType,
+                    r.encrypt_data as EncryptData, r.create_time as CreateTime,
+                    r.datetime_score as DatetimeScore, r.pinned as Pinned,
+                    r.hash_id as HashId, a.plain_text_b64 as PlainText,
+                    r.encrypt_key_md5 as EncryptKeyMd5
+                FROM record r JOIN asset a ON r.hash_id = a.hash_id
+                WHERE r.hash_id = @HashId;
+                """;
+            var keeperRecord = await Connection.QuerySingleOrDefaultAsync<Record>(selectRecord, new { keeper.HashId }, transaction);
+            var duplicateRecord = await Connection.QuerySingleOrDefaultAsync<Record>(selectRecord, new { duplicate.HashId }, transaction);
+            if (keeperRecord is null || duplicateRecord is null || keeperRecord.Pinned || duplicateRecord.Pinned)
+            {
+                return;
+            }
+
+            // Decrypt only records associated with the active key. Failed or
+            // uncertain reconstruction is a skip, never evidence for deletion.
+            if ((keeperRecord.EncryptData && keeperRecord.EncryptKeyMd5 != StringUtils.EncryptKeyMd5) ||
+                (duplicateRecord.EncryptData && duplicateRecord.EncryptKeyMd5 != StringUtils.EncryptKeyMd5))
+            {
+                return;
+            }
+            ClipboardData storedKeeper;
+            ClipboardData storedDuplicate;
+            try
+            {
+                storedKeeper = ClipboardData.FromRecord(keeperRecord, 0);
+                storedDuplicate = ClipboardData.FromRecord(duplicateRecord, 0);
+            }
+            catch (Exception)
+            {
+                return;
+            }
+
+            if (storedKeeper.CreateTime != keeper.CreateTime || storedDuplicate.CreateTime != duplicate.CreateTime ||
+                storedKeeper.DataType != keeper.DataType || storedDuplicate.DataType != duplicate.DataType ||
+                ClipboardContentComparer.Compare(storedKeeper, keeper, verifyImages) != ClipboardContentComparison.Equal ||
+                ClipboardContentComparer.Compare(storedDuplicate, duplicate, verifyImages) != ClipboardContentComparison.Equal ||
+                ClipboardContentComparer.Compare(storedKeeper, storedDuplicate, verifyImages) != ClipboardContentComparison.Equal)
+            {
+                return;
+            }
+
+            var removed = await Connection.ExecuteAsync(
+                "DELETE FROM record WHERE hash_id = @HashId AND pinned = 0;", new { duplicate.HashId }, transaction);
+            if (removed != 1)
+            {
+                return;
+            }
+            await Connection.ExecuteAsync(
+                "DELETE FROM asset WHERE hash_id = @HashId AND NOT EXISTS (SELECT 1 FROM record WHERE hash_id = @HashId);",
+                new { duplicate.HashId }, transaction);
+            transaction.Commit();
+            deleted = true;
+        });
+        return deleted;
+    }
+
     public async Task DeleteRecordsAsync(IEnumerable<string> hashIds)
     {
         if (!hashIds.Any())
