@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "aae38032-39fd-4ed1-8133-4b88f6f3771d"
+request_id = "2599f920-020d-46fd-891a-198c2b9e3717"
 target = "local-windows"
-job_name = "Query Traversal Comparison"
+job_name = "Deduplication Planner Validation"
