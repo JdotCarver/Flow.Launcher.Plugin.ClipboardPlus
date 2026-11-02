@@ -131,26 +131,46 @@ jobs:
             throw "Expected at least 20 tests to run; discovery found none or too few."
           }
 
+      # A short temporary drive avoids MAX_PATH failures in native SQLite and
+      # WPF image URIs under the runner's deeply nested checkout directory.
       - name: Build and test ClipboardPlus
         shell: pwsh
         run: |
-          dotnet --version
+          $drive = @('Z','Y','X','W','V') | Where-Object { -not (Test-Path "${_}:\") } | Select-Object -First 1
+          if (-not $drive) { throw "No temporary drive letter available" }
+          subst "${drive}:" "$env:GITHUB_WORKSPACE"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          dotnet restore Flow.Launcher.Plugin.ClipboardPlus.sln --source https://api.nuget.org/v3/index.json
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          dotnet build Flow.Launcher.Plugin.ClipboardPlus.sln --configuration Release --no-restore
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          dotnet test Flow.Launcher.Plugin.ClipboardPlus.sln --configuration Release --no-build
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          try {
+            Set-Location "${drive}:\"
+            dotnet restore Flow.Launcher.Plugin.ClipboardPlus.sln --source https://api.nuget.org/v3/index.json
+            if ($LASTEXITCODE -ne 0) { throw "Restore failed" }
+            dotnet build Flow.Launcher.Plugin.ClipboardPlus.sln --configuration Release --no-restore
+            if ($LASTEXITCODE -ne 0) { throw "Build failed" }
+            dotnet test Flow.Launcher.Plugin.ClipboardPlus.sln --configuration Release --no-build
+            if ($LASTEXITCODE -ne 0) { throw "Tests failed" }
+          } finally {
+            Set-Location $env:RUNNER_TEMP
+            subst "${drive}:" /d
+          }
 
       - name: Synthetic performance baseline
         if: success() || failure()
         shell: pwsh
         run: |
-          dotnet restore tools/performance-baseline/PerformanceBaseline.csproj --source https://api.nuget.org/v3/index.json
+          $drive = @('Z','Y','X','W','V') | Where-Object { -not (Test-Path "${_}:\") } | Select-Object -First 1
+          if (-not $drive) { throw "No temporary drive letter available" }
+          subst "${drive}:" "$env:GITHUB_WORKSPACE"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          dotnet run --project tools/performance-baseline/PerformanceBaseline.csproj --configuration Release --no-restore
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          try {
+            Set-Location "${drive}:\"
+            dotnet restore tools/performance-baseline/PerformanceBaseline.csproj --source https://api.nuget.org/v3/index.json
+            if ($LASTEXITCODE -ne 0) { throw "Baseline restore failed" }
+            dotnet run --project tools/performance-baseline/PerformanceBaseline.csproj --configuration Release --no-restore
+            if ($LASTEXITCODE -ne 0) { throw "Baseline failed" }
+          } finally {
+            Set-Location $env:RUNNER_TEMP
+            subst "${drive}:" /d
+          }
 
       - name: Redaction round trip on a realistic log
         run: |
