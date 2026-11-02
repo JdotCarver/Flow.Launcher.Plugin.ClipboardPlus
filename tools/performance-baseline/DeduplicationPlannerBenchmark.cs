@@ -24,14 +24,15 @@ internal static class DeduplicationPlannerBenchmark
         {
             var records = Enumerable.Range(0, 10).SelectMany(i =>
             {
-                var content = new string((char)('a' + i), length) + i.ToString();
+                var content = new string((char)('a' + i), length - i.ToString().Length) + i.ToString();
                 return new[]
                 {
                     Record(content, DataType.PlainText, i * 2),
                     Record(new string(content.ToCharArray()), DataType.PlainText, i * 2 + 1)
                 };
             }).ToArray();
-            Measure($"dedup planner 20 text length {length} best effort", records, false, 10);
+            Measure($"dedup planner 20 text length {length} best effort", records, false, length <= 4096 ? 10 : 0);
+            Measure($"dedup planner 20 text length {length} thorough", records, true, 10);
         }
 
         const int size = 1024;

@@ -39,7 +39,10 @@ public static class WindowsDuplicatePlanner
                 var matched = false;
                 foreach (var keeper in keepers)
                 {
-                    if (ClipboardContentComparer.Compare(keeper.Entry.Data, item.Entry.Data, verifyImages) != ClipboardContentComparison.Equal)
+                    if ((!verifyImages &&
+                         (!DuplicateVerificationPolicy.CanVerifyBestEffort(keeper.Entry.Data) ||
+                          !DuplicateVerificationPolicy.CanVerifyBestEffort(item.Entry.Data))) ||
+                        ClipboardContentComparer.Compare(keeper.Entry.Data, item.Entry.Data, verifyImages) != ClipboardContentComparison.Equal)
                     {
                         continue;
                     }

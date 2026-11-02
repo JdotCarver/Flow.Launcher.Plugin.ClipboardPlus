@@ -47,7 +47,11 @@ public static class DuplicateRecordPlanner
                 var verificationUnavailable = false;
                 foreach (var keeper in keepers)
                 {
-                    var comparison = ClipboardContentComparer.Compare(keeper.Record, item.Record, verifyImages);
+                    var comparison = !verifyImages &&
+                        (!DuplicateVerificationPolicy.CanVerifyBestEffort(keeper.Record) ||
+                         !DuplicateVerificationPolicy.CanVerifyBestEffort(item.Record))
+                        ? ClipboardContentComparison.Unavailable
+                        : ClipboardContentComparer.Compare(keeper.Record, item.Record, verifyImages);
                     if (comparison != ClipboardContentComparison.Equal)
                     {
                         verificationUnavailable |= comparison == ClipboardContentComparison.Unavailable;
