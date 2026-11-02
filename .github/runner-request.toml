@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "9e6123ff-31d9-4375-9086-19bf6d6ac896"
+request_id = "e2fffdcb-d115-429f-96d2-36e0b89322d1"
 target = "local-windows"
-job_name = "Synthetic Image Investigation"
+job_name = "Image Capture AB Validation"
