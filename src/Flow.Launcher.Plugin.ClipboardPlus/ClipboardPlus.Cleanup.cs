@@ -16,17 +16,54 @@ public partial class ClipboardPlus
     public ManualCleanupRequest RequestManualCleanup(IProgress<CleanupReport>? progress = null) => cleanupCoordinator.RequestManual(progress);
 
     private long cleanupQueryGeneration;
+    private sealed record CleanupResultView(List<Result> Results, Query Query, CancellationToken Token, long Generation);
+    private CleanupResultView? currentResultView;
+
+    private async Task PublishLiveResultsAsync(CleanupResultView view, bool rebuild = false)
+    {
+        try
+        {
+            if (view.Token.IsCancellationRequested || Interlocked.Read(ref cleanupQueryGeneration) != view.Generation) return;
+            List<Result> live;
+            await RecordsLock.WaitAsync(view.Token);
+            try
+            {
+                if (rebuild && view.Query.FirstSearch != Settings.ClearKeyword)
+                {
+                    // Keep action objects (and their progress text), but recreate
+                    // every record result so previously hidden records can reappear.
+                    live = view.Results.Where(result => result.ContextData is not ClipboardDataPair).ToList();
+                    var search = string.IsNullOrWhiteSpace(view.Query.Search) ? null : view.Query.Search;
+                    foreach (var pair in RecordsList)
+                    {
+                        var result = GetResultFromClipboardData(pair, search);
+                        if (result is not null) live.Add(result);
+                    }
+                }
+                else
+                {
+                    var surviving = new HashSet<ClipboardDataPair>(RecordsList);
+                    live = view.Results.Where(result => result.ContextData is not ClipboardDataPair pair ||
+                        (surviving.Contains(pair) && !IsWindowsSuppressed(pair))).ToList();
+                }
+            }
+            finally { RecordsLock.Release(); }
+            if (!view.Token.IsCancellationRequested && Interlocked.Read(ref cleanupQueryGeneration) == view.Generation)
+                ResultsUpdated?.Invoke(this, new ResultUpdatedEventArgs { Results = live, Query = view.Query });
+        }
+        catch (OperationCanceledException) { }
+    }
+
+    private Task PublishCurrentResultsAsync()
+    {
+        var view = Volatile.Read(ref currentResultView);
+        return view is null ? Task.CompletedTask : PublishLiveResultsAsync(view, true);
+    }
 
     private Result CreateCleanupAction(List<Result> results, Query query, CancellationToken token, long generation)
     {
         Result action = null!;
-        void Publish()
-        {
-            if (!token.IsCancellationRequested && Interlocked.Read(ref cleanupQueryGeneration) == generation)
-            {
-                ResultsUpdated?.Invoke(this, new ResultUpdatedEventArgs { Results = results, Query = query });
-            }
-        }
+        void Publish() => _ = PublishLiveResultsAsync(new CleanupResultView(results, query, token, generation));
         var finished = false;
         async Task CompleteAsync(Task<CleanupReport> task)
         {
@@ -98,7 +135,11 @@ public partial class ClipboardPlus
     private async Task<CleanupReport> RunCleanupWorkAsync(CleanupWork work)
     {
         if (work == CleanupWork.WindowsEvidence)
-            return await RefreshWindowsEvidenceAsync(null, true, Interlocked.Read(ref windowsEvidenceGeneration));
+        {
+            var evidence = await RefreshWindowsEvidenceAsync(null, true, Interlocked.Read(ref windowsEvidenceGeneration));
+            await PublishCurrentResultsAsync();
+            return evidence;
+        }
         if (work == CleanupWork.ManualExtrasOnly)
         {
             var windowsOnly = await RefreshWindowsEvidenceAsync(work, true, Interlocked.Increment(ref windowsEvidenceGeneration));
@@ -236,6 +277,8 @@ public partial class ClipboardPlus
         }
         if (automatic && report.Skipped == 0 && report.Errors == 0)
             await TrimVerifiedOverflowAsync(nodes, snapshots, capturedGeneration);
+        if (report.RecordsRemoved > 0 || report.WindowsItemsHidden > 0)
+            await PublishCurrentResultsAsync();
         return report;
     }
 
@@ -267,6 +310,7 @@ public partial class ClipboardPlus
             if (removed.Count > 0) ScoreHelper.Reset(RecordsList);
         }
         finally { RecordsLock.Release(); }
+        if (removed.Count > 0) await PublishCurrentResultsAsync();
         foreach (var pair in removed)
         {
             try

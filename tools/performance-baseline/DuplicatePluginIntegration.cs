@@ -42,6 +42,11 @@ internal static class DuplicatePluginIntegration
             SetField(plugin, "ScoreHelper", new ScoreHelper(10000));
             SetField(plugin, "Database", database);
             SetField(plugin, "RecordsList", list);
+            List<Result>? published = null;
+            plugin.ResultsUpdated += (_, args) => { if (args.Query.Search == "synthetic") published = args.Results; };
+            var initialResults = plugin.QueryAsync(QueryFor("synthetic"), CancellationToken.None).GetAwaiter().GetResult();
+            if (initialResults.Count(result => result.ContextData is ClipboardDataPair) != records.Length)
+                throw new InvalidOperationException("Synthetic initial results missing");
             var cleanup = typeof(Plugin).GetMethod("RunCleanupWorkAsync", BindingFlags.Instance | BindingFlags.NonPublic)
                 ?? throw new InvalidOperationException("Cleanup test seam missing");
             var report = ((Task<CleanupReport>)cleanup.Invoke(plugin, new object[] { CleanupWork.ManualThorough })!).GetAwaiter().GetResult();
@@ -49,6 +54,9 @@ internal static class DuplicatePluginIntegration
                 list.Any(item => item.ClipboardData.HashId == "saved") || !list.Any(item => item.ClipboardData.HashId == "temporary") ||
                 !list.Any(item => item.ClipboardData.HashId == "pinned"))
                 throw new InvalidOperationException("Synthetic plugin cleanup failed");
+            if (published is null || published.Any(result => result.ContextData is ClipboardDataPair pair && pair.ClipboardData.HashId == "saved") ||
+                published.Count(result => result.ContextData is ClipboardDataPair) != list.Count)
+                throw new InvalidOperationException("Synthetic displayed results were not refreshed");
             if (database.GetAllRecordsAsync(false).GetAwaiter().GetResult().Any(record => record.HashId == "unloaded-saved"))
                 throw new InvalidOperationException("Synthetic unloaded saved duplicate survived cleanup");
             var settings = new SettingsViewModel(plugin);

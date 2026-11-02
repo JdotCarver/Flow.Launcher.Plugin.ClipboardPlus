@@ -163,6 +163,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
     {
         var results = new List<Result>();
         var queryGeneration = Interlocked.Increment(ref cleanupQueryGeneration);
+        Volatile.Write(ref currentResultView, null);
         if (query.FirstSearch == Settings.ClearKeyword)
         {
             // clean windows clipboard history actions
@@ -515,6 +516,8 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
                 RecordsLock.Release();
             }
         }
+        if (Interlocked.Read(ref cleanupQueryGeneration) == queryGeneration && !token.IsCancellationRequested)
+            Volatile.Write(ref currentResultView, new CleanupResultView(results, query, token, queryGeneration));
         return results;
     }
 
