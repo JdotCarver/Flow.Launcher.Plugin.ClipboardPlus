@@ -1,0 +1,34 @@
+{
+  "capture_note": "Status is captured while Export logs is still in progress; use the final workflow conclusion for that job's result.",
+  "conclusion": null,
+  "event": "push",
+  "head_branch": "arena/9261f4f4-flow-launcher-plugin-clipboard",
+  "head_sha": "fa8def4939dcf5207c12e49011662e37ba7f2f93",
+  "id": 41464073327,
+  "jobs": [
+    {
+      "conclusion": "success",
+      "id": 125340238036,
+      "name": "Select runner",
+      "status": "completed",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41464073327/job/125340238036"
+    },
+    {
+      "conclusion": "failure",
+      "id": 125340334964,
+      "name": "Synthetic Image Investigation",
+      "status": "completed",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41464073327/job/125340334964"
+    },
+    {
+      "conclusion": null,
+      "id": 125341230523,
+      "name": "Export logs",
+      "status": "in_progress",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41464073327/job/125341230523"
+    }
+  ],
+  "name": "Runner request",
+  "status": "in_progress",
+  "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41464073327"
+}
