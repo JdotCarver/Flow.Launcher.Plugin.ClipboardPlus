@@ -38,12 +38,10 @@ public partial class ClipboardPlus
 
     private void RequestWindowsEvidenceRefresh()
     {
-        var generation = Interlocked.Increment(ref windowsEvidenceGeneration);
-        _ = Task.Run(async () =>
-        {
-            try { await RefreshWindowsEvidenceAsync(null, true, generation); }
-            catch (Exception) { /* Fail open; no clipboard content is logged. */ }
-        });
+        Interlocked.Increment(ref windowsEvidenceGeneration);
+        if (Settings is null) return;
+        if (Settings.AutomaticCleanup) ScheduleAutomaticCleanup();
+        else if (windowsSuppression.GetManualIds().Count > 0) cleanupCoordinator.RequestWindowsEvidence();
     }
 
     private void WindowsClipboardHelper_OnHistoryReadCompleted(object? sender, string[] ids)
@@ -85,9 +83,18 @@ public partial class ClipboardPlus
         }
         finally { RecordsLock.Release(); }
 
-        var entries = snapshots.Select(snapshot => new WindowsDuplicateEntry(snapshot.CreatePlanningRecord(),
-            snapshot.Original.FromWindowsClipboardHistory() ? snapshot.Original.HashId : null)).ToArray();
-        var candidates = WindowsDuplicatePlanner.Plan(entries, thorough);
+        var indexed = snapshots.Select((snapshot, index) => (Index: index, Entry: new WindowsDuplicateEntry(snapshot.CreatePlanningRecord(),
+            snapshot.Original.FromWindowsClipboardHistory() ? snapshot.Original.HashId : null))).ToArray();
+        if (work is null)
+        {
+            // Reverify only groups containing a manually suppressed ID; do not
+            // encode unrelated images when automatic cleanup is disabled.
+            var manualIds = new HashSet<string>(windowsSuppression.GetManualIds(), StringComparer.Ordinal);
+            var groups = indexed.Where(item => item.Entry.WindowsId is not null && manualIds.Contains(item.Entry.WindowsId))
+                .Select(item => (item.Entry.Data.DataType, item.Entry.Data.DataMd5)).ToHashSet();
+            indexed = indexed.Where(item => groups.Contains((item.Entry.Data.DataType, item.Entry.Data.DataMd5))).ToArray();
+        }
+        var candidates = WindowsDuplicatePlanner.Plan(indexed.Select(item => item.Entry).ToArray(), thorough);
         var evidence = new Dictionary<string, WindowsEvidence>(StringComparer.Ordinal);
         var hidden = 0;
         var skipped = 0;
@@ -97,11 +104,13 @@ public partial class ClipboardPlus
             if (generation != Interlocked.Read(ref windowsEvidenceGeneration)) return new CleanupReport(0, 0, 0, candidates.Count, 0);
             foreach (var candidate in candidates)
             {
-                var target = nodes[candidate.WindowsIndex];
-                var keeper = nodes[candidate.KeeperIndex];
+                var targetIndex = indexed[candidate.WindowsIndex].Index;
+                var keeperIndex = indexed[candidate.KeeperIndex].Index;
+                var target = nodes[targetIndex];
+                var keeper = nodes[keeperIndex];
                 if (!WindowsClipboardHelper.IsPinStateTrusted || target.List != RecordsList || keeper.List != RecordsList ||
-                    !snapshots[candidate.WindowsIndex].Matches(target.Value.ClipboardData) ||
-                    !snapshots[candidate.KeeperIndex].Matches(keeper.Value.ClipboardData))
+                    !snapshots[targetIndex].Matches(target.Value.ClipboardData) ||
+                    !snapshots[keeperIndex].Matches(keeper.Value.ClipboardData))
                 {
                     skipped++;
                     continue;
@@ -111,7 +120,7 @@ public partial class ClipboardPlus
                     windowsSuppression.RememberManual(candidate.WindowsId, Settings.RememberWindowsSuppression);
                 else if ((work == CleanupWork.AutomaticBestEffort || work == CleanupWork.AutomaticThorough) && Settings.AutomaticCleanup)
                     windowsSuppression.RememberAutomatic(candidate.WindowsId, Settings.RememberWindowsSuppression);
-                evidence[candidate.WindowsId] = new WindowsEvidence(target, snapshots[candidate.WindowsIndex], keeper, snapshots[candidate.KeeperIndex]);
+                evidence[candidate.WindowsId] = new WindowsEvidence(target, snapshots[targetIndex], keeper, snapshots[keeperIndex]);
                 if (!wasHidden && windowsSuppression.ShouldHide(candidate.WindowsId, false, Settings.AutomaticCleanup, true)) hidden++;
             }
             windowsEvidence = evidence;

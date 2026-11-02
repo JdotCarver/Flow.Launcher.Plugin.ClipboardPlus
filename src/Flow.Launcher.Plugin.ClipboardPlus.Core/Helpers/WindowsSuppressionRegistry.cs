@@ -81,6 +81,12 @@ public sealed class WindowsSuppressionRegistry
         }
     }
 
+    /// <summary>IDs that require evidence even while automatic cleanup is disabled.</summary>
+    public IReadOnlyList<string> GetManualIds()
+    {
+        lock (sync) return manualSession.Union(manualPersistent, StringComparer.Ordinal).ToArray();
+    }
+
     public IReadOnlyList<WindowsSuppressionEntry> GetPersistentEntries()
     {
         lock (sync)

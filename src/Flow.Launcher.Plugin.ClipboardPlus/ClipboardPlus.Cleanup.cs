@@ -97,6 +97,8 @@ public partial class ClipboardPlus
 
     private async Task<CleanupReport> RunCleanupWorkAsync(CleanupWork work)
     {
+        if (work == CleanupWork.WindowsEvidence)
+            return await RefreshWindowsEvidenceAsync(null, true, Interlocked.Read(ref windowsEvidenceGeneration));
         if (work == CleanupWork.ManualExtrasOnly)
         {
             var windowsOnly = await RefreshWindowsEvidenceAsync(work, true, Interlocked.Increment(ref windowsEvidenceGeneration));

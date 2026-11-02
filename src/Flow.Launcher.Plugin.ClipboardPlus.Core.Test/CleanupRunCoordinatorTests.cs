@@ -7,6 +7,32 @@ namespace Flow.Launcher.Plugin.ClipboardPlus.Core.Test;
 public class CleanupRunCoordinatorTests
 {
     [Fact]
+    public async Task EvidenceRefreshesCoalesceAndNeverOverlapManualWork()
+    {
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var evidenceFinished = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var runs = new ConcurrentQueue<CleanupWork>();
+        var coordinator = new CleanupRunCoordinator(async work =>
+        {
+            runs.Enqueue(work);
+            if (work == CleanupWork.ManualThorough) { entered.SetResult(); await release.Task; }
+            if (work == CleanupWork.WindowsEvidence) evidenceFinished.SetResult();
+            return default;
+        });
+        var manual = coordinator.RequestManual();
+        await entered.Task;
+        coordinator.RequestWindowsEvidence();
+        coordinator.RequestWindowsEvidence();
+        Assert.Equal(new[] { CleanupWork.ManualThorough }, runs);
+        release.SetResult();
+        await manual.Completion;
+        await evidenceFinished.Task;
+        Assert.Equal(new[] { CleanupWork.ManualThorough, CleanupWork.WindowsEvidence }, runs);
+        await coordinator.StopAsync();
+    }
+
+    [Fact]
     public async Task ManualAfterBestEffortRunsThoroughlyAndConcurrentManualRequestsShareCompletion()
     {
         var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);

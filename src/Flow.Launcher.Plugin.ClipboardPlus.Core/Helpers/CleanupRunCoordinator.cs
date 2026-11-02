@@ -10,7 +10,8 @@ public enum CleanupWork
     AutomaticBestEffort,
     AutomaticThorough,
     ManualThorough,
-    ManualExtrasOnly
+    ManualExtrasOnly,
+    WindowsEvidence
 }
 
 /// <summary>Counts and status contain no clipboard content or file paths.</summary>
@@ -37,6 +38,7 @@ public sealed class CleanupRunCoordinator
     private Task? worker;
     private CleanupWork? currentWork;
     private CleanupWork? pendingAutomatic;
+    private bool pendingEvidence;
     private TaskCompletionSource<CleanupReport>? manualCompletion;
     private readonly List<IProgress<CleanupReport>> manualProgress = [];
     private bool manualPending;
@@ -73,6 +75,17 @@ public sealed class CleanupRunCoordinator
             {
                 pendingAutomatic = requested;
             }
+            StartWorkerIfNeeded();
+        }
+    }
+
+    /// <summary>Coalesces manual-suppression evidence refreshes with cleanup work.</summary>
+    public void RequestWindowsEvidence()
+    {
+        lock (sync)
+        {
+            if (stopping) return;
+            pendingEvidence = true;
             StartWorkerIfNeeded();
         }
     }
@@ -134,6 +147,7 @@ public sealed class CleanupRunCoordinator
             stopping = true;
             automaticEnabled = false;
             pendingAutomatic = null;
+            pendingEvidence = false;
             return worker ?? Task.CompletedTask;
         }
     }
@@ -159,6 +173,11 @@ public sealed class CleanupRunCoordinator
                 {
                     work = automatic;
                     pendingAutomatic = null;
+                }
+                else if (pendingEvidence)
+                {
+                    pendingEvidence = false;
+                    work = CleanupWork.WindowsEvidence;
                 }
                 else
                 {

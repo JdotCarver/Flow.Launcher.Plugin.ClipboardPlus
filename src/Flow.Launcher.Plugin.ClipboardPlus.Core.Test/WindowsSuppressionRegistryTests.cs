@@ -23,6 +23,7 @@ public class WindowsSuppressionRegistryTests
         registry.RememberManual("manual", true);
         Assert.False(registry.ShouldHide("automatic", false, false, true));
         Assert.True(registry.ShouldHide("manual", false, false, true));
+        Assert.Equal(new[] { "manual" }, registry.GetManualIds());
     }
 
     [Fact]
