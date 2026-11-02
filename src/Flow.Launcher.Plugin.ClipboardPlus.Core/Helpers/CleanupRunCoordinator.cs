@@ -32,6 +32,8 @@ public sealed class CleanupRunCoordinator
     private readonly Func<CleanupWork, Task<CleanupReport>> execute;
     private bool automaticEnabled;
     private bool workerRunning;
+    private bool stopping;
+    private Task? worker;
     private CleanupWork? currentWork;
     private CleanupWork? pendingAutomatic;
     private TaskCompletionSource<CleanupReport>? manualCompletion;
@@ -46,7 +48,7 @@ public sealed class CleanupRunCoordinator
     {
         lock (sync)
         {
-            automaticEnabled = enabled;
+            automaticEnabled = enabled && !stopping;
             if (!enabled)
             {
                 pendingAutomatic = null;
@@ -58,7 +60,7 @@ public sealed class CleanupRunCoordinator
     {
         lock (sync)
         {
-            if (!automaticEnabled)
+            if (!automaticEnabled || stopping)
             {
                 return;
             }
@@ -81,6 +83,10 @@ public sealed class CleanupRunCoordinator
             {
                 return new ManualCleanupRequest(true, manualCompletion.Task);
             }
+            if (stopping)
+            {
+                return new ManualCleanupRequest(false, Task.FromResult(new CleanupReport(0, 0, 0, 0, 1)));
+            }
             manualCompletion = new TaskCompletionSource<CleanupReport>(TaskCreationOptions.RunContinuationsAsynchronously);
             manualPending = true;
             manualCanReuseAutomatic = currentWork == CleanupWork.AutomaticThorough && pendingAutomatic is null;
@@ -96,7 +102,19 @@ public sealed class CleanupRunCoordinator
         if (!workerRunning)
         {
             workerRunning = true;
-            _ = Task.Run(RunAsync);
+            worker = Task.Run(RunAsync);
+        }
+    }
+
+    /// <summary>Stops future automatic work and waits for an already-requested manual pass.</summary>
+    public Task StopAsync()
+    {
+        lock (sync)
+        {
+            stopping = true;
+            automaticEnabled = false;
+            pendingAutomatic = null;
+            return worker ?? Task.CompletedTask;
         }
     }
 

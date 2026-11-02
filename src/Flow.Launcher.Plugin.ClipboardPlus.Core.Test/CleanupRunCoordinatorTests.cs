@@ -74,6 +74,27 @@ public class CleanupRunCoordinatorTests
     }
 
     [Fact]
+    public async Task ShutdownWaitsForAlreadyRequestedManualWorkAndRejectsNewWork()
+    {
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var coordinator = new CleanupRunCoordinator(async work =>
+        {
+            entered.SetResult();
+            await release.Task;
+            return new CleanupReport(1, 0, 0, 0, 0);
+        });
+        var manual = coordinator.RequestManual();
+        await entered.Task;
+        var stop = coordinator.StopAsync();
+        Assert.False(stop.IsCompleted);
+        release.SetResult();
+        Assert.Equal(1, (await manual.Completion).RecordsRemoved);
+        await stop;
+        Assert.Equal(1, (await coordinator.RequestManual().Completion).Errors);
+    }
+
+    [Fact]
     public async Task DisablingAutomaticDropsPendingWorkButManualRemainsAvailable()
     {
         var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
