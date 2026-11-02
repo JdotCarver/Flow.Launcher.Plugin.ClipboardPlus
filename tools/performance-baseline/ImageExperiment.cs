@@ -22,7 +22,7 @@ internal static class ImageExperiment
             // Reuse must produce exactly the existing hash and stored data.
             if (plainRecord.DataMd5 != StringUtils.GetMd5(encoded) ||
                 Asset.FromClipboardData(plainRecord, true).DataB64 != encoded ||
-                Asset.FromClipboardData(encryptedRecord, true).DataB64 != StringUtils.Encrypt(encoded, StringUtils.EncryptKey))
+                encryptedRecord.EncryptData || Asset.FromClipboardData(encryptedRecord, true).DataB64 != encoded)
                 throw new InvalidOperationException("Synthetic encoded representation mismatch");
             var decoded = encoded.ToBitmapImage() ?? throw new InvalidOperationException("Synthetic decode failed");
             if (decoded.PixelWidth != size || decoded.PixelHeight != size || !PixelsEqual(image, decoded))
@@ -30,7 +30,6 @@ internal static class ImageExperiment
 
             Measure($"image experiment {description} png base64", () => { _ = image.ToBase64(); });
             Measure($"image experiment {description} hash encoded", () => { _ = StringUtils.GetMd5(encoded); });
-            Measure($"image experiment {description} encrypt encoded", () => { _ = StringUtils.Encrypt(encoded, StringUtils.EncryptKey); });
             Measure($"image experiment {description} current hash and asset", () =>
             {
                 var record = CreateRecord(image, false);
@@ -41,17 +40,6 @@ internal static class ImageExperiment
                 var once = image.ToBase64();
                 _ = StringUtils.GetMd5(once);
                 GC.KeepAlive(once);
-            });
-            Measure($"image experiment {description} current encrypted hash and asset", () =>
-            {
-                var record = CreateRecord(image, true);
-                _ = Asset.FromClipboardData(record, true);
-            });
-            Measure($"image experiment {description} reuse encrypted hash and asset", () =>
-            {
-                var once = image.ToBase64();
-                _ = StringUtils.GetMd5(once);
-                _ = StringUtils.Encrypt(once, StringUtils.EncryptKey);
             });
             if (size == 512 && noisy) MeasureCache(image, encoded);
         }
