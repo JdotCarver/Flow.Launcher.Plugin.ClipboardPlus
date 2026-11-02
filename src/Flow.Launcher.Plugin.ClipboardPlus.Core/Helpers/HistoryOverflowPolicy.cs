@@ -9,7 +9,7 @@ namespace Flow.Launcher.Plugin.ClipboardPlus.Core.Helpers;
 /// <summary>Bounds temporary capacity slack while preserving pinned records.</summary>
 public static class HistoryOverflowPolicy
 {
-    // Provisional until reviewed against synthetic Windows measurements.
+    // Reviewed with the maintainer against synthetic Windows measurements.
     public const int MaximumOverflow = 25;
 
     public static int Limit(int configuredLimit, int reserved) =>
