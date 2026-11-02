@@ -1336,7 +1336,11 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
             RecordsLock.Release();
         }
         RequestWindowsEvidenceRefresh();
-        if (removedCachePaths.Count > 0) _ = CleanupRemovedWindowsCacheAsync(removedCachePaths);
+        if (removedCachePaths.Count > 0)
+        {
+            foreach (var path in removedCachePaths) removedWindowsCachePaths.Enqueue(path);
+            ScheduleAutomaticCleanup();
+        }
     }
 
     private async void WindowsClipboardHelper_OnHistoryItemPinUpdated(object? sender, (string HashId, bool Pinned) e)

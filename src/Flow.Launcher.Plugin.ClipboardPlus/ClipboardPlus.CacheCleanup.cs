@@ -1,6 +1,7 @@
 // ClipboardPlus.CacheCleanup.cs
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ namespace Flow.Launcher.Plugin.ClipboardPlus;
 public partial class ClipboardPlus
 {
     private readonly object cacheOwnershipLock = new();
+    private readonly ConcurrentQueue<string> removedWindowsCachePaths = new();
 
     private void RememberOwnedCacheFile(OwnedCacheFile ownership)
     {
@@ -70,11 +72,14 @@ public partial class ClipboardPlus
         }
     }
 
-    private async Task CleanupRemovedWindowsCacheAsync(IEnumerable<string> paths)
+    private async Task<CleanupReport> CleanupRemovedWindowsCacheAsync()
     {
-        foreach (var path in paths.Distinct(StringComparer.OrdinalIgnoreCase))
+        var paths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        while (removedWindowsCachePaths.TryDequeue(out var path)) paths.Add(path);
+        var total = default(CleanupReport);
+        foreach (var path in paths)
         {
-            if (!Settings.AutomaticCleanup) return;
+            if (!Settings.AutomaticCleanup) return total;
             List<(LinkedListNode<ClipboardDataPair> Node, ClipboardCleanupSnapshot Snapshot)> keepers = [];
             await RecordsLock.WaitAsync();
             try
@@ -89,9 +94,14 @@ public partial class ClipboardPlus
             {
                 var report = await DeleteRedundantCacheFileAsync(path, keeper.Snapshot.Original.CachedImagePath,
                     () => keeper.Node.List == RecordsList && keeper.Snapshot.Matches(keeper.Node.Value.ClipboardData), true, true);
-                if (report.CacheFilesRemoved > 0 || report.Errors > 0) break;
+                if (report.CacheFilesRemoved > 0 || report.Errors > 0)
+                {
+                    total += report;
+                    break;
+                }
             }
         }
+        return total;
     }
 
     private async Task<CleanupReport> ScanOrphanCacheDuplicatesAsync()

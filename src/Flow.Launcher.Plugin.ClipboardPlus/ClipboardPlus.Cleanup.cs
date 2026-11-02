@@ -90,7 +90,7 @@ public partial class ClipboardPlus
         if (work == CleanupWork.ManualExtrasOnly)
         {
             var windowsOnly = await RefreshWindowsEvidenceAsync(work, true, Interlocked.Increment(ref windowsEvidenceGeneration));
-            return windowsOnly + await ScanOrphanCacheDuplicatesAsync();
+            return windowsOnly + await CleanupRemovedWindowsCacheAsync() + await ScanOrphanCacheDuplicatesAsync();
         }
         var automatic = work is CleanupWork.AutomaticBestEffort or CleanupWork.AutomaticThorough;
         var thorough = work is CleanupWork.AutomaticThorough or CleanupWork.ManualThorough;
@@ -185,6 +185,7 @@ public partial class ClipboardPlus
                 () => cache.Keeper.List == RecordsList && cache.Snapshot.Matches(cache.Keeper.Value.ClipboardData), automatic);
         }
         var windows = await RefreshWindowsEvidenceAsync(work, thorough, Interlocked.Increment(ref windowsEvidenceGeneration));
+        report += await CleanupRemovedWindowsCacheAsync();
         if (!automatic) report += await ScanOrphanCacheDuplicatesAsync();
         return report + windows;
     }
