@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "01096602-9093-4d70-9060-97a525ff7b5c"
+request_id = "84f4491a-4cad-4a62-8932-2017e7e2d586"
 target = "local-windows"
-job_name = "Flow Fuzzy Search Baseline"
+job_name = "Image Pin AB Validation"

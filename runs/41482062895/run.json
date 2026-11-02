@@ -1,0 +1,34 @@
+{
+  "capture_note": "Status is captured while Export logs is still in progress; use the final workflow conclusion for that job's result.",
+  "conclusion": null,
+  "event": "push",
+  "head_branch": "branch",
+  "head_sha": "9300a6316892d5f6050055d989e11c4b33e8361e",
+  "id": 41482062895,
+  "jobs": [
+    {
+      "conclusion": "success",
+      "id": 125402693800,
+      "name": "Select runner",
+      "status": "completed",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41482062895/job/125402693800"
+    },
+    {
+      "conclusion": "success",
+      "id": 125402776731,
+      "name": "Image Pin AB Validation",
+      "status": "completed",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41482062895/job/125402776731"
+    },
+    {
+      "conclusion": null,
+      "id": 125403915605,
+      "name": "Export logs",
+      "status": "in_progress",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41482062895/job/125403915605"
+    }
+  ],
+  "name": "Runner request",
+  "status": "in_progress",
+  "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41482062895"
+}
