@@ -108,12 +108,14 @@ public partial class ClipboardPlus
         var thorough = work is CleanupWork.AutomaticThorough or CleanupWork.ManualThorough;
         LinkedListNode<ClipboardDataPair>[] nodes;
         ClipboardCleanupSnapshot[] snapshots;
+        long capturedGeneration;
         await RecordsLock.WaitAsync();
         try
         {
             var list = new List<LinkedListNode<ClipboardDataPair>>(RecordsList.Count);
             for (var node = RecordsList.First; node is not null; node = node.Next) list.Add(node);
             nodes = list.ToArray();
+            capturedGeneration = captureGeneration;
             snapshots = nodes.Select(node => new ClipboardCleanupSnapshot(node.Value.ClipboardData)).ToArray();
         }
         finally
@@ -206,6 +208,47 @@ public partial class ClipboardPlus
             var previous = report;
             report += await ScanOrphanCacheDuplicatesAsync(scan => cleanupCoordinator.ReportProgress(previous + scan));
         }
+        if (automatic && report.Skipped == 0 && report.Errors == 0)
+            await TrimVerifiedOverflowAsync(nodes, snapshots, capturedGeneration);
         return report;
+    }
+
+    private async Task TrimVerifiedOverflowAsync(LinkedListNode<ClipboardDataPair>[] nodes,
+        ClipboardCleanupSnapshot[] snapshots, long generation)
+    {
+        var removed = new List<ClipboardDataPair>();
+        await RecordsLock.WaitAsync();
+        try
+        {
+            if (!Settings.AutomaticCleanup || captureGeneration != generation) return;
+            var captured = new Dictionary<ClipboardDataPair, ClipboardCleanupSnapshot>();
+            for (var i = 0; i < nodes.Length; i++)
+                if (nodes[i].List == RecordsList) captured[nodes[i].Value] = snapshots[i];
+            if (captured.Count != RecordsList.Count || RecordsList.Any(pair =>
+                !captured.TryGetValue(pair, out var snapshot) || !snapshot.Matches(pair.ClipboardData) ||
+                pair.ClipboardData.FromWindowsClipboardHistory())) return;
+            var node = RecordsList.Last;
+            while (RecordsList.Count > Math.Max(0, Settings.MaxRecords) && node is not null)
+            {
+                var previous = node.Previous;
+                if (!node.Value.ClipboardData.Pinned)
+                {
+                    removed.Add(node.Value);
+                    RecordsList.Remove(node);
+                }
+                node = previous;
+            }
+            if (removed.Count > 0) ScoreHelper.Reset(RecordsList);
+        }
+        finally { RecordsLock.Release(); }
+        foreach (var pair in removed)
+        {
+            try
+            {
+                if (pair.PreviewPanel.IsValueCreated) await pair.PreviewPanel.Value.Dispatcher.InvokeAsync(pair.Dispose);
+                else pair.Dispose();
+            }
+            catch (Exception) { }
+        }
     }
 }

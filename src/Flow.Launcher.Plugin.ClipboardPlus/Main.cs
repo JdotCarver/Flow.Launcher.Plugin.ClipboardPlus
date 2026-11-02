@@ -1166,10 +1166,14 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
         return clipboardData;
     }
 
+    private long captureGeneration;
+
     private void AddClipboardDataItem(ClipboardData clipboardData) => AddClipboardDataItem(clipboardData, null);
 
     private void AddClipboardDataItem(ClipboardData clipboardData, string? encodedImage)
     {
+        // Called under RecordsLock. An in-flight cleanup must not trim a newer capture.
+        captureGeneration++;
         // add to list and database if no repeat
         RecordsList.AddFirst(new ClipboardDataPair()
         {
@@ -1194,7 +1198,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
         }
 
         // remove last record if needed
-        if (RecordsList.Count >= Settings.MaxRecords)
+        if (!Settings.AutomaticCleanup && RecordsList.Count >= Settings.MaxRecords)
         {
             RecordsList.Last?.Value.Dispose();
             RecordsList.RemoveLast();
@@ -1208,6 +1212,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
     private void AddClipboardDataItem(List<ClipboardData> clipboardDataList)
     {
         var removeCount = RecordsList.Count + clipboardDataList.Count - Settings.MaxRecords;
+        if (clipboardDataList.Count > 0) captureGeneration++;
 
         foreach (var clipboardData in clipboardDataList)
         {
@@ -1231,7 +1236,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
         }
 
         // remove last record if needed
-        for (int i = 0; i < removeCount; i++)
+        for (int i = 0; !Settings.AutomaticCleanup && i < removeCount; i++)
         {
             if (RecordsList.Count >= Settings.MaxRecords)
             {

@@ -58,6 +58,7 @@ internal static class DuplicatePluginIntegration
             var longer = plugin.QueryAsync(QueryFor("cleanup extra"), CancellationToken.None).GetAwaiter().GetResult();
             if (exact.Count != 1 || exact[0].Score != int.MaxValue || longer.Count != 0 || list.Count != 3)
                 throw new InvalidOperationException("Synthetic cleanup query validation failed");
+            TestCapacityProtection(plugin);
             TestSyntheticCacheScan(plugin, database);
             Console.WriteLine("dedup plugin synthetic record and cache integration checks passed");
         }
@@ -65,6 +66,30 @@ internal static class DuplicatePluginIntegration
         {
             database.DisposeAsync().AsTask().GetAwaiter().GetResult();
         }
+    }
+
+    private static void TestCapacityProtection(Plugin plugin)
+    {
+        SetField(plugin, "Settings", new Settings { AutomaticCleanup = true, MaxRecords = 2 });
+        var list = new LinkedList<ClipboardDataPair>();
+        SetField(plugin, "RecordsList", list);
+        var add = typeof(Plugin).GetMethod("AddClipboardDataItem", BindingFlags.Instance | BindingFlags.NonPublic,
+            null, [typeof(ClipboardData)], null)!;
+        var unique = Record("unique", 1, false);
+        unique = new ClipboardData("unique synthetic", DataType.PlainText, false)
+        {
+            HashId = unique.HashId, SenderApp = unique.SenderApp, InitScore = unique.InitScore,
+            CreateTime = unique.CreateTime, Pinned = false, Saved = false
+        };
+        add.Invoke(plugin, [unique]);
+        add.Invoke(plugin, [Record("older", 2, false)]);
+        add.Invoke(plugin, [Record("newer", 3, false)]);
+        if (list.Count != 3 || !list.Any(pair => pair.ClipboardData.HashId == "unique"))
+            throw new InvalidOperationException("Synthetic unique record was evicted before verification");
+        var cleanup = typeof(Plugin).GetMethod("RunCleanupWorkAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var report = ((Task<CleanupReport>)cleanup.Invoke(plugin, [CleanupWork.AutomaticBestEffort])!).GetAwaiter().GetResult();
+        if (report.RecordsRemoved != 1 || list.Count != 2 || !list.Any(pair => pair.ClipboardData.HashId == "unique"))
+            throw new InvalidOperationException("Synthetic duplicate cleanup did not protect capacity");
     }
 
     private static void TestSyntheticCacheScan(Plugin plugin, SqliteDatabase database)
