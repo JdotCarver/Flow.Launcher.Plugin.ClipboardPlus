@@ -221,6 +221,19 @@ public partial class ClipboardPlus
                 }
                 if (duplicateNode is not null)
                 {
+                    // If the retained saved record was outside the loaded
+                    // window, replace the visible duplicate with that keeper.
+                    // Otherwise consolidation would leave no visible copy.
+                    if (keeperNode is null)
+                    {
+                        var pair = new ClipboardDataPair
+                        {
+                            ClipboardData = keeper,
+                            PreviewPanel = new Lazy<System.Windows.Controls.UserControl>(() => new PreviewPanel(this, keeper))
+                        };
+                        keeperNode = RecordsList.AddBefore(duplicateNode, pair);
+                        allNodes[keeperIndex] = keeperNode;
+                    }
                     removed = duplicateNode.Value;
                     RecordsList.Remove(duplicateNode);
                 }

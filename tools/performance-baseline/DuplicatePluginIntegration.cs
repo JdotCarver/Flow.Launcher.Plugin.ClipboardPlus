@@ -152,7 +152,8 @@ internal static class DuplicatePluginIntegration
             var cleanup = typeof(Plugin).GetMethod("RunCleanupWorkAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
             var report = ((Task<CleanupReport>)cleanup.Invoke(plugin, [CleanupWork.ManualThorough])!).GetAwaiter().GetResult();
             var survivors = database.GetAllRecordsAsync(false).GetAwaiter().GetResult();
-            if (report.RecordsRemoved != 1 || list.Count != 0 || survivors.Count != 1 || survivors[0].HashId != keeper.HashId)
+            if (report.RecordsRemoved != 1 || list.Count != 1 || list.First!.Value.ClipboardData.HashId != keeper.HashId ||
+                survivors.Count != 1 || survivors[0].HashId != keeper.HashId)
                 throw new InvalidOperationException("Synthetic unloaded saved keeper was not preserved");
         }
         finally { database.DisposeAsync().AsTask().GetAwaiter().GetResult(); }
