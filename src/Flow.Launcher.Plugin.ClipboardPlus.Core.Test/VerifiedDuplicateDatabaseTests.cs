@@ -57,6 +57,41 @@ public class VerifiedDuplicateDatabaseTests
     }
 
     [Fact]
+    public async Task PreparedDeletionCommitsOnlyWhileBothSnapshotsRemainUnchanged()
+    {
+        StringUtils.InitEncryptKey(StringUtils.GenerateEncryptKey());
+        await using var database = CreateDatabase();
+        await database.InitializeDatabaseAsync();
+        var keeper = Record("keeper", "synthetic", 2);
+        var duplicate = Record("duplicate", "synthetic", 1);
+        await database.AddRecordsAsync(new[] { keeper, duplicate }, true);
+        var prepared = await database.PrepareDuplicateDeletionAsync(keeper, duplicate, true);
+        Assert.NotNull(prepared);
+        database.Connection.Execute("UPDATE asset SET data_b64 = 'changed' WHERE hash_id = 'keeper'");
+        Assert.False(await database.CommitPreparedDuplicateDeletionAsync(prepared));
+        Assert.Equal(2, database.Connection.ExecuteScalar<int>("SELECT COUNT(*) FROM record"));
+        database.Connection.Execute("UPDATE asset SET data_b64 = 'synthetic' WHERE hash_id = 'keeper'");
+        Assert.True(await database.CommitPreparedDuplicateDeletionAsync(prepared));
+        Assert.Equal(1, database.Connection.ExecuteScalar<int>("SELECT COUNT(*) FROM record"));
+    }
+
+    [Fact]
+    public async Task PreparedDeletionRejectsPinChangesBetweenVerificationAndCommit()
+    {
+        StringUtils.InitEncryptKey(StringUtils.GenerateEncryptKey());
+        await using var database = CreateDatabase();
+        await database.InitializeDatabaseAsync();
+        var keeper = Record("keeper", "synthetic", 2);
+        var duplicate = Record("duplicate", "synthetic", 1);
+        await database.AddRecordsAsync(new[] { keeper, duplicate }, true);
+        var prepared = await database.PrepareDuplicateDeletionAsync(keeper, duplicate, true);
+        Assert.NotNull(prepared);
+        database.Connection.Execute("UPDATE record SET pinned = 1 WHERE hash_id = 'duplicate'");
+        Assert.False(await database.CommitPreparedDuplicateDeletionAsync(prepared));
+        Assert.Equal(2, database.Connection.ExecuteScalar<int>("SELECT COUNT(*) FROM record"));
+    }
+
+    [Fact]
     public async Task FailedAssetDeletionRollsBackTheRecordDeletion()
     {
         StringUtils.InitEncryptKey(StringUtils.GenerateEncryptKey());

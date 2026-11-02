@@ -430,6 +430,100 @@ public class SqliteDatabase : IAsyncDisposable
         });
     }
 
+    private const string SqlSelectDuplicateSnapshot = """
+        SELECT r.id as Id, a.data_b64 as DataMd5B64, r.sender_app as SenderApp,
+            r.cached_image_path as CachedImagePath, r.data_type as DataType,
+            r.encrypt_data as EncryptData, r.create_time as CreateTime,
+            r.datetime_score as DatetimeScore, r.pinned as Pinned,
+            r.hash_id as HashId, a.plain_text_b64 as PlainText,
+            r.encrypt_key_md5 as EncryptKeyMd5
+        FROM record r JOIN asset a ON r.hash_id = a.hash_id
+        WHERE r.hash_id = @HashId;
+        """;
+
+    /// <summary>
+    /// Prepares a saved-record deletion without holding the history lock. The
+    /// token contains transient database snapshots, never logs or persists them.
+    /// A caller must revalidate the live records and commit under its history lock.
+    /// </summary>
+    public async Task<PreparedDuplicateDeletion?> PrepareDuplicateDeletionAsync(ClipboardData keeper, ClipboardData duplicate, bool verifyImages)
+    {
+        if (!keeper.Saved || !duplicate.Saved || keeper.Pinned || duplicate.Pinned ||
+            keeper.FromWindowsClipboardHistory() || duplicate.FromWindowsClipboardHistory() ||
+            string.IsNullOrEmpty(keeper.HashId) || string.IsNullOrEmpty(duplicate.HashId) ||
+            keeper.HashId == duplicate.HashId || keeper.CreateTime < duplicate.CreateTime)
+        {
+            return null;
+        }
+        Record? keeperRecord = null;
+        Record? duplicateRecord = null;
+        await ProcessTaskQueueAsync(async () =>
+        {
+            keeperRecord = await Connection.QuerySingleOrDefaultAsync<Record>(SqlSelectDuplicateSnapshot, new { keeper.HashId });
+            duplicateRecord = await Connection.QuerySingleOrDefaultAsync<Record>(SqlSelectDuplicateSnapshot, new { duplicate.HashId });
+        });
+        if (keeperRecord is null || duplicateRecord is null || keeperRecord.Pinned || duplicateRecord.Pinned ||
+            (keeperRecord.EncryptData && keeperRecord.EncryptKeyMd5 != StringUtils.EncryptKeyMd5) ||
+            (duplicateRecord.EncryptData && duplicateRecord.EncryptKeyMd5 != StringUtils.EncryptKeyMd5))
+        {
+            return null;
+        }
+        try
+        {
+            var storedKeeper = ClipboardData.FromRecord(keeperRecord, 0);
+            var storedDuplicate = ClipboardData.FromRecord(duplicateRecord, 0);
+            if (!DuplicateSnapshotMetadataMatches(storedKeeper, keeper) ||
+                !DuplicateSnapshotMetadataMatches(storedDuplicate, duplicate) ||
+                ClipboardContentComparer.Compare(storedKeeper, keeper, verifyImages) != ClipboardContentComparison.Equal ||
+                ClipboardContentComparer.Compare(storedDuplicate, duplicate, verifyImages) != ClipboardContentComparison.Equal ||
+                ClipboardContentComparer.Compare(storedKeeper, storedDuplicate, verifyImages) != ClipboardContentComparison.Equal)
+            {
+                return null;
+            }
+            return new PreparedDuplicateDeletion(keeperRecord, duplicateRecord);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Commits a prepared deletion only if both database snapshots still match.
+    /// Callers must hold their history lock and validate both live snapshots.
+    /// </summary>
+    public async Task<bool> CommitPreparedDuplicateDeletionAsync(PreparedDuplicateDeletion prepared)
+    {
+        ArgumentNullException.ThrowIfNull(prepared);
+        var deleted = false;
+        await ProcessTaskQueueAsync(async () =>
+        {
+            using var transaction = Connection.BeginTransaction();
+            var currentKeeper = await Connection.QuerySingleOrDefaultAsync<Record>(SqlSelectDuplicateSnapshot,
+                new { prepared.Keeper.HashId }, transaction);
+            var currentDuplicate = await Connection.QuerySingleOrDefaultAsync<Record>(SqlSelectDuplicateSnapshot,
+                new { prepared.Duplicate.HashId }, transaction);
+            if (!SameStoredRecord(prepared.Keeper, currentKeeper) || !SameStoredRecord(prepared.Duplicate, currentDuplicate)) return;
+            var removed = await Connection.ExecuteAsync("DELETE FROM record WHERE hash_id = @HashId AND pinned = 0;",
+                new { prepared.Duplicate.HashId }, transaction);
+            if (removed != 1) return;
+            await Connection.ExecuteAsync(
+                "DELETE FROM asset WHERE hash_id = @HashId AND NOT EXISTS (SELECT 1 FROM record WHERE hash_id = @HashId);",
+                new { prepared.Duplicate.HashId }, transaction);
+            transaction.Commit();
+            deleted = true;
+        });
+        return deleted;
+    }
+
+    private static bool SameStoredRecord(Record expected, Record? actual) => actual is not null &&
+        expected.Id == actual.Id && expected.HashId == actual.HashId && expected.DataMd5B64 == actual.DataMd5B64 &&
+        expected.PlainText == actual.PlainText && expected.SenderApp == actual.SenderApp &&
+        expected.CachedImagePath == actual.CachedImagePath && expected.DataType == actual.DataType &&
+        expected.EncryptData == actual.EncryptData && expected.createTime == actual.createTime &&
+        expected.DatetimeScore == actual.DatetimeScore && expected.Pinned == actual.Pinned &&
+        expected.EncryptKeyMd5 == actual.EncryptKeyMd5;
+
     /// <summary>
     /// Deletes a saved duplicate only if both saved records still match the
     /// supplied snapshots and each other inside one database transaction.
