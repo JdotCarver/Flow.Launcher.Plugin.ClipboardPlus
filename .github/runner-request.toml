@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "9cf1810c-cc01-4052-aa37-cb6bb9c1ea31"
+request_id = "a60bdb60-044e-4096-af52-8e1f3499355b"
 target = "local-windows"
-job_name = "Full Review Verification"
+job_name = "Manual Action Refresh"
