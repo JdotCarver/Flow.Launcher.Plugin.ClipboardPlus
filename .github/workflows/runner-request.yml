@@ -1,0 +1,167 @@
+# .github/workflows/runner-request.yml
+#
+# One explicit Windows run per request commit, dispatched by a push.
+#
+#   bash tools/github_actions_runner/request_run.sh local-windows "Job Name"
+#
+# The request script rewrites .github/runner-request.toml and pushes it; that
+# path is the only trigger, so ordinary commits never start a run. The planner
+# validates the request and picks the runner labels, the workload runs on that
+# runner, and the exporter republishes every job's log to the `actions-logs`
+# branch because artifact and signed-URL downloads are blocked in the sandbox
+# (see tools/github_actions_runner/AGENTS.md).
+#
+# The workload verifies the tool kit itself: its unit tests, and a redaction
+# round trip over a log shaped like a real self-hosted job. Replace those steps
+# when the question changes; keep the planner and the exporter.
+#
+# Every step runs under PowerShell. Both targets here are Windows, and
+# `shell: bash` on a self-hosted Windows runner resolves to WSL's bash, which
+# mangles the Windows temp-script path -- see AGENTS.md.
+
+name: Runner request
+
+on:
+  push:
+    paths:
+      - .github/runner-request.toml
+
+concurrency:
+  group: runner-request-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Least privilege. Only the exporter writes anything, so only it gets a
+# write-capable token. The workload job runs on a self-hosted runner on a
+# personal machine, which is the worst place in this workflow to hand out a token
+# that can push to the repository.
+permissions:
+  contents: read
+
+jobs:
+  select-runner:
+    name: Select runner
+    runs-on: ubuntu-24.04
+    outputs:
+      request_id: ${{ steps.request.outputs.request_id }}
+      target: ${{ steps.request.outputs.target }}
+      workload_name: ${{ steps.request.outputs.workload_name }}
+      runner_labels: ${{ steps.request.outputs.runner_labels }}
+    steps:
+      - name: Check out the request commit
+        uses: actions/checkout@v4
+
+      - name: Validate the request
+        id: request
+        run: python3 tools/github_actions_runner/select_runner.py .github/runner-request.toml >> "$GITHUB_OUTPUT"
+
+      - name: Report the selection
+        run: |
+          echo "target: ${{ steps.request.outputs.target }}"
+          echo "labels: ${{ steps.request.outputs.runner_labels }}"
+          echo "workload: ${{ steps.request.outputs.workload_name }}"
+
+  workload:
+    name: ${{ needs.select-runner.outputs.workload_name }}
+    needs: select-runner
+    runs-on: ${{ fromJSON(needs.select-runner.outputs.runner_labels) }}
+    timeout-minutes: 30
+    steps:
+      - name: Check out the request commit
+        uses: actions/checkout@v4
+        with:
+          # The benchmark extracts the published code from origin/main, so the
+          # whole history has to be here.
+          fetch-depth: 0
+
+      # GitHub-hosted runners are bare, so they need a Python installed. The
+      # session runner is a real desktop that already has one -- and
+      # actions/setup-python cannot install there: it asks for registry access it
+      # does not have, then retries for twenty minutes before failing.
+      - name: Install Python (hosted runners only)
+        if: needs.select-runner.outputs.target != 'local-windows'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Resolve the Python to run with
+        shell: pwsh
+        run: |
+          $resolved = $null
+          foreach ($candidate in @('py', 'python', 'python3')) {
+            $command = Get-Command $candidate -ErrorAction SilentlyContinue
+            if (-not $command) { continue }
+            $executable = & $command.Source -c "import sys; print(sys.executable)" 2>$null
+            if ($LASTEXITCODE -eq 0 -and $executable) {
+              $resolved = "$executable".Trim()
+              break
+            }
+          }
+          if (-not $resolved) { throw "No usable Python found on this runner." }
+          "PYTHON=$resolved" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          & $resolved --version
+
+      - name: Environment
+        run: |
+          # Family and architecture only: the exact build is a finding aid for
+          # an attacker, and these logs are public. See
+          # tools/github_actions_runner/machine_label.py.
+          & $env:PYTHON -c "import sqlite3, sys; sys.path.insert(0, 'tools/github_actions_runner'); from machine_label import describe_machine; print('python', sys.version.split()[0], '| sqlite', sqlite3.sqlite_version, '|', describe_machine())"
+
+      - name: Runner receipt
+        run: |
+          & $env:PYTHON tools/github_actions_runner/probe.py .github/runner-request.toml
+
+      - name: Unit tests
+        run: |
+          # The tests live in dev/ and are not part of what a consumer
+          # repository copies, so their absence is expected there and is
+          # reported rather than treated as a failure.
+          $testDirectory = "dev/tests"
+          if (-not (Test-Path $testDirectory)) {
+            Write-Host "No dev/tests directory; this repository ships the kit without its tests. Skipping."
+            exit 0
+          }
+          # `unittest discover` exits 0 when it finds no tests at all, so a
+          # renamed test directory would report green having run nothing. Count
+          # them and fail below the expected floor instead.
+          & $env:PYTHON -m unittest discover -s $testDirectory -p "test_*.py" -v 2>&1 | Tee-Object -Variable testOutput
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $summary = ($testOutput | Select-String -Pattern '^Ran (\d+) tests').Matches
+          if (-not $summary -or [int]$summary.Groups[1].Value -lt 20) {
+            throw "Expected at least 20 tests to run; discovery found none or too few."
+          }
+
+      - name: Redaction round trip on a realistic log
+        run: |
+          # The redactor harvests identifiers from the log itself, so it must be
+          # checked against text shaped like a real self-hosted job rather than
+          # only against hand-written fixtures.
+          & $env:PYTHON tools/github_actions_runner/check_redaction.py
+
+  export-logs:
+    name: Export logs
+    needs:
+      - select-runner
+      - workload
+    if: always()
+    runs-on: ubuntu-24.04
+    permissions:
+      # `contents: write` pushes the actions-logs branch. `actions: read` is
+      # required to download the job logs in the first place: declaring a
+      # `permissions:` block sets every other scope to none, so dropping this
+      # made the export fail with 403 (observed on run 40525884741).
+      #
+      # `actions: write` is deliberately absent. The plan was to delete GitHub's
+      # unredacted copy of this run's logs from here, but that endpoint answers
+      # 403 while the workflow is running, and the exporter is part of the run it
+      # would be cleaning up. See AGENTS.md.
+      contents: write
+      actions: read
+    steps:
+      - name: Check out the request commit
+        uses: actions/checkout@v4
+
+      - name: Publish this run's logs to the actions-logs branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 tools/github_actions_runner/export_logs.py --exporter-name "Export logs"

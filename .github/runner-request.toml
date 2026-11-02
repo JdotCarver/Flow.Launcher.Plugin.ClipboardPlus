@@ -1,0 +1,10 @@
+# runner-request.toml
+#
+# Written by tools/github_actions_runner/request_run.sh on every run.
+#
+# The committed copy is a placeholder, not a request. It has to parse, because
+# the workflow triggers on a push to this path and select_runner.py validates it
+# before anything runs, but request_run.sh overwrites all of it on first use.
+# Do not treat the values below as meaningful.
+request_id = "PLACEHOLDER"
+target = "cloud-windows"
