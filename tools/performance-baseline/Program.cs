@@ -18,6 +18,11 @@ internal static class Program
     [STAThread]
     private static void Main(string[] args)
     {
+        if (args.Length == 1 && args[0] == "--image-capture-only")
+        {
+            ImageCaptureBenchmark.Run();
+            return;
+        }
         if (args.Length == 1 && args[0] == "--bulk-only")
         {
             BulkMethodBenchmark.Run();
