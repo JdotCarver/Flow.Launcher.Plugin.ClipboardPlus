@@ -41,7 +41,7 @@ public partial class ClipboardPlus
         Interlocked.Increment(ref windowsEvidenceGeneration);
         if (Settings is null) return;
         if (Settings.AutomaticCleanup) ScheduleAutomaticCleanup();
-        else if (windowsSuppression.GetManualIds().Count > 0) cleanupCoordinator.RequestWindowsEvidence();
+        if (windowsSuppression.GetManualIds().Count > 0) cleanupCoordinator.RequestWindowsEvidence();
     }
 
     private void WindowsClipboardHelper_OnHistoryReadCompleted(object? sender, string[] ids)
@@ -122,6 +122,18 @@ public partial class ClipboardPlus
                     windowsSuppression.RememberAutomatic(candidate.WindowsId, Settings.RememberWindowsSuppression);
                 evidence[candidate.WindowsId] = new WindowsEvidence(target, snapshots[targetIndex], keeper, snapshots[keeperIndex]);
                 if (!wasHidden && windowsSuppression.ShouldHide(candidate.WindowsId, false, Settings.AutomaticCleanup, true)) hidden++;
+            }
+            // Reuse prior proofs only while both immutable snapshots are still
+            // live and unchanged. This preserves manually verified image
+            // suppression during a later best-effort refresh without re-encoding.
+            foreach (var existing in windowsEvidence)
+            {
+                var item = existing.Value;
+                if (!evidence.ContainsKey(existing.Key) && item.Target.List == RecordsList && item.Keeper.List == RecordsList &&
+                    item.TargetSnapshot.Matches(item.Target.Value.ClipboardData) &&
+                    item.KeeperSnapshot.Matches(item.Keeper.Value.ClipboardData) &&
+                    !item.Target.Value.ClipboardData.Pinned && !item.Keeper.Value.ClipboardData.Pinned)
+                    evidence.Add(existing.Key, item);
             }
             windowsEvidence = evidence;
         }

@@ -71,6 +71,7 @@ internal static class DuplicatePluginIntegration
                 throw new InvalidOperationException("Synthetic cleanup query validation failed");
             TestCapacityProtection(plugin);
             TestDisabledEvidenceRefresh(plugin);
+            TestManualImageEvidenceRetention();
             TestOptOutImageCache(plugin);
             TestSyntheticCacheScan(plugin, database);
             Console.WriteLine("dedup plugin synthetic record and cache integration checks passed");
@@ -142,6 +143,37 @@ internal static class DuplicatePluginIntegration
         for (var i = 0; i < 100; i++) refresh.Invoke(plugin, null);
         if ((bool)typeof(CleanupRunCoordinator).GetField("workerRunning", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(coordinator)!)
             throw new InvalidOperationException("Disabled cleanup scheduled unneeded evidence work");
+    }
+
+    private static void TestManualImageEvidenceRetention()
+    {
+        var plugin = new Plugin();
+        var settings = new Settings { AutomaticCleanup = true };
+        SetField(plugin, "Settings", settings);
+        var helper = typeof(Plugin).GetField("WindowsClipboardHelper", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(plugin)!;
+        typeof(WindowsClipboardHelper).GetField("pinStateTrusted", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(helper, true);
+        var image = BitmapSource.Create(1, 1, 96, 96, PixelFormats.Bgra32, null, new byte[] { 21, 22, 23, 255 }, 4);
+        image.Freeze();
+        ClipboardData Image(string id, int minute) => new(image, DataType.Image, false)
+        {
+            HashId = id, SenderApp = "synthetic", InitScore = 0, CreateTime = new DateTime(2026, 1, 1).AddMinutes(minute),
+            Pinned = false, Saved = false
+        };
+        object boxed = Image("synthetic-windows-image", 1);
+        typeof(ClipboardData).GetProperty("WindowsHistoryOrigin", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(boxed, true);
+        var windows = new ClipboardDataPair { ClipboardData = (ClipboardData)boxed,
+            PreviewPanel = new Lazy<UserControl>(() => throw new InvalidOperationException("Preview must stay lazy")) };
+        var keeper = new ClipboardDataPair { ClipboardData = Image("synthetic-image-keeper", 2),
+            PreviewPanel = new Lazy<UserControl>(() => throw new InvalidOperationException("Preview must stay lazy")) };
+        SetField(plugin, "RecordsList", new LinkedList<ClipboardDataPair>([keeper, windows]));
+        var refresh = typeof(Plugin).GetMethod("RefreshWindowsEvidenceAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var hidden = typeof(Plugin).GetMethod("IsWindowsSuppressed", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        ((Task<CleanupReport>)refresh.Invoke(plugin, [CleanupWork.ManualThorough, true, 0L])!).GetAwaiter().GetResult();
+        if (!(bool)hidden.Invoke(plugin, [windows])!) throw new InvalidOperationException("Manual synthetic image was not suppressed");
+        ((Task<CleanupReport>)refresh.Invoke(plugin, [CleanupWork.AutomaticBestEffort, false, 0L])!).GetAwaiter().GetResult();
+        if (!(bool)hidden.Invoke(plugin, [windows])!) throw new InvalidOperationException("Best effort discarded valid manual image evidence");
+        windows.TogglePinned();
+        if ((bool)hidden.Invoke(plugin, [windows])!) throw new InvalidOperationException("Pinned synthetic Windows item was hidden");
     }
 
     private static void TestOptOutImageCache(Plugin plugin)
