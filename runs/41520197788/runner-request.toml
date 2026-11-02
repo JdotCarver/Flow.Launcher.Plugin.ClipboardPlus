@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "8d1f1e11-aeb3-4eaa-b7ff-528946c1ccdc"
+request_id = "d703ae22-2f54-4e0d-a899-7a97ef55e162"
 target = "local-windows"
-job_name = "Cleanup Safety Integration"
+job_name = "Managed Cache Safety"
