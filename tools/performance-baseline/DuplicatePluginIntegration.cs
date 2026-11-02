@@ -72,6 +72,7 @@ internal static class DuplicatePluginIntegration
             TestUnloadedSavedKeeper();
             TestManualActionRefresh();
             TestCapacityProtection(plugin);
+            TestBoundedWindowsAndSkippedOverflow(plugin);
             TestDisabledEvidenceRefresh(plugin);
             TestManualImageEvidenceRetention();
             TestOptOutImageCache(plugin);
@@ -210,6 +211,50 @@ internal static class DuplicatePluginIntegration
         ((Task<CleanupReport>)cleanup.Invoke(plugin, [CleanupWork.AutomaticBestEffort])!).GetAwaiter().GetResult();
         if (list.Count != 2 || list.Any(pair => pair.ClipboardData.HashId == "distinct-0"))
             throw new InvalidOperationException("Verified unique overflow was not trimmed");
+    }
+
+    private static void TestBoundedWindowsAndSkippedOverflow(Plugin plugin)
+    {
+        SetField(plugin, "Settings", new Settings { AutomaticCleanup = true, MaxRecords = 2 });
+        SetField(plugin, "UseWindowsClipboardHistoryOnly", true);
+        var list = new LinkedList<ClipboardDataPair>();
+        SetField(plugin, "RecordsList", list);
+        var add = typeof(Plugin).GetMethod("AddClipboardDataItem", BindingFlags.Instance | BindingFlags.NonPublic,
+            null, [typeof(ClipboardData)], null)!;
+        ClipboardData Windows(string id, bool pinned = false)
+        {
+            object boxed = new ClipboardData($"synthetic {id}", DataType.PlainText, false)
+            {
+                HashId = id, SenderApp = "synthetic", InitScore = 0, CreateTime = new DateTime(2026, 1, 1), Pinned = pinned, Saved = false
+            };
+            typeof(ClipboardData).GetProperty("WindowsHistoryOrigin", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(boxed, true);
+            return (ClipboardData)boxed;
+        }
+        add.Invoke(plugin, [Windows("pinned-windows", true)]);
+        for (var i = 0; i < 60; i++) add.Invoke(plugin, [Windows($"windows-{i}")]);
+        if (list.Count != 2 + HistoryOverflowPolicy.MaximumOverflow || !list.Any(pair => pair.ClipboardData.HashId == "pinned-windows"))
+            throw new InvalidOperationException("Synthetic Windows captures exceeded the bound or evicted a pinned record");
+        var cleanup = typeof(Plugin).GetMethod("RunCleanupWorkAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        ((Task<CleanupReport>)cleanup.Invoke(plugin, [CleanupWork.AutomaticBestEffort])!).GetAwaiter().GetResult();
+        if (list.Count != 2 || !list.Any(pair => pair.ClipboardData.HashId == "pinned-windows"))
+            throw new InvalidOperationException("Windows-origin records blocked ordinary capacity trimming");
+
+        SetField(plugin, "UseWindowsClipboardHistoryOnly", false);
+        list.Clear();
+        var image = BitmapSource.Create(1, 1, 96, 96, PixelFormats.Bgra32, null, new byte[] { 31, 32, 33, 255 }, 4);
+        image.Freeze();
+        ClipboardData Image(string id) => new(image, DataType.Image, false)
+        {
+            HashId = id, SenderApp = "synthetic", InitScore = 0, CreateTime = new DateTime(2026, 1, 1), Pinned = false, Saved = false
+        };
+        add.Invoke(plugin, [Image("image-a")]);
+        add.Invoke(plugin, [Image("image-b")]);
+        for (var i = 0; i < 15; i++)
+        {
+            add.Invoke(plugin, [Windows($"unrelated-{i}")]);
+            ((Task<CleanupReport>)cleanup.Invoke(plugin, [CleanupWork.AutomaticBestEffort])!).GetAwaiter().GetResult();
+            if (list.Count > 3) throw new InvalidOperationException("An unrelated capture grew skipped-image overflow");
+        }
     }
 
     private static void TestDisabledEvidenceRefresh(Plugin plugin)
