@@ -52,6 +52,11 @@
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
@@ -572,6 +577,31 @@
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             Content="{DynamicResource flowlauncher_plugin_clipboardplus_relative_time_setting}"
             IsChecked="{Binding UseRelativeTime, Mode=TwoWay}" />
+
+        <!--  Duplicate cleanup  -->
+        <TextBlock Grid.Row="30" Grid.Column="0"
+            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
+            VerticalAlignment="Center"
+            Text="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_keyword}" />
+        <TextBox Grid.Row="30" Grid.Column="1" MinWidth="120"
+            Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
+            HorizontalAlignment="Left" Text="{Binding CleanupKeyword, Mode=TwoWay}" />
+        <CheckBox Grid.Row="31" Grid.ColumnSpan="2"
+            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
+            Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_automatic}"
+            IsChecked="{Binding AutomaticCleanup, Mode=TwoWay}" />
+        <CheckBox Grid.Row="32" Grid.ColumnSpan="2"
+            Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
+            Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_thorough}"
+            IsChecked="{Binding AutomaticCleanupThorough, Mode=TwoWay}"
+            IsEnabled="{Binding AutomaticCleanup, Mode=OneWay}" />
+        <Button Grid.Row="33" Grid.ColumnSpan="2" HorizontalAlignment="Left"
+            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
+            Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_action}"
+            Command="{Binding CleanupCommand}" />
+        <TextBlock Grid.Row="34" Grid.ColumnSpan="2" TextWrapping="Wrap"
+            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
+            Text="{Binding CleanupFeedback, Mode=OneWay}" />
 
         <!--  Restore to Default  -->
         <Button

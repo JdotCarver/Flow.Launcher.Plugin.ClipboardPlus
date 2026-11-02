@@ -3,6 +3,9 @@
 using System.Globalization;
 using System.Reflection;
 using System.Windows.Controls;
+using CommunityToolkit.Mvvm.DependencyInjection;
+using Flow.Launcher.Plugin;
+using Flow.Launcher.Plugin.ClipboardPlus.Panels.ViewModels;
 using Flow.Launcher.Plugin.ClipboardPlus.Core.Data.Enums;
 using Flow.Launcher.Plugin.ClipboardPlus.Core.Data.Models;
 using Flow.Launcher.Plugin.ClipboardPlus.Core.Helpers;
@@ -30,6 +33,7 @@ internal static class DuplicatePluginIntegration
             }));
             var plugin = new Plugin();
             SetField(plugin, "ClipboardMonitor", null);
+            SetField(plugin, "Context", new PluginInitContext(null, Ioc.Default.GetRequiredService<IPublicAPI>()));
             SetField(plugin, "Settings", new Settings());
             SetField(plugin, "CultureInfo", CultureInfo.GetCultureInfo("en-US"));
             SetField(plugin, "ScoreHelper", new ScoreHelper(10000));
@@ -42,12 +46,28 @@ internal static class DuplicatePluginIntegration
                 list.Any(item => item.ClipboardData.HashId is "saved" or "temporary") ||
                 !list.Any(item => item.ClipboardData.HashId == "pinned"))
                 throw new InvalidOperationException("Synthetic plugin cleanup failed");
+            var settings = new SettingsViewModel(plugin);
+            settings.ClearKeyword = "cleanup";
+            settings.CleanupKeyword = "clear";
+            if (settings.ClearKeyword != "clear" || settings.CleanupKeyword != "cleanup" || string.IsNullOrEmpty(settings.CleanupFeedback))
+                throw new InvalidOperationException("Synthetic cleanup keyword conflict validation failed");
+            var exact = plugin.QueryAsync(QueryFor("cleanup"), CancellationToken.None).GetAwaiter().GetResult();
+            var longer = plugin.QueryAsync(QueryFor("cleanup extra"), CancellationToken.None).GetAwaiter().GetResult();
+            if (exact.Count != 1 || exact[0].Score != int.MaxValue || longer.Count != 0 || list.Count != 2)
+                throw new InvalidOperationException("Synthetic cleanup query validation failed");
             Console.WriteLine("dedup plugin synthetic record integration checks passed");
         }
         finally
         {
             database.DisposeAsync().AsTask().GetAwaiter().GetResult();
         }
+    }
+
+    private static Query QueryFor(string search)
+    {
+        var query = new Query { ActionKeyword = "cbp", SearchTerms = search.Split(' ') };
+        typeof(Query).GetProperty("Search")!.SetValue(query, search);
+        return query;
     }
 
     private static ClipboardData Record(string id, int minute, bool saved, bool pinned = false) => new("synthetic", DataType.PlainText, false)

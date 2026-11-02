@@ -24,6 +24,9 @@ public interface IClipboardPlus
 
     public ISettings Settings { get; }
 
+    public ManualCleanupRequest RequestManualCleanup() =>
+        new(false, Task.FromResult(new CleanupReport(0, 0, 0, 0, 1)));
+
     public ISettings LoadSettingJsonStorage();
 
     public void SaveSettingJsonStorage();

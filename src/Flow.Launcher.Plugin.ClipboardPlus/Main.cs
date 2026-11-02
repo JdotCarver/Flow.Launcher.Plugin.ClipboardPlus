@@ -162,6 +162,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
     public async Task<List<Result>> Query(Query query, CancellationToken token)
     {
         var results = new List<Result>();
+        var queryGeneration = Interlocked.Increment(ref cleanupQueryGeneration);
         if (query.FirstSearch == Settings.ClearKeyword)
         {
             // clean windows clipboard history actions
@@ -358,6 +359,11 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
         else
         {
             var querySearch = query.Search;
+            if (CleanupKeywordValidator.Validate(Settings.CleanupKeyword, Settings.ClearKeyword) == CleanupKeywordValidation.Valid &&
+                CleanupKeywordValidator.IsExactQuery(querySearch, Settings.CleanupKeyword))
+            {
+                results.Add(CreateCleanupAction(results, query, token, queryGeneration));
+            }
             if (string.IsNullOrWhiteSpace(querySearch))
             {
                 // clean action

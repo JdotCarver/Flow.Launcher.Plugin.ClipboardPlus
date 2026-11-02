@@ -12,6 +12,19 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_yesterday">昨天 {0}</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_weekday">{0} {1}</system:String>
 
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_keyword">清理关键词</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_automatic">自动合并重复项</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_thorough">使用彻底的自动验证</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_action">清理重复记录</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_running">正在清理…</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_already_running">清理已在进行中…</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_counts">已删除 {0} 条记录和 {1} 个缓存文件；隐藏 {2} 个 Windows 项目。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_skipped">跳过：{0}。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_errors">错误：{0}。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_keyword_invalid">请使用与清除关键词不同的单个关键词。</system:String>
+
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_action_subtitle">验证并合并重复的剪贴板记录</system:String>
+
     <!--  General  -->
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_name">剪切板+</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_description">轻松管理你的剪切板历史与Windows剪切板历史，支持文字、图像和文件</system:String>

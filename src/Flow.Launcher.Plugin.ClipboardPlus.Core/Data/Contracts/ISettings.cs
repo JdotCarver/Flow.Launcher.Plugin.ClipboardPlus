@@ -11,6 +11,9 @@ public interface ISettings
     /// </summary>
     public string ClearKeyword { get; set; }
 
+    /// <summary>Action keyword for manual duplicate cleanup.</summary>
+    public string CleanupKeyword { get; set; }
+
     /// <summary>
     /// Maximum number of records to keep
     /// </summary>

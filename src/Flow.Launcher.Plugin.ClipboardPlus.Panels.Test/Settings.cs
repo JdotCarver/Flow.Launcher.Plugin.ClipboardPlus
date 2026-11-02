@@ -11,6 +11,8 @@ public class Settings : ISettings
 {
     public string ClearKeyword { get; set; } = "clear";
 
+    public string CleanupKeyword { get; set; } = "cleanup";
+
     public int MaxRecords { get; set; } = 10000;
 
     public RecordOrder RecordOrder { get; set; } = RecordOrder.CreateTime;

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Flow.Launcher.Plugin.ClipboardPlus;
 
@@ -11,6 +12,50 @@ public partial class ClipboardPlus
     private readonly CleanupRunCoordinator cleanupCoordinator;
     private bool lastAutomaticCleanup;
     private bool lastAutomaticCleanupThorough;
+
+    public ManualCleanupRequest RequestManualCleanup() => cleanupCoordinator.RequestManual();
+
+    private long cleanupQueryGeneration;
+
+    private Result CreateCleanupAction(List<Result> results, Query query, CancellationToken token, long generation)
+    {
+        Result action = null!;
+        void Publish()
+        {
+            if (!token.IsCancellationRequested && Interlocked.Read(ref cleanupQueryGeneration) == generation)
+            {
+                ResultsUpdated?.Invoke(this, new ResultUpdatedEventArgs { Results = results, Query = query });
+            }
+        }
+        async Task CompleteAsync(Task<CleanupReport> task)
+        {
+            var report = await task;
+            action.SubTitle = Localize.flowlauncher_plugin_clipboardplus_cleanup_counts(report.RecordsRemoved, report.CacheFilesRemoved, report.WindowsItemsHidden);
+            if (report.Skipped > 0) action.SubTitle += " " + Localize.flowlauncher_plugin_clipboardplus_cleanup_skipped(report.Skipped);
+            if (report.Errors > 0) action.SubTitle += " " + Localize.flowlauncher_plugin_clipboardplus_cleanup_errors(report.Errors);
+            Publish();
+        }
+        action = new Result
+        {
+            Title = Localize.flowlauncher_plugin_clipboardplus_cleanup_action(),
+            SubTitle = Localize.flowlauncher_plugin_clipboardplus_cleanup_action_subtitle(),
+            IcoPath = PathHelper.ClearIconPath,
+            Glyph = ResourceHelper.ClearGlyph,
+            Score = int.MaxValue,
+            AddSelectedCount = false,
+            Action = context =>
+            {
+                var request = RequestManualCleanup();
+                action.SubTitle = request.AlreadyRunning
+                    ? Localize.flowlauncher_plugin_clipboardplus_cleanup_already_running()
+                    : Localize.flowlauncher_plugin_clipboardplus_cleanup_running();
+                Publish();
+                _ = CompleteAsync(request.Completion);
+                return false;
+            }
+        };
+        return action;
+    }
 
     private void RefreshAutomaticCleanup()
     {
