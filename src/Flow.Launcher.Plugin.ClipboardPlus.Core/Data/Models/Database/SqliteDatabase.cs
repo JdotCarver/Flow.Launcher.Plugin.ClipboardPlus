@@ -611,30 +611,59 @@ public class SqliteDatabase : IAsyncDisposable
         stored.SenderApp == snapshot.SenderApp && stored.CachedImagePath == snapshot.CachedImagePath &&
         stored.EncryptData == snapshot.EncryptData && stored.EncryptKeyMd5 == snapshot.EncryptKeyMd5;
 
-    /// <summary>Loads accessible saved records for cleanup without holding the history lock.</summary>
-    public async Task<(IReadOnlyList<ClipboardData> Records, int Skipped)> GetCleanupRecordsAsync(bool thorough)
+    private sealed class CleanupRecordKey
     {
-        var rows = new List<Record>();
+        public string HashId { get; set; } = string.Empty;
+        public string? ContentHash { get; set; }
+        public int DataType { get; set; }
+    }
+
+    /// <summary>
+    /// Fetches payloads only for unloaded records in possible saved duplicate
+    /// groups. Hash metadata is only a candidate filter, never equality proof.
+    /// </summary>
+    public async Task<(IReadOnlyList<ClipboardData> Records, int Skipped)> GetCleanupRecordsAsync(
+        bool thorough, IReadOnlyCollection<string> loadedIds)
+    {
+        var keys = new List<CleanupRecordKey>();
         await ProcessTaskQueueAsync(async () =>
         {
-            // Bound materialization in best-effort mode before decrypting or hashing.
-            var sql = SqlSelectAllRecord.TrimEnd().TrimEnd(';');
-            if (!thorough)
-                sql += " WHERE r.data_type <> @Image AND length(a.data_b64) <= @MaxEncoded AND length(COALESCE(a.plain_text_b64, '')) <= @MaxEncoded";
-            rows.AddRange(await Connection.QueryAsync<Record>(sql, new { Image = (int)DataType.Image, MaxEncoded = 32768 }));
+            keys.AddRange(await Connection.QueryAsync<CleanupRecordKey>(
+                "SELECT hash_id AS HashId, data_md5_b64 AS ContentHash, data_type AS DataType FROM record WHERE pinned = 0;"));
         });
+        var loaded = new HashSet<string>(loadedIds, StringComparer.Ordinal);
+        var candidates = keys.GroupBy(key => (key.DataType, key.ContentHash))
+            .Where(group => string.IsNullOrEmpty(group.Key.ContentHash) || group.Skip(1).Any())
+            .SelectMany(group => group).Where(key => !loaded.Contains(key.HashId))
+            .Select(key => key.HashId).Distinct(StringComparer.Ordinal).ToArray();
         var result = new List<ClipboardData>();
         var skipped = 0;
-        foreach (var row in rows)
+        foreach (var batch in candidates.Chunk(128))
         {
-            try
+            var rows = new List<Record>();
+            await ProcessTaskQueueAsync(async () =>
             {
-                if (row.EncryptData && row.EncryptKeyMd5 != StringUtils.EncryptKeyMd5) { skipped++; continue; }
-                var data = ClipboardData.FromRecord(row, 0);
-                if (data.Data is null || (!thorough && !DuplicateVerificationPolicy.CanVerifyBestEffort(data))) { skipped++; continue; }
-                result.Add(data);
+                var sql = SqlSelectAllRecord.TrimEnd().TrimEnd(';') + " WHERE r.hash_id IN @Ids";
+                // Avoid materializing large payloads in best-effort mode.
+                if (!thorough)
+                    sql += " AND r.data_type <> @Image AND length(a.data_b64) <= @MaxEncoded AND length(COALESCE(a.plain_text_b64, '')) <= @MaxEncoded";
+                rows.AddRange(await Connection.QueryAsync<Record>(sql,
+                    new { Ids = batch, Image = (int)DataType.Image, MaxEncoded = 32768 }));
+            });
+            skipped += batch.Length - rows.Count;
+            // Decryption and image reconstruction happen outside the queue.
+            foreach (var row in rows)
+            {
+                try
+                {
+                    if (row.EncryptData && row.EncryptKeyMd5 != StringUtils.EncryptKeyMd5) { skipped++; continue; }
+                    var data = ClipboardData.FromRecord(row, 0);
+                    if (data.Data is null || (!thorough && !DuplicateVerificationPolicy.CanVerifyBestEffort(data))) { skipped++; continue; }
+                    result.Add(data);
+                }
+                catch (Exception) { skipped++; }
             }
-            catch (Exception) { skipped++; }
+            await Task.Yield();
         }
         return (result, skipped);
     }

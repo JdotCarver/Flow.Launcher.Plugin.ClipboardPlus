@@ -175,9 +175,9 @@ public partial class ClipboardPlus
         var databaseSkipped = 0;
         if (!UseWindowsClipboardHistoryOnly)
         {
-            var stored = await Database.GetCleanupRecordsAsync(thorough);
-            databaseSkipped = stored.Skipped;
             var loadedIds = new HashSet<string>(snapshots.Select(snapshot => snapshot.Original.HashId), StringComparer.Ordinal);
+            var stored = await Database.GetCleanupRecordsAsync(thorough, loadedIds);
+            databaseSkipped = stored.Skipped;
             foreach (var data in stored.Records)
             {
                 if (loadedIds.Contains(data.HashId)) continue;
