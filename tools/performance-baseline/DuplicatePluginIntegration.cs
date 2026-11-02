@@ -69,6 +69,8 @@ internal static class DuplicatePluginIntegration
             if (exact.Count != 1 || exact[0].Score != int.MaxValue || longer.Count != 0 || list.Count != 3)
                 throw new InvalidOperationException("Synthetic cleanup query validation failed");
             TestCapacityProtection(plugin);
+            TestDisabledEvidenceRefresh(plugin);
+            TestOptOutImageCache(plugin);
             TestSyntheticCacheScan(plugin, database);
             Console.WriteLine("dedup plugin synthetic record and cache integration checks passed");
         }
@@ -100,6 +102,51 @@ internal static class DuplicatePluginIntegration
         var report = ((Task<CleanupReport>)cleanup.Invoke(plugin, [CleanupWork.AutomaticBestEffort])!).GetAwaiter().GetResult();
         if (report.RecordsRemoved != 1 || list.Count != 2 || !list.Any(pair => pair.ClipboardData.HashId == "unique"))
             throw new InvalidOperationException("Synthetic duplicate cleanup did not protect capacity");
+    }
+
+    private static void TestDisabledEvidenceRefresh(Plugin plugin)
+    {
+        SetField(plugin, "Settings", new Settings { AutomaticCleanup = false });
+        var coordinator = typeof(Plugin).GetField("cleanupCoordinator", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(plugin)!;
+        var refresh = typeof(Plugin).GetMethod("RequestWindowsEvidenceRefresh", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        for (var i = 0; i < 100; i++) refresh.Invoke(plugin, null);
+        if ((bool)typeof(CleanupRunCoordinator).GetField("workerRunning", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(coordinator)!)
+            throw new InvalidOperationException("Disabled cleanup scheduled unneeded evidence work");
+    }
+
+    private static void TestOptOutImageCache(Plugin plugin)
+    {
+        var root = Path.Combine(Path.GetTempPath(), $"clipboardplus-optout-cache-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(root);
+        var cachePath = typeof(PathHelper).GetProperty("ImageCachePath")!;
+        var previous = cachePath.GetValue(null);
+        try
+        {
+            cachePath.SetValue(null, root);
+            var settings = new Settings { AutomaticCleanup = false, CacheImages = true };
+            SetField(plugin, "Settings", settings);
+            SetField(plugin, "RecordsList", new LinkedList<ClipboardDataPair>());
+            SetField(plugin, "Context", new PluginInitContext(null, Ioc.Default.GetRequiredService<IPublicAPI>()));
+            var image = BitmapSource.Create(1, 1, 96, 96, PixelFormats.Bgra32, null, new byte[] { 8, 9, 10, 255 }, 4);
+            image.Freeze();
+            var capture = typeof(Plugin).GetMethod("GetClipboardDataItem", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            var savesBefore = Volatile.Read(ref SyntheticHost.SettingsSaveCalls);
+            ClipboardData Create(string id) => (ClipboardData)capture.Invoke(plugin,
+                [image, DataType.Image, id, new DateTime(2026, 1, 1), SourceApplication.NULL, "", "", true, null])!;
+            var first = Create("synthetic-image-one");
+            var second = Create("synthetic-image-two");
+            if (string.IsNullOrEmpty(first.CachedImagePath) || first.CachedImagePath == second.CachedImagePath ||
+                !File.Exists(first.CachedImagePath) || !File.Exists(second.CachedImagePath) ||
+                settings.OwnedCacheFiles.Count != 2 || settings.OwnedCacheFiles.Any(item => item.WindowsAssociated))
+                throw new InvalidOperationException("Opt-out synthetic capture did not preserve owned files");
+            if (!SpinWait.SpinUntil(() => Volatile.Read(ref SyntheticHost.SettingsSaveCalls) >= savesBefore + 2, TimeSpan.FromSeconds(10)))
+                throw new InvalidOperationException("Synthetic provenance saves did not complete");
+        }
+        finally
+        {
+            cachePath.SetValue(null, previous);
+            Directory.Delete(root, true);
+        }
     }
 
     private static void TestSyntheticCacheScan(Plugin plugin, SqliteDatabase database)
