@@ -148,6 +148,7 @@ public class SettingsViewModel : BaseModel
         base.OnPropertyChanged(nameof(MaxRecords));
         base.OnPropertyChanged(nameof(ActionTop));
         base.OnPropertyChanged(nameof(ShowNotification));
+        base.OnPropertyChanged(nameof(UseRelativeTime));
 
         base.OnPropertyChanged(nameof(SyncWindowsClipboardHistory));
         base.OnPropertyChanged(nameof(UseWindowsClipboardHistoryOnly));
@@ -299,6 +300,20 @@ public class SettingsViewModel : BaseModel
     }
 
     #endregion
+
+    public bool UseRelativeTime
+    {
+        get => Settings.UseRelativeTime;
+        set
+        {
+            if (Settings.UseRelativeTime == value)
+            {
+                return;
+            }
+            Settings.UseRelativeTime = value;
+            OnPropertyChanged();
+        }
+    }
 
     #region Sync Windows Clipboard History
 

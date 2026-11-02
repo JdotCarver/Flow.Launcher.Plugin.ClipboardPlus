@@ -4,6 +4,14 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:system="clr-namespace:System;assembly=mscorlib">
 
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_time_setting">Show relative timestamps</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_just_now">Just now</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_minute">{0} minute ago</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_minutes">{0} minutes ago</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_today">Today at {0}</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_yesterday">Yesterday at {0}</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_weekday">{0} at {1}</system:String>
+
     <!--  General  -->
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_name">Clipboard+</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_description">Easily manage your clipboard history and Windows Clipboard History with support for text, images, and files</system:String>

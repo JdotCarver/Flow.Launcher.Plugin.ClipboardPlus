@@ -1723,7 +1723,17 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
             var limitedDisplayTitle = title.Length > MaxTitleToolTipCharacters ? string.Concat(title.AsSpan(0, MaxTitleToolTipCharacters), "...") : title;
             var titleText = clipboardData.GetText(CultureInfo);
             var limitedDisplayTitleText = titleText.Length > MaxTitleToolTipCharacters ? string.Concat(titleText.AsSpan(0, MaxTitleToolTipCharacters), "...") : titleText;
-            var subtitle = clipboardData.GetSubtitle(CultureInfo);
+            var subtitle = Settings.UseRelativeTime
+                ? clipboardData.GetSubtitleWithTimestamp(RelativeTimeFormatter.Format(
+                    clipboardData.CreateTime, DateTime.Now, CultureInfo,
+                    Localize.flowlauncher_plugin_clipboardplus_relative_just_now(),
+                    minutes => minutes == 1
+                        ? Localize.flowlauncher_plugin_clipboardplus_relative_minute(minutes)
+                        : Localize.flowlauncher_plugin_clipboardplus_relative_minutes(minutes),
+                    time => Localize.flowlauncher_plugin_clipboardplus_relative_today(time),
+                    time => Localize.flowlauncher_plugin_clipboardplus_relative_yesterday(time),
+                    (day, time) => Localize.flowlauncher_plugin_clipboardplus_relative_weekday(day, time)))
+                : clipboardData.GetSubtitle(CultureInfo);
             return new Result
             {
                 Title = limitedDisplayTitle,

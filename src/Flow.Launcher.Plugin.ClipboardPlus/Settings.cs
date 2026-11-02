@@ -20,6 +20,8 @@ public class Settings : ISettings
 
     public bool ShowNotification { get; set; } = true;
 
+    public bool UseRelativeTime { get; set; } = false;
+
     public bool SyncWindowsClipboardHistory { get; set; } = false;
 
     public bool UseWindowsClipboardHistoryOnly { get; set; } = false;

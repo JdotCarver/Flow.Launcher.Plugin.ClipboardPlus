@@ -31,6 +31,9 @@ public interface ISettings
     /// </summary>
     public bool ShowNotification { get; set; }
 
+    /// <summary>Whether result timestamps use relative time.</summary>
+    public bool UseRelativeTime { get; set; }
+
     /// <summary>
     /// Whether to sync with Windows clipboard history
     /// </summary>

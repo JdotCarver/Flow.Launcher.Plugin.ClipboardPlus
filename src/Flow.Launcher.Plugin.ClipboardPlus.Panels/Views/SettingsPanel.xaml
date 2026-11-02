@@ -51,6 +51,7 @@
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
@@ -563,6 +564,14 @@
             Grid.Row="27"
             Grid.ColumnSpan="2"
             Style="{StaticResource SettingPanelSeparatorStyle}" />
+
+        <!--  Relative timestamps  -->
+        <CheckBox
+            Grid.Row="29"
+            Grid.ColumnSpan="2"
+            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
+            Content="{DynamicResource flowlauncher_plugin_clipboardplus_relative_time_setting}"
+            IsChecked="{Binding UseRelativeTime, Mode=TwoWay}" />
 
         <!--  Restore to Default  -->
         <Button

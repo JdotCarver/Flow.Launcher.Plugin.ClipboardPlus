@@ -4,6 +4,14 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:system="clr-namespace:System;assembly=mscorlib">
 
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_time_setting">顯示相對時間</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_just_now">剛剛</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_minute">{0} 分鐘前</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_minutes">{0} 分鐘前</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_today">今天 {0}</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_yesterday">昨天 {0}</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_weekday">{0} {1}</system:String>
+
     <!--  General  -->
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_name">剪貼板+</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_description">輕鬆管理你的剪貼板歴史與 Windows 剪貼板歷史，支援文字、圖像和文件</system:String>
