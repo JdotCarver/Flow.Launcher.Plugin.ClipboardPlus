@@ -39,6 +39,9 @@ public class VerifiedDuplicateDatabaseTests
     [InlineData("UPDATE asset SET data_b64 = 'changed' WHERE hash_id = 'duplicate'")]
     [InlineData("UPDATE asset SET data_b64 = 'changed' WHERE hash_id = 'keeper'")]
     [InlineData("DELETE FROM record WHERE hash_id = 'keeper'")]
+    [InlineData("UPDATE record SET sender_app = 'changed' WHERE hash_id = 'duplicate'")]
+    [InlineData("UPDATE record SET cached_image_path = 'changed' WHERE hash_id = 'duplicate'")]
+    [InlineData("UPDATE record SET create_time = '2024-01-01T00:00:00' WHERE hash_id = 'keeper'")]
     public async Task ChangedOrMissingRecordsAreNotDeleted(string change)
     {
         StringUtils.InitEncryptKey(StringUtils.GenerateEncryptKey());
@@ -51,6 +54,27 @@ public class VerifiedDuplicateDatabaseTests
         Assert.False(await database.TryDeleteVerifiedDuplicateAsync(keeper, duplicate, true));
         Assert.Equal(1, database.Connection.ExecuteScalar<int>("SELECT COUNT(*) FROM record WHERE hash_id = 'duplicate'"));
         Assert.Equal(1, database.Connection.ExecuteScalar<int>("SELECT COUNT(*) FROM asset WHERE hash_id = 'duplicate'"));
+    }
+
+    [Fact]
+    public async Task FailedAssetDeletionRollsBackTheRecordDeletion()
+    {
+        StringUtils.InitEncryptKey(StringUtils.GenerateEncryptKey());
+        await using var database = CreateDatabase();
+        await database.InitializeDatabaseAsync();
+        var keeper = Record("keeper", "synthetic", 2);
+        var duplicate = Record("duplicate", "synthetic", 1);
+        await database.AddRecordsAsync(new[] { keeper, duplicate }, true);
+        database.Connection.Execute("""
+            CREATE TRIGGER fail_duplicate_asset BEFORE DELETE ON asset
+            WHEN OLD.hash_id = 'duplicate'
+            BEGIN SELECT RAISE(ABORT, 'synthetic failure'); END;
+            """);
+        await Assert.ThrowsAsync<SqliteException>(() => database.TryDeleteVerifiedDuplicateAsync(keeper, duplicate, true));
+        Assert.Equal(2, database.Connection.ExecuteScalar<int>("SELECT COUNT(*) FROM record"));
+        Assert.Equal(2, database.Connection.ExecuteScalar<int>("SELECT COUNT(*) FROM asset"));
+        database.Connection.Execute("DROP TRIGGER fail_duplicate_asset");
+        Assert.True(await database.TryDeleteVerifiedDuplicateAsync(keeper, duplicate, true));
     }
 
     [Fact]

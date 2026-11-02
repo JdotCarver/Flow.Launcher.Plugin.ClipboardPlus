@@ -440,7 +440,8 @@ public class SqliteDatabase : IAsyncDisposable
     {
         if (!keeper.Saved || !duplicate.Saved || keeper.Pinned || duplicate.Pinned ||
             keeper.FromWindowsClipboardHistory() || duplicate.FromWindowsClipboardHistory() ||
-            string.IsNullOrEmpty(keeper.HashId) || string.IsNullOrEmpty(duplicate.HashId) || keeper.HashId == duplicate.HashId)
+            string.IsNullOrEmpty(keeper.HashId) || string.IsNullOrEmpty(duplicate.HashId) || keeper.HashId == duplicate.HashId ||
+            keeper.CreateTime < duplicate.CreateTime)
         {
             return false;
         }
@@ -485,8 +486,8 @@ public class SqliteDatabase : IAsyncDisposable
                 return;
             }
 
-            if (storedKeeper.CreateTime != keeper.CreateTime || storedDuplicate.CreateTime != duplicate.CreateTime ||
-                storedKeeper.DataType != keeper.DataType || storedDuplicate.DataType != duplicate.DataType ||
+            if (!DuplicateSnapshotMetadataMatches(storedKeeper, keeper) ||
+                !DuplicateSnapshotMetadataMatches(storedDuplicate, duplicate) ||
                 ClipboardContentComparer.Compare(storedKeeper, keeper, verifyImages) != ClipboardContentComparison.Equal ||
                 ClipboardContentComparer.Compare(storedDuplicate, duplicate, verifyImages) != ClipboardContentComparison.Equal ||
                 ClipboardContentComparer.Compare(storedKeeper, storedDuplicate, verifyImages) != ClipboardContentComparison.Equal)
@@ -508,6 +509,12 @@ public class SqliteDatabase : IAsyncDisposable
         });
         return deleted;
     }
+
+    private static bool DuplicateSnapshotMetadataMatches(ClipboardData stored, ClipboardData snapshot) =>
+        stored.HashId == snapshot.HashId && stored.CreateTime == snapshot.CreateTime &&
+        stored.DataType == snapshot.DataType && stored.Pinned == snapshot.Pinned &&
+        stored.SenderApp == snapshot.SenderApp && stored.CachedImagePath == snapshot.CachedImagePath &&
+        stored.EncryptData == snapshot.EncryptData && stored.EncryptKeyMd5 == snapshot.EncryptKeyMd5;
 
     public async Task DeleteRecordsAsync(IEnumerable<string> hashIds)
     {
