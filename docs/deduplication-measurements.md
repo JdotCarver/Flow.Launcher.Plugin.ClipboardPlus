@@ -37,3 +37,23 @@ thorough verification off responsiveness-critical paths; they do not establish
 a size threshold. No best-effort numeric limits have been selected. Measure the
 integrated capture, query and cleanup paths and review those results before
 finalizing them.
+
+## Text-size follow-up 41502142937
+
+A second [local run](https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41502142937)
+measured 20 synthetic text records in ten duplicate pairs. Each pair contains
+separately allocated strings, so the comparison cannot succeed by reference
+identity alone. As above, input construction and hashing are outside timing,
+with three measured repetitions after one warmup.
+
+| Approximate characters per record | Min / median / max (ms) |
+| --- | ---: |
+| 4,096 | 0.02 / 0.02 / 0.02 |
+| 65,536 | 0.06 / 0.06 / 0.08 |
+| 1,048,576 | 1.07 / 1.09 / 1.20 |
+
+These measurements do not include database verification or concurrent capture
+and query work, so they are not sufficient to finalize a best-effort threshold.
+The same run measured four noisy images at 569.41 ms median for thorough
+verification, reinforcing that this work must not hold a responsiveness-critical
+lock.
