@@ -174,7 +174,11 @@ jobs:
             Get-Content "$env:RUNNER_TEMP\clipboardplus-benchmark.log" | Where-Object {
               $_ -match '^(text create and display|image hashing only|image construct and serialize|two forced collections and finalizer wait|SQLite disk bulk insert and read|SQLite reopen and materialize|10000 live synthetic text records|plugin query|plugin synthetic text add)[A-Za-z0-9 ,.;/():=+\-]*$'
             } | ForEach-Object { Write-Host $_ }
-            if ($exitCode -ne 0) { throw "Baseline failed (details suppressed for privacy)" }
+            if ($exitCode -ne 0) {
+              $codes = @(Get-Content "$env:RUNNER_TEMP\clipboardplus-benchmark.log" | Select-String -Pattern 'error (CS[0-9]+)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
+              if ($codes.Count -gt 0) { Write-Host ("Compiler error codes: " + ($codes -join ', ')) }
+              throw "Baseline failed (details suppressed for privacy)"
+            }
           } finally {
             Set-Location $env:RUNNER_TEMP
             Remove-Item "$env:RUNNER_TEMP\clipboardplus-benchmark.log" -ErrorAction SilentlyContinue
