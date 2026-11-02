@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "cf10ba50-4f08-4258-894f-42a4aa3ab220"
+request_id = "aae38032-39fd-4ed1-8133-4b88f6f3771d"
 target = "local-windows"
-job_name = "Synthetic Integration Baseline"
+job_name = "Query Traversal Comparison"
