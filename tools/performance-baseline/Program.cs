@@ -1,5 +1,6 @@
 // Program.cs
 // Synthetic, opt-in microbenchmarks. Never reads the user's clipboard or database.
+global using System.IO;
 using System.Diagnostics;
 using System.Globalization;
 using System.Windows.Media;
