@@ -131,6 +131,22 @@ jobs:
             throw "Expected at least 20 tests to run; discovery found none or too few."
           }
 
+      - name: Build and test ClipboardPlus
+        shell: pwsh
+        run: |
+          dotnet --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet build Flow.Launcher.Plugin.ClipboardPlus.sln --configuration Release
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet test Flow.Launcher.Plugin.ClipboardPlus.sln --configuration Release --no-build
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Synthetic performance baseline
+        shell: pwsh
+        run: |
+          dotnet run --project tools/performance-baseline/PerformanceBaseline.csproj --configuration Release
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
       - name: Redaction round trip on a realistic log
         run: |
           # The redactor harvests identifiers from the log itself, so it must be

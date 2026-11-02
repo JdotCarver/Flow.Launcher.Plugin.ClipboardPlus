@@ -1,0 +1,16 @@
+<!-- PerformanceBaseline.csproj -->
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
+    <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/Flow.Launcher.Plugin.ClipboardPlus.Core/Flow.Launcher.Plugin.ClipboardPlus.Core.csproj" />
+    <Compile Include="../../src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/ClipboardPlus.cs" Link="ClipboardPlus.cs" />
+    <Compile Include="../../src/Flow.Launcher.Plugin.ClipboardPlus.Core.Test/Usings.cs" Link="Usings.cs" />
+  </ItemGroup>
+</Project>

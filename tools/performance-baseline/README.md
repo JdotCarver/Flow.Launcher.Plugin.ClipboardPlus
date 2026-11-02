@@ -1,0 +1,4 @@
+# README.md — Synthetic performance baseline
+
+Run on Windows with .NET 9: `dotnet run --project tools/performance-baseline/PerformanceBaseline.csproj -c Release`.
+The program uses generated text and pixels and temporary SQLite databases; it does not access the real clipboard or plugin data. It warms each scenario once and reports five repetitions, process-wide managed allocation and a working-set snapshot. SQLite figures include database creation, insertion, read, closing and deletion; they are not startup timings. The GC scenario is isolated, not end-to-end copy latency. Bitmap encoding is synthetic. Results depend on machine load, disk, runtime, and ordering; compare runs on the same machine and do not interpret working set as Flow Launcher's memory consumption. This harness does not exercise fuzzy search, the Flow Launcher UI, live clipboard events or real startup; those require separate integration measurement.
