@@ -3,7 +3,7 @@ using System;
 
 namespace Flow.Launcher.Plugin.ClipboardPlus.Core.Helpers;
 
-/// <summary>Provisional best-effort bound, subject to integrated Windows measurements.</summary>
+/// <summary>Conservative best-effort bound reviewed against synthetic Windows measurements.</summary>
 public static class DuplicateVerificationPolicy
 {
     public const int BestEffortCharacterLimit = 4096;

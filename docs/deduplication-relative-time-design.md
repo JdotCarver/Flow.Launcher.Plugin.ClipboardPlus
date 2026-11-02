@@ -1,7 +1,7 @@
 <!-- deduplication-relative-time-design.md -->
 # Deduplication and relative time: agreed design
 
-Status: **implemented; final review pending**. This records the decisions from the design discussion. The best-effort limit remains provisional pending review of synthetic Windows measurements. No performance improvement is assumed from deduplication. The existing image-encryption limitation remains out of scope; see [the optimization report](optimization-report.md).
+Status: **implemented**. This records the decisions from the design discussion. The conservative best-effort limit was approved after review of synthetic Windows measurements. No performance improvement is assumed from deduplication. The existing image-encryption limitation remains out of scope; see [the optimization report](optimization-report.md).
 
 ## Deduplication
 
@@ -16,7 +16,7 @@ Status: **implemented; final review pending**. This records the decisions from t
 ### Scheduling and safety
 
 - Offer two verification modes for automatic cleanup. **Best effort** is the default: verify cheap candidates and skip expensive ones. **Thorough** also works through expensive candidates in the background. Both require exact verification before deletion; manual cleanup is always thorough.
-- Schedule automatic work promptly without disrupting copying or querying. Responsiveness takes priority if immediate suppression conflicts with it, so temporary duplicates can appear. Measure actual capture, query and cleanup paths with synthetic data on the local Windows runner, including large images and realistic history sizes; review results together before finalizing best-effort limits. No numeric threshold has been agreed.
+- Schedule automatic work promptly without disrupting copying or querying. Responsiveness takes priority if immediate suppression conflicts with it, so temporary duplicates can appear. Measure actual capture, query and cleanup paths with synthetic data on the local Windows runner, including large images and realistic history sizes; review results together before finalizing best-effort limits. The approved best-effort budget is 4,096 character units, conservatively including combined rich-text representations and file-list overhead; images are skipped.
 - Revalidate records and files before removal; skip changed or uncertain candidates. Completed safe groups may remain committed if a later group fails. Automatic work is silent, including on failure; diagnostics must not expose clipboard contents. Manual cleanup reports errors separately and notes skipped candidates.
 - Avoid concurrent cleanup jobs. When a same-level run already covers the requested work, report it is running; queue a thorough manual pass after less thorough work. If an automatic thorough pass is already running, queue the missing manual-only work, including the orphan-cache scan, rather than repeat completed verification. Manual cleanup continues safely if its initiating UI closes.
 
