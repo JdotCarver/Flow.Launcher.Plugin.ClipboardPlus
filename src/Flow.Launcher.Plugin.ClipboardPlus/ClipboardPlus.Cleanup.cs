@@ -226,13 +226,16 @@ public partial class ClipboardPlus
                     // Otherwise consolidation would leave no visible copy.
                     if (keeperNode is null)
                     {
+                        var visibleKeeper = keeper with { InitScore = duplicate.InitScore };
                         var pair = new ClipboardDataPair
                         {
-                            ClipboardData = keeper,
-                            PreviewPanel = new Lazy<System.Windows.Controls.UserControl>(() => new PreviewPanel(this, keeper))
+                            ClipboardData = visibleKeeper,
+                            PreviewPanel = new Lazy<System.Windows.Controls.UserControl>(() => new PreviewPanel(this, visibleKeeper))
                         };
                         keeperNode = RecordsList.AddBefore(duplicateNode, pair);
+                        keeperSnapshot = new ClipboardCleanupSnapshot(visibleKeeper);
                         allNodes[keeperIndex] = keeperNode;
+                        allSnapshots[keeperIndex] = keeperSnapshot;
                     }
                     removed = duplicateNode.Value;
                     RecordsList.Remove(duplicateNode);
