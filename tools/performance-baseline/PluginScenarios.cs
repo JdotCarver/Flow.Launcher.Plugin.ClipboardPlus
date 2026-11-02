@@ -18,6 +18,14 @@ internal static class PluginScenarios
 {
     public static void Run()
     {
+        SyntheticHost.Matcher = new Flow.Launcher.Infrastructure.StringMatcher(null!)
+        {
+            UserSettingSearchPrecision = SearchPrecisionScore.Regular
+        };
+        // Independently verify a few known upstream matcher outcomes before measuring.
+        if (SyntheticHost.Matcher.FuzzyMatch("inst", "Install Package").RawScore <= 0 ||
+            SyntheticHost.Matcher.FuzzyMatch("zzzz", "Install Package").RawScore != 0)
+            throw new InvalidOperationException("Upstream matcher sanity check failed");
         var hostApi = DispatchProxy.Create<IPublicAPI, SyntheticHost>();
         Ioc.Default.ConfigureServices(new ServiceCollection().AddSingleton(hostApi).BuildServiceProvider());
         var plugin = new Plugin(); // The constructor creates a monitor, but does not start it.
@@ -158,11 +166,12 @@ internal static class PluginScenarios
     }
 }
 
-// An intentionally simple deterministic matcher: this is not Flow Launcher's fuzzy matcher.
+// Uses the vendored Flow Launcher 2.1.4 matcher with no alphabet translation.
 // Unexpected host interactions fail closed rather than touching the real host.
 public class SyntheticHost : DispatchProxy
 {
     public static Action? BeforeFirstMatch;
+    public static Flow.Launcher.Infrastructure.StringMatcher Matcher = null!;
 
     protected override object? Invoke(MethodInfo? method, object?[]? args)
     {
@@ -172,8 +181,7 @@ public class SyntheticHost : DispatchProxy
         if (method.Name == "FuzzySearch")
         {
             Interlocked.Exchange(ref BeforeFirstMatch, null)?.Invoke();
-            bool found = ((string)args![1]!).Contains((string)args[0]!, StringComparison.OrdinalIgnoreCase);
-            return new MatchResult(found, SearchPrecisionScore.Regular) { RawScore = found ? 100 : 0 };
+            return Matcher.FuzzyMatch((string)args![0]!, (string)args[1]!);
         }
         throw new InvalidOperationException("Unexpected host operation: " + method.Name);
     }
