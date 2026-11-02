@@ -1,0 +1,34 @@
+{
+  "capture_note": "Status is captured while Export logs is still in progress; use the final workflow conclusion for that job's result.",
+  "conclusion": null,
+  "event": "push",
+  "head_branch": "arena/1e362655-flow-launcher-plugin-clipboard",
+  "head_sha": "56a50832c9b423df17d661d1a41fe36427aa3a67",
+  "id": 41519418374,
+  "jobs": [
+    {
+      "conclusion": "success",
+      "id": 125531285378,
+      "name": "Select runner",
+      "status": "completed",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41519418374/job/125531285378"
+    },
+    {
+      "conclusion": "success",
+      "id": 125531399787,
+      "name": "Windows Suppression Integration",
+      "status": "completed",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41519418374/job/125531399787"
+    },
+    {
+      "conclusion": null,
+      "id": 125533040017,
+      "name": "Export logs",
+      "status": "in_progress",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41519418374/job/125533040017"
+    }
+  ],
+  "name": "Runner request",
+  "status": "in_progress",
+  "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41519418374"
+}
