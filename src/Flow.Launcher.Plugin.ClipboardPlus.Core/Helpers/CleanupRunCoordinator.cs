@@ -1,5 +1,6 @@
 // CleanupRunCoordinator.cs
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Flow.Launcher.Plugin.ClipboardPlus.Core.Helpers;
@@ -37,6 +38,7 @@ public sealed class CleanupRunCoordinator
     private CleanupWork? currentWork;
     private CleanupWork? pendingAutomatic;
     private TaskCompletionSource<CleanupReport>? manualCompletion;
+    private readonly List<IProgress<CleanupReport>> manualProgress = [];
     private bool manualPending;
     private bool manualCanReuseAutomatic;
     private CleanupReport reusableAutomaticReport;
@@ -75,10 +77,11 @@ public sealed class CleanupRunCoordinator
         }
     }
 
-    public ManualCleanupRequest RequestManual()
+    public ManualCleanupRequest RequestManual(IProgress<CleanupReport>? progress = null)
     {
         lock (sync)
         {
+            if (progress is not null && !stopping) manualProgress.Add(progress);
             if (manualCompletion is not null)
             {
                 return new ManualCleanupRequest(true, manualCompletion.Task);
@@ -94,6 +97,23 @@ public sealed class CleanupRunCoordinator
             var request = new ManualCleanupRequest(false, manualCompletion.Task);
             StartWorkerIfNeeded();
             return request;
+        }
+    }
+
+    /// <summary>Reports non-sensitive interim counts only to active manual requesters.</summary>
+    public void ReportProgress(CleanupReport report)
+    {
+        IProgress<CleanupReport>[] observers;
+        lock (sync)
+        {
+            if (currentWork is not (CleanupWork.ManualThorough or CleanupWork.ManualExtrasOnly)) return;
+            observers = manualProgress.ToArray();
+            report += reusableAutomaticReport;
+        }
+        foreach (var observer in observers)
+        {
+            try { observer.Report(report); }
+            catch (Exception) { }
         }
     }
 
@@ -166,6 +186,7 @@ public sealed class CleanupRunCoordinator
                 if (manual is not null)
                 {
                     manualCompletion = null;
+                    manualProgress.Clear();
                     manual.SetResult(prior + report);
                 }
                 else if (manualPending && manualCanReuseAutomatic)

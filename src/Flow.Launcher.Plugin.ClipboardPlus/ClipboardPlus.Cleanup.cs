@@ -13,7 +13,7 @@ public partial class ClipboardPlus
     private bool lastAutomaticCleanup;
     private bool lastAutomaticCleanupThorough;
 
-    public ManualCleanupRequest RequestManualCleanup() => cleanupCoordinator.RequestManual();
+    public ManualCleanupRequest RequestManualCleanup(IProgress<CleanupReport>? progress = null) => cleanupCoordinator.RequestManual(progress);
 
     private long cleanupQueryGeneration;
 
@@ -27,9 +27,11 @@ public partial class ClipboardPlus
                 ResultsUpdated?.Invoke(this, new ResultUpdatedEventArgs { Results = results, Query = query });
             }
         }
+        var finished = false;
         async Task CompleteAsync(Task<CleanupReport> task)
         {
             var report = await task;
+            finished = true;
             action.SubTitle = Localize.flowlauncher_plugin_clipboardplus_cleanup_counts(report.RecordsRemoved, report.CacheFilesRemoved, report.WindowsItemsHidden);
             if (report.Skipped > 0) action.SubTitle += " " + Localize.flowlauncher_plugin_clipboardplus_cleanup_skipped(report.Skipped);
             if (report.Errors > 0) action.SubTitle += " " + Localize.flowlauncher_plugin_clipboardplus_cleanup_errors(report.Errors);
@@ -45,7 +47,15 @@ public partial class ClipboardPlus
             AddSelectedCount = false,
             Action = context =>
             {
-                var request = RequestManualCleanup();
+                finished = false;
+                var progress = new Progress<CleanupReport>(report =>
+                {
+                    if (finished) return;
+                    action.SubTitle = Localize.flowlauncher_plugin_clipboardplus_cleanup_running() + " " +
+                        Localize.flowlauncher_plugin_clipboardplus_cleanup_counts(report.RecordsRemoved, report.CacheFilesRemoved, report.WindowsItemsHidden);
+                    Publish();
+                });
+                var request = RequestManualCleanup(progress);
                 action.SubTitle = request.AlreadyRunning
                     ? Localize.flowlauncher_plugin_clipboardplus_cleanup_already_running()
                     : Localize.flowlauncher_plugin_clipboardplus_cleanup_running();
@@ -171,7 +181,7 @@ public partial class ClipboardPlus
             }
             await Task.Yield();
             return DuplicateRemovalResult.Removed;
-        });
+        }, automatic ? null : cleanupCoordinator.ReportProgress);
 
         if (report.RecordsRemoved > 0)
         {
@@ -183,6 +193,7 @@ public partial class ClipboardPlus
         {
             report += await DeleteRedundantCacheFileAsync(cache.Path, cache.KeeperPath,
                 () => cache.Keeper.List == RecordsList && cache.Snapshot.Matches(cache.Keeper.Value.ClipboardData), automatic);
+            if (!automatic) cleanupCoordinator.ReportProgress(report);
         }
         var windows = await RefreshWindowsEvidenceAsync(work, thorough, Interlocked.Increment(ref windowsEvidenceGeneration));
         report += await CleanupRemovedWindowsCacheAsync();

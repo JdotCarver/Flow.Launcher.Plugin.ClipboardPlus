@@ -52,7 +52,7 @@ internal class ClipboardPlus : IClipboardPlus
         await Task.CompletedTask;
     }
 
-    public ManualCleanupRequest RequestManualCleanup() => new(false, Task.FromResult(default(CleanupReport)));
+    public ManualCleanupRequest RequestManualCleanup(IProgress<CleanupReport>? progress = null) => new(false, Task.FromResult(default(CleanupReport)));
 
     public ISettings LoadSettingJsonStorage()
     {

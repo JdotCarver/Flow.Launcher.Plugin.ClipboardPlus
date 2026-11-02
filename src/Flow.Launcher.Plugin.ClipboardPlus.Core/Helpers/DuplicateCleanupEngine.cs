@@ -22,7 +22,8 @@ public static class DuplicateCleanupEngine
     public static async Task<CleanupReport> RunAsync(
         IReadOnlyList<ClipboardCleanupSnapshot> snapshots,
         bool verifyImages,
-        Func<int, int, Task<DuplicateRemovalResult>> apply)
+        Func<int, int, Task<DuplicateRemovalResult>> apply,
+        Action<CleanupReport>? progress = null)
     {
         var records = snapshots.Select(snapshot => snapshot.CreatePlanningRecord()).ToArray();
         var plan = DuplicateRecordPlanner.PlanDetailed(records, verifyImages);
@@ -49,6 +50,7 @@ public static class DuplicateCleanupEngine
                 // Do not expose the exception or any clipboard contents.
                 errors++;
             }
+            progress?.Invoke(new CleanupReport(removed, 0, 0, skipped, errors));
         }
         return new CleanupReport(removed, 0, 0, skipped, errors);
     }

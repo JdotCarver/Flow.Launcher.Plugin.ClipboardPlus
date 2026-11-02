@@ -280,11 +280,17 @@ public class SettingsViewModel : BaseModel
 
     private async void StartCleanup(object? parameter)
     {
-        var request = ClipboardPlus.RequestManualCleanup();
+        var finished = false;
+        var progress = new Progress<CleanupReport>(report =>
+        {
+            if (!finished) CleanupFeedback = Localize.flowlauncher_plugin_clipboardplus_cleanup_running() + " " + FormatCleanupReport(report);
+        });
+        var request = ClipboardPlus.RequestManualCleanup(progress);
         CleanupFeedback = request.AlreadyRunning
             ? Localize.flowlauncher_plugin_clipboardplus_cleanup_already_running()
             : Localize.flowlauncher_plugin_clipboardplus_cleanup_running();
         var report = await request.Completion;
+        finished = true;
         CleanupFeedback = FormatCleanupReport(report);
     }
 
