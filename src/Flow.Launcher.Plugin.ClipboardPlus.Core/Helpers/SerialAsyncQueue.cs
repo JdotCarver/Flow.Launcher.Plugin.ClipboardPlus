@@ -20,10 +20,10 @@ internal sealed class SerialAsyncQueue
             tail = completion.Task;
         }
 
-        await previous.ConfigureAwait(false);
+        await previous;
         try
         {
-            await operation().ConfigureAwait(false);
+            await operation();
         }
         finally
         {
