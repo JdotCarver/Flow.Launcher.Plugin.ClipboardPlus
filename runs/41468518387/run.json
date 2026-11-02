@@ -1,0 +1,34 @@
+{
+  "capture_note": "Status is captured while Export logs is still in progress; use the final workflow conclusion for that job's result.",
+  "conclusion": null,
+  "event": "push",
+  "head_branch": "arena/9261f4f4-flow-launcher-plugin-clipboard",
+  "head_sha": "2dac5325a615dd9f82c74e148f7a52cc074b6a1c",
+  "id": 41468518387,
+  "jobs": [
+    {
+      "conclusion": "success",
+      "id": 125355640726,
+      "name": "Select runner",
+      "status": "completed",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41468518387/job/125355640726"
+    },
+    {
+      "conclusion": "success",
+      "id": 125355729167,
+      "name": "Image Pinning Investigation",
+      "status": "completed",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41468518387/job/125355729167"
+    },
+    {
+      "conclusion": null,
+      "id": 125356779537,
+      "name": "Export logs",
+      "status": "in_progress",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41468518387/job/125356779537"
+    }
+  ],
+  "name": "Runner request",
+  "status": "in_progress",
+  "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41468518387"
+}
