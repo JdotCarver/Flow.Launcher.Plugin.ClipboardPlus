@@ -1,0 +1,34 @@
+{
+  "capture_note": "Status is captured while Export logs is still in progress; use the final workflow conclusion for that job's result.",
+  "conclusion": null,
+  "event": "push",
+  "head_branch": "arena/9261f4f4-flow-launcher-plugin-clipboard",
+  "head_sha": "27b4fa42dd266f88d980849074a0d85eac85ad52",
+  "id": 41539571980,
+  "jobs": [
+    {
+      "conclusion": "success",
+      "id": 125599987315,
+      "name": "Select runner",
+      "status": "completed",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41539571980/job/125599987315"
+    },
+    {
+      "conclusion": "cancelled",
+      "id": 125600038126,
+      "name": "Uncertain Candidate Capacity",
+      "status": "completed",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41539571980/job/125600038126"
+    },
+    {
+      "conclusion": null,
+      "id": 125600044253,
+      "name": "Export logs",
+      "status": "in_progress",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41539571980/job/125600044253"
+    }
+  ],
+  "name": "Runner request",
+  "status": "in_progress",
+  "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41539571980"
+}
