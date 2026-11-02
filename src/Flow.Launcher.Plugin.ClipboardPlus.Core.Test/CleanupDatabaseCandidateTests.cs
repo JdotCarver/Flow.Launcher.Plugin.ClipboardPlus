@@ -1,5 +1,6 @@
 // CleanupDatabaseCandidateTests.cs
 using Microsoft.Data.Sqlite;
+using Dapper;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Xunit;
@@ -9,6 +10,24 @@ namespace Flow.Launcher.Plugin.ClipboardPlus.Core.Test;
 [Collection("Bulk insert isolation")]
 public class CleanupDatabaseCandidateTests
 {
+    [Fact]
+    public async Task MetadataHashCollisionNeverProvesEquality()
+    {
+        StringUtils.InitEncryptKey(StringUtils.GenerateEncryptKey());
+        await using var database = new SqliteDatabase("synthetic-metadata-collision", new ClipboardPlus(), SqliteCacheMode.Private, SqliteOpenMode.Memory);
+        await database.InitializeDatabaseAsync();
+        ClipboardData Text(string text, string id) => new(text, DataType.PlainText, false)
+        {
+            HashId = id, SenderApp = "synthetic", InitScore = 0, CreateTime = new DateTime(2026, 1, 1),
+            Pinned = false, Saved = true, EncryptKeyMd5 = StringUtils.EncryptKeyMd5
+        };
+        await database.AddRecordsAsync([Text("one", "first"), Text("two", "second")], true);
+        await database.Connection.ExecuteAsync("UPDATE record SET data_md5_b64 = 'synthetic-collision';");
+        var selected = await database.GetCleanupRecordsAsync(true, new HashSet<string>());
+        Assert.Equal(2, selected.Records.Count);
+        Assert.Empty(DuplicateRecordPlanner.Plan(selected.Records, true));
+    }
+
     [Fact]
     public async Task OnlyUnloadedPossibleDuplicatePayloadsAreMaterialized()
     {
