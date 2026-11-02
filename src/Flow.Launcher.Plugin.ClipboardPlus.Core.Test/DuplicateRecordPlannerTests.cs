@@ -57,6 +57,22 @@ public class DuplicateRecordPlannerTests
         var result = DuplicateRecordPlanner.PlanDetailed(records, false);
         Assert.Empty(result.Candidates);
         Assert.Equal(2, result.Skipped);
+        Assert.Equal(new[] { 1 }, result.UncertainIndexes);
+    }
+
+    [Fact]
+    public void UnavailableRichTextIsReportedAsUncertainEvenInThoroughMode()
+    {
+        ClipboardData Rich(string id, int minute) => new("synthetic rtf", DataType.RichText, false)
+        {
+            HashId = id, SenderApp = "synthetic", InitScore = 0,
+            CreateTime = new DateTime(2026, 1, 1).AddMinutes(minute), Pinned = false, Saved = false,
+            PlainText = null!
+        };
+        var records = new[] { Rich("a", 2), Rich("b", 1) };
+        var result = DuplicateRecordPlanner.PlanDetailed(records, true);
+        Assert.Empty(result.Candidates);
+        Assert.Equal(new[] { 1 }, result.UncertainIndexes);
     }
 
     [Fact]

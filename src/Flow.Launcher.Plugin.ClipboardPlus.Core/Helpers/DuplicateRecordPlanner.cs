@@ -8,7 +8,8 @@ namespace Flow.Launcher.Plugin.ClipboardPlus.Core.Helpers;
 /// <summary>A proposed deletion, expressed as indexes into the supplied snapshot.</summary>
 public readonly record struct DuplicateRecordCandidate(int KeeperIndex, int DuplicateIndex);
 
-public sealed record DuplicatePlanningResult(IReadOnlyList<DuplicateRecordCandidate> Candidates, int Skipped);
+public sealed record DuplicatePlanningResult(IReadOnlyList<DuplicateRecordCandidate> Candidates, int Skipped,
+    IReadOnlyList<int> UncertainIndexes);
 
 /// <summary>
 /// Plans possible plugin-record consolidation without mutating history. The plan
@@ -25,6 +26,7 @@ public static class DuplicateRecordPlanner
     {
         var candidates = new List<DuplicateRecordCandidate>();
         var skipped = 0;
+        var uncertain = new HashSet<int>();
         var ambiguousIds = records.Where(record => !string.IsNullOrEmpty(record.HashId))
             .GroupBy(record => record.HashId, StringComparer.Ordinal)
             .Where(group => group.Count() > 1)
@@ -69,11 +71,12 @@ public static class DuplicateRecordPlanner
                 }
                 if (!matched)
                 {
+                    if (verificationUnavailable) uncertain.Add(item.Index);
                     if (verificationUnavailable || differentPersistence) skipped++;
                     keepers.Add(item);
                 }
             }
         }
-        return new DuplicatePlanningResult(candidates, skipped);
+        return new DuplicatePlanningResult(candidates, skipped, uncertain.ToArray());
     }
 }

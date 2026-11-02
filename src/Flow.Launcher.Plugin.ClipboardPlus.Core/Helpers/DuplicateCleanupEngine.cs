@@ -28,6 +28,7 @@ public static class DuplicateCleanupEngine
     {
         var records = snapshots.Select(snapshot => snapshot.CreatePlanningRecord()).ToArray();
         var plan = DuplicateRecordPlanner.PlanDetailed(records, verifyImages);
+        foreach (var index in plan.UncertainIndexes) attempted?.Invoke(index, index, null);
         var removed = 0;
         var skipped = plan.Skipped;
         var errors = 0;

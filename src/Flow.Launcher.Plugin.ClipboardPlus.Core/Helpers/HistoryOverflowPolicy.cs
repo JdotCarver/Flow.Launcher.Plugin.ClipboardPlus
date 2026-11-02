@@ -49,8 +49,9 @@ public static class HistoryOverflowPolicy
     private static bool CanVerify(ClipboardData data, bool thorough) => thorough
         ? data.DataType switch
         {
-            DataType.PlainText or DataType.RichText => data.Data is string,
-            DataType.Files => data.Data is string[],
+            DataType.PlainText => data.Data is string,
+            DataType.RichText => data.Data is string && data.PlainText is not null,
+            DataType.Files => data.Data is string[] paths && paths.All(path => path is not null),
             DataType.Image => data.Data is BitmapSource { IsFrozen: true },
             _ => false
         }
