@@ -1,0 +1,34 @@
+{
+  "capture_note": "Status is captured while Export logs is still in progress; use the final workflow conclusion for that job's result.",
+  "conclusion": null,
+  "event": "push",
+  "head_branch": "arena/1e362655-flow-launcher-plugin-clipboard",
+  "head_sha": "6dd1d8eaf6c88254744c68b8b33ca43f89e7de88",
+  "id": 41502142937,
+  "jobs": [
+    {
+      "conclusion": "success",
+      "id": 125472045256,
+      "name": "Select runner",
+      "status": "completed",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41502142937/job/125472045256"
+    },
+    {
+      "conclusion": "success",
+      "id": 125472122862,
+      "name": "Best Effort Text Measurements",
+      "status": "completed",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41502142937/job/125472122862"
+    },
+    {
+      "conclusion": null,
+      "id": 125473254226,
+      "name": "Export logs",
+      "status": "in_progress",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41502142937/job/125473254226"
+    }
+  ],
+  "name": "Runner request",
+  "status": "in_progress",
+  "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41502142937"
+}
