@@ -20,13 +20,13 @@ Establish and record, with full commit SHAs where useful:
 - Session-specific tooling, generated artifacts, local runner configuration, unrelated features and other changes proposed for exclusion. Check the diff against the actual intended base, including tooling that predates the current session but is absent from upstream.
 - Relevant reports, design documents, benchmark methodology and test results; identify the exact code or tree each validates and known gaps. Do not re-run tests just because they exist, or imply a development-branch run validates a different final patch.
 
-If access or evidence is missing, say what is unknown and include a verification step. If the intended PR destination or ownership is unclear, ask rather than guess. Never expose secrets, personal clipboard contents, user data, sensitive paths or private logs. Link only to material the intended reader can access; warn if Actions logs are subject to retention or contain machine metadata.
+If access or evidence is missing, say what is unknown and include a verification step. If the intended PR destination or ownership is unclear, ask rather than guess. Never expose secrets, user data, sensitive paths or private logs. Link only to material the intended reader can access; warn if Actions logs are subject to retention or contain machine metadata.
 
 ## 2. Propose the handoff and obtain approval
 
 Before writing the handoff, present the candidate scope: intended base/destination, exact commits or changes and tests to include, dependencies and exclusions, documents/evidence to reference, validation already completed versus what remains, and what the new agent is authorized to do. Identify ambiguities and trade-offs explicitly.
 
-Use `ask_user` to ask the user to confirm or revise **what to include and exclude**. The first option should be the recommended scope; the last should allow “I have something different in mind / Further discussion is warranted.” Use custom responses for changes. Ask additional questions if destination, dirty changes, mixed commits, or authority to create a draft PR remain unresolved. If `ask_user` is unavailable, ask in chat and wait. Do not write or commit the handoff until the user approves the scope. If their answer changes the proposal materially, revise it and obtain confirmation again.
+Use `ask_user` to ask the user to confirm or revise **what to include and exclude**. The first option should be the recommended scope. Use custom responses for changes. Ask additional questions if destination, dirty changes, mixed commits, or authority to create a draft PR remain unresolved. If `ask_user` is unavailable, ask in chat and wait. Do not write or commit the handoff until the user approves the scope. If their answer changes the proposal materially, revise it and obtain confirmation again.
 
 A request for a handoff does not by itself authorize the current agent to make a PR, switch branches, cherry-pick, merge, or change the underlying feature. Distinguish instructions for the **new** agent from actions performed now. Do not include a PR body or prescribe a draft format unless the user requests one.
 
