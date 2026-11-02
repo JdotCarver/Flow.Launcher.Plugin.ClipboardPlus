@@ -611,6 +611,34 @@ public class SqliteDatabase : IAsyncDisposable
         stored.SenderApp == snapshot.SenderApp && stored.CachedImagePath == snapshot.CachedImagePath &&
         stored.EncryptData == snapshot.EncryptData && stored.EncryptKeyMd5 == snapshot.EncryptKeyMd5;
 
+    /// <summary>Loads accessible saved records for cleanup without holding the history lock.</summary>
+    public async Task<(IReadOnlyList<ClipboardData> Records, int Skipped)> GetCleanupRecordsAsync(bool thorough)
+    {
+        var rows = new List<Record>();
+        await ProcessTaskQueueAsync(async () =>
+        {
+            // Bound materialization in best-effort mode before decrypting or hashing.
+            var sql = SqlSelectAllRecord.TrimEnd(';');
+            if (!thorough)
+                sql += " WHERE r.data_type <> @Image AND length(a.data_b64) <= @MaxEncoded AND length(COALESCE(a.plain_text_b64, '')) <= @MaxEncoded";
+            rows.AddRange(await Connection.QueryAsync<Record>(sql, new { Image = (int)DataType.Image, MaxEncoded = 32768 }));
+        });
+        var result = new List<ClipboardData>();
+        var skipped = 0;
+        foreach (var row in rows)
+        {
+            try
+            {
+                if (row.EncryptData && row.EncryptKeyMd5 != StringUtils.EncryptKeyMd5) { skipped++; continue; }
+                var data = ClipboardData.FromRecord(row, 0);
+                if (data.Data is null || (!thorough && !DuplicateVerificationPolicy.CanVerifyBestEffort(data))) { skipped++; continue; }
+                result.Add(data);
+            }
+            catch (Exception) { skipped++; }
+        }
+        return (result, skipped);
+    }
+
     /// <summary>Returns cache references for planning; deletion must recheck them transactionally.</summary>
     public async Task<IReadOnlyList<string>> GetCacheReferencesAsync()
     {

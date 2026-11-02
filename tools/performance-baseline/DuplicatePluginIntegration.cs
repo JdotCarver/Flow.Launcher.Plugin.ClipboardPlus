@@ -28,7 +28,7 @@ internal static class DuplicatePluginIntegration
         {
             database.InitializeDatabaseAsync().GetAwaiter().GetResult();
             var records = new[] { Record("keeper", 3, true), Record("saved", 2, true), Record("temporary", 1, false), Record("pinned", 4, true, true) };
-            database.AddRecordsAsync(records.Where(record => record.Saved), true).GetAwaiter().GetResult();
+            database.AddRecordsAsync(records.Where(record => record.Saved).Append(Record("unloaded-saved", 0, true)), true).GetAwaiter().GetResult();
             var list = new LinkedList<ClipboardDataPair>(records.Select(record => new ClipboardDataPair
             {
                 ClipboardData = record,
@@ -45,10 +45,12 @@ internal static class DuplicatePluginIntegration
             var cleanup = typeof(Plugin).GetMethod("RunCleanupWorkAsync", BindingFlags.Instance | BindingFlags.NonPublic)
                 ?? throw new InvalidOperationException("Cleanup test seam missing");
             var report = ((Task<CleanupReport>)cleanup.Invoke(plugin, new object[] { CleanupWork.ManualThorough })!).GetAwaiter().GetResult();
-            if (report.RecordsRemoved != 1 || report.Errors != 0 || list.Count != 3 ||
+            if (report.RecordsRemoved != 2 || report.Errors != 0 || list.Count != 3 ||
                 list.Any(item => item.ClipboardData.HashId == "saved") || !list.Any(item => item.ClipboardData.HashId == "temporary") ||
                 !list.Any(item => item.ClipboardData.HashId == "pinned"))
                 throw new InvalidOperationException("Synthetic plugin cleanup failed");
+            if (database.GetAllRecordsAsync(false).GetAwaiter().GetResult().Any(record => record.HashId == "unloaded-saved"))
+                throw new InvalidOperationException("Synthetic unloaded saved duplicate survived cleanup");
             var settings = new SettingsViewModel(plugin);
             settings.ClearKeyword = "cleanup";
             settings.CleanupKeyword = "clear";

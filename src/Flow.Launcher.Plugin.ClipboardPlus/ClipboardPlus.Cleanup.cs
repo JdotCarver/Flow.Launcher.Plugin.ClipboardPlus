@@ -123,11 +123,28 @@ public partial class ClipboardPlus
             RecordsLock.Release();
         }
 
-        var cacheCandidates = new List<(string Path, string KeeperPath, LinkedListNode<ClipboardDataPair> Keeper, ClipboardCleanupSnapshot Snapshot)>();
-        var report = await DuplicateCleanupEngine.RunAsync(snapshots, thorough, async (keeperIndex, duplicateIndex) =>
+        // Database-only records participate alongside the loaded history, but a
+        // live record always wins when the same ID appears in both snapshots.
+        var allNodes = nodes.Cast<LinkedListNode<ClipboardDataPair>?>().ToList();
+        var allSnapshots = snapshots.ToList();
+        var databaseSkipped = 0;
+        if (!UseWindowsClipboardHistoryOnly)
         {
-            var keeperSnapshot = snapshots[keeperIndex];
-            var duplicateSnapshot = snapshots[duplicateIndex];
+            var stored = await Database.GetCleanupRecordsAsync(thorough);
+            databaseSkipped = stored.Skipped;
+            var loadedIds = new HashSet<string>(snapshots.Select(snapshot => snapshot.Original.HashId), StringComparer.Ordinal);
+            foreach (var data in stored.Records)
+            {
+                if (loadedIds.Contains(data.HashId)) continue;
+                allNodes.Add(null);
+                allSnapshots.Add(new ClipboardCleanupSnapshot(data));
+            }
+        }
+        var cacheCandidates = new List<(string Path, string KeeperPath, LinkedListNode<ClipboardDataPair> Keeper, ClipboardCleanupSnapshot Snapshot)>();
+        var report = await DuplicateCleanupEngine.RunAsync(allSnapshots, thorough, async (keeperIndex, duplicateIndex) =>
+        {
+            var keeperSnapshot = allSnapshots[keeperIndex];
+            var duplicateSnapshot = allSnapshots[duplicateIndex];
             var keeper = keeperSnapshot.CreatePlanningRecord();
             var duplicate = duplicateSnapshot.CreatePlanningRecord();
             PreparedDuplicateDeletion? prepared = null;
@@ -142,12 +159,14 @@ public partial class ClipboardPlus
             await RecordsLock.WaitAsync();
             try
             {
-                var keeperNode = nodes[keeperIndex];
-                var duplicateNode = nodes[duplicateIndex];
+                var keeperNode = allNodes[keeperIndex];
+                var duplicateNode = allNodes[duplicateIndex];
+                bool StillValid(LinkedListNode<ClipboardDataPair>? node, ClipboardCleanupSnapshot snapshot) =>
+                    node is null
+                        ? !RecordsList.Any(pair => pair.ClipboardData.HashId == snapshot.Original.HashId)
+                        : node.List == RecordsList && snapshot.Matches(node.Value.ClipboardData);
                 if ((automatic && !Settings.AutomaticCleanup) ||
-                    keeperNode.List != RecordsList || duplicateNode.List != RecordsList ||
-                    !keeperSnapshot.Matches(keeperNode.Value.ClipboardData) ||
-                    !duplicateSnapshot.Matches(duplicateNode.Value.ClipboardData))
+                    !StillValid(keeperNode, keeperSnapshot) || !StillValid(duplicateNode, duplicateSnapshot))
                 {
                     return DuplicateRemovalResult.Skipped;
                 }
@@ -155,10 +174,13 @@ public partial class ClipboardPlus
                 {
                     return DuplicateRemovalResult.Skipped;
                 }
-                removed = duplicateNode.Value;
-                if (duplicate.DataType == DataType.Image && !string.IsNullOrEmpty(duplicate.CachedImagePath))
+                if (duplicateNode is not null)
+                {
+                    removed = duplicateNode.Value;
+                    RecordsList.Remove(duplicateNode);
+                }
+                if (duplicate.DataType == DataType.Image && !string.IsNullOrEmpty(duplicate.CachedImagePath) && keeperNode is not null)
                     cacheCandidates.Add((duplicate.CachedImagePath, keeper.CachedImagePath, keeperNode, keeperSnapshot));
-                RecordsList.Remove(duplicateNode);
             }
             finally
             {
@@ -170,7 +192,8 @@ public partial class ClipboardPlus
             // successful removal if its window has already closed.
             try
             {
-                if (removed.PreviewPanel.IsValueCreated)
+                if (removed is null) { }
+                else if (removed.PreviewPanel.IsValueCreated)
                 {
                     await removed.PreviewPanel.Value.Dispatcher.InvokeAsync(removed.Dispose);
                 }
@@ -187,6 +210,7 @@ public partial class ClipboardPlus
             return DuplicateRemovalResult.Removed;
         }, automatic ? null : cleanupCoordinator.ReportProgress);
 
+        report += new CleanupReport(0, 0, 0, databaseSkipped, 0);
         if (report.RecordsRemoved > 0)
         {
             await RecordsLock.WaitAsync();
