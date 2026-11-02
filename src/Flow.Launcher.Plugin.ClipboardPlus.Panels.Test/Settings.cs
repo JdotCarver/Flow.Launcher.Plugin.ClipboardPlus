@@ -21,6 +21,10 @@ public class Settings : ISettings
 
     public bool UseRelativeTime { get; set; } = false;
 
+    public bool AutomaticCleanup { get; set; } = false;
+
+    public bool AutomaticCleanupThorough { get; set; } = false;
+
     public bool SyncWindowsClipboardHistory { get; set; } = false;
 
     public bool UseWindowsClipboardHistoryOnly { get; set; } = false;

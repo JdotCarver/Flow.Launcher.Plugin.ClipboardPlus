@@ -185,7 +185,7 @@ jobs:
             # Only publish recognized synthetic measurement lines, never arbitrary
             # build diagnostics, exceptions, environment values or file paths.
             Get-Content "$env:RUNNER_TEMP\clipboardplus-benchmark.log" | Where-Object {
-              $_ -match '^(text create and display|image hashing only|image construct and serialize|two forced collections and finalizer wait|SQLite disk bulk insert and read|SQLite reopen and materialize|10000 live synthetic text records|plugin query|plugin synthetic text add|plugin repeated query managed heap delta|plugin capture lock wait during query|dedup planner|dedup database|SQLite transaction experiment|image experiment|query experiment|image pin)[A-Za-z0-9 ,.;/():=+\-]*$'
+              $_ -match '^(text create and display|image hashing only|image construct and serialize|two forced collections and finalizer wait|SQLite disk bulk insert and read|SQLite reopen and materialize|10000 live synthetic text records|plugin query|plugin synthetic text add|plugin repeated query managed heap delta|plugin capture lock wait during query|dedup planner|dedup database|dedup plugin|SQLite transaction experiment|image experiment|query experiment|image pin)[A-Za-z0-9 ,.;/():=+\-]*$'
             } | ForEach-Object { Write-Host $_ }
             if ($exitCode -ne 0) {
               $codes = @(Get-Content "$env:RUNNER_TEMP\clipboardplus-benchmark.log" | Select-String -Pattern 'error (CS[0-9]+)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
@@ -217,6 +217,9 @@ jobs:
               tar -xf "$scratch\snapshot.tar" -C "$scratch\$variant" *>> $diagnostic
               if ($LASTEXITCODE -ne 0) { throw "Snapshot extraction failed" }
             }
+            # The historical caller is not partial and cannot include the new
+            # cleanup integration in the before snapshot.
+            Remove-Item "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus\ClipboardPlus.Cleanup.cs" -ErrorAction SilentlyContinue
             git show 077bf9c:src/Flow.Launcher.Plugin.ClipboardPlus.Core/Data/Models/Database/SqliteDatabase.cs 2>> $diagnostic |
               Set-Content -Encoding utf8 "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus.Core\Data\Models\Database\SqliteDatabase.cs"
             if ($LASTEXITCODE -ne 0) { throw "Baseline source unavailable" }
@@ -264,6 +267,11 @@ jobs:
               }
               Write-Host "$variant $($measurement[0])"
             }
+            # The pin baseline uses the current partial caller and database.
+            Set-Location "${drive}:\"
+            git show HEAD:src/Flow.Launcher.Plugin.ClipboardPlus/ClipboardPlus.Cleanup.cs 2>> $diagnostic |
+              Set-Content -Encoding utf8 "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus\ClipboardPlus.Cleanup.cs"
+            if ($LASTEXITCODE -ne 0) { throw "Cleanup caller source unavailable" }
             # Pinning baseline differs only in the record implementation.
             Set-Location "${drive}:\"
             git show 537ba8c:src/Flow.Launcher.Plugin.ClipboardPlus.Core/Data/Models/Clipboard/ClipboardData.cs 2>> $diagnostic |

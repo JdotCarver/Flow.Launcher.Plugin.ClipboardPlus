@@ -16,7 +16,7 @@ using Clipboard = System.Windows.Clipboard;
 
 namespace Flow.Launcher.Plugin.ClipboardPlus;
 
-public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPluginI18n,
+public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPluginI18n,
     IResultUpdated, ISavable, ISettingProvider, IClipboardPlus, IAsyncDisposable
 {
     #region Fields
@@ -123,6 +123,7 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
 
     public ClipboardPlus()
     {
+        cleanupCoordinator = new CleanupRunCoordinator(RunCleanupWorkAsync);
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 10240))
         {
             ClipboardMonitor = new ClipboardMonitorWin()
@@ -579,6 +580,8 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
                 EnableWindowsClipboardHelper(true);
             }
         }
+
+        RefreshAutomaticCleanup();
 
         // init excluded apps
         if (ClipboardMonitor != null && Settings.ExcludedApps != null && Settings.ExcludedApps.Count > 0)
@@ -1189,6 +1192,7 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
             RecordsList.RemoveLast();
         }
 
+        ScheduleAutomaticCleanup();
         // collect garbage
         GarbageCollect();
     }
@@ -1228,6 +1232,7 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
             }
         }
 
+        ScheduleAutomaticCleanup();
         // collect garbage
         GarbageCollect();
     }
@@ -1431,6 +1436,7 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
             RecordsLock.Release();
         }
 
+        ScheduleAutomaticCleanup();
         // collect garbage
         GarbageCollect();
 
@@ -2378,7 +2384,11 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
 
     public ISettings LoadSettingJsonStorage() => Settings;
 
-    public void SaveSettingJsonStorage() => Context!.API.SaveSettingJsonStorage<Settings>();
+    public void SaveSettingJsonStorage()
+    {
+        Context!.API.SaveSettingJsonStorage<Settings>();
+        RefreshAutomaticCleanup();
+    }
 
     CultureInfo IClipboardPlus.CultureInfo => CultureInfo;
 
@@ -2421,6 +2431,8 @@ public class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMenu, IPlug
         if (disposing)
         {
             Context.LogDebug(ClassName, $"Enter dispose");
+
+            await cleanupCoordinator.StopAsync();
 
             if (Database != null)
             {

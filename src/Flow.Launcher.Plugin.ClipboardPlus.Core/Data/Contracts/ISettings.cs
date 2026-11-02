@@ -34,6 +34,12 @@ public interface ISettings
     /// <summary>Whether result timestamps use relative time.</summary>
     public bool UseRelativeTime { get; set; }
 
+    /// <summary>Whether automatic duplicate cleanup is enabled.</summary>
+    public bool AutomaticCleanup { get; set; }
+
+    /// <summary>Whether automatic cleanup verifies expensive candidates.</summary>
+    public bool AutomaticCleanupThorough { get; set; }
+
     /// <summary>
     /// Whether to sync with Windows clipboard history
     /// </summary>
