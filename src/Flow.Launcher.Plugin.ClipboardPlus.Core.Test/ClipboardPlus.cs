@@ -1,4 +1,5 @@
-﻿using Flow.Launcher.Plugin.ClipboardPlus.Core.Data.Contracts;
+﻿// ClipboardPlus.cs
+using Flow.Launcher.Plugin.ClipboardPlus.Core.Data.Contracts;
 using System.Globalization;
 
 namespace Flow.Launcher.Plugin.ClipboardPlus.Core.Test;

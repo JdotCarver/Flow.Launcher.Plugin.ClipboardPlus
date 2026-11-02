@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿// FileUtils.cs
+using Microsoft.Win32;
 using System;
 using System.IO;
 using System.Windows.Media.Imaging;

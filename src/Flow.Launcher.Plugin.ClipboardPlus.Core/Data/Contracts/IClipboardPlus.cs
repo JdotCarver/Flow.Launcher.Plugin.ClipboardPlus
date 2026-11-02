@@ -1,4 +1,5 @@
-﻿using System;
+﻿// IClipboardPlus.cs
+using System;
 using System.Globalization;
 using System.Threading.Tasks;
 

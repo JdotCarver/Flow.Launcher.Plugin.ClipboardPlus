@@ -1,3 +1,4 @@
+<!-- SettingsPanel.xaml -->
 <UserControl
     x:Class="Flow.Launcher.Plugin.ClipboardPlus.Panels.Views.SettingsPanel"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"

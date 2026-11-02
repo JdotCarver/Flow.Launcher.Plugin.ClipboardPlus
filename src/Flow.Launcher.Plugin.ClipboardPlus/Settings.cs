@@ -1,4 +1,5 @@
-﻿using Flow.Launcher.Plugin.ClipboardPlus.Core.Data.AppInfo;
+﻿// Settings.cs
+using Flow.Launcher.Plugin.ClipboardPlus.Core.Data.AppInfo;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
