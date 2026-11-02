@@ -56,10 +56,63 @@ internal static class PluginScenarios
                 throw new InvalidOperationException("Cancellation did not return an empty list");
         }
 
+        MeasureQueryRetention(plugin);
+        MeasureContendedCapture(plugin);
         SetField(plugin, "RecordsList", new LinkedList<ClipboardDataPair>());
         var add = typeof(Plugin).GetMethod("AddClipboardDataItem", BindingFlags.Instance | BindingFlags.NonPublic, null, [typeof(ClipboardData)], null)!;
         int sequence = 0;
-        Measure("plugin synthetic text add (includes forced GC)", () => add.Invoke(plugin, [SyntheticRecord(sequence++)]));
+        Measure("plugin synthetic text add (includes forced GC)", () =>
+        {
+            int index = sequence++;
+            var record = plugin.GetClipboardDataItem($"synthetic clipboard entry {index}", DataType.PlainText,
+                index.ToString(CultureInfo.InvariantCulture), new DateTime(2025, 1, 1), SourceApplication.NULL, "", "");
+            if (record.IsNull()) throw new InvalidOperationException("Synthetic capture rejected");
+            add.Invoke(plugin, [record]);
+        });
+    }
+
+    private static void MeasureQueryRetention(Plugin plugin)
+    {
+        var query = CreateQuery("synthetic");
+        RunQueries(plugin, query, 3);
+        long before = GC.GetTotalMemory(true);
+        RunQueries(plugin, query, 20);
+        long after = GC.GetTotalMemory(true);
+        Console.WriteLine($"plugin repeated query managed heap delta: {(after - before) / 1048576.0:F2} MiB (20 queries, full GC)");
+    }
+
+    private static void RunQueries(Plugin plugin, Query query, int count)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            if (plugin.QueryAsync(query, CancellationToken.None).GetAwaiter().GetResult().Count != 10000)
+                throw new InvalidOperationException("Unexpected synthetic query count");
+        }
+    }
+
+    private static void MeasureContendedCapture(Plugin plugin)
+    {
+        var recordLock = (SemaphoreSlim)(typeof(Plugin).GetField("RecordsLock", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .GetValue(plugin) ?? throw new InvalidOperationException("Record lock missing"));
+        var delays = new double[5];
+        for (int i = 0; i < delays.Length; i++)
+        {
+            using var entered = new ManualResetEventSlim();
+            using var resume = new ManualResetEventSlim();
+            SyntheticHost.BeforeFirstMatch = () => { entered.Set(); resume.Wait(); };
+            var query = plugin.QueryAsync(CreateQuery("synthetic"), CancellationToken.None);
+            if (!entered.Wait(TimeSpan.FromSeconds(30))) throw new InvalidOperationException("Query did not enter matcher");
+            var waitTimer = Stopwatch.StartNew();
+            var wait = recordLock.WaitAsync();
+            resume.Set();
+            wait.GetAwaiter().GetResult();
+            waitTimer.Stop();
+            recordLock.Release();
+            if (query.GetAwaiter().GetResult().Count != 10000) throw new InvalidOperationException("Contended query count mismatch");
+            delays[i] = waitTimer.Elapsed.TotalMilliseconds;
+        }
+        Array.Sort(delays);
+        Console.WriteLine($"plugin capture lock wait during query: ms min/median/max={delays[0]:F2}/{delays[2]:F2}/{delays[4]:F2}");
     }
 
     private static ClipboardData SyntheticRecord(int index) => new($"synthetic clipboard entry {index}", DataType.PlainText, false)
@@ -109,6 +162,8 @@ internal static class PluginScenarios
 // Unexpected host interactions fail closed rather than touching the real host.
 public class SyntheticHost : DispatchProxy
 {
+    public static Action? BeforeFirstMatch;
+
     protected override object? Invoke(MethodInfo? method, object?[]? args)
     {
         if (method == null) throw new InvalidOperationException("Host method missing");
@@ -116,6 +171,7 @@ public class SyntheticHost : DispatchProxy
         if (method.Name == "GetTranslation") return "synthetic";
         if (method.Name == "FuzzySearch")
         {
+            Interlocked.Exchange(ref BeforeFirstMatch, null)?.Invoke();
             bool found = ((string)args![1]!).Contains((string)args[0]!, StringComparison.OrdinalIgnoreCase);
             return new MatchResult(found, SearchPrecisionScore.Regular) { RawScore = found ? 100 : 0 };
         }
