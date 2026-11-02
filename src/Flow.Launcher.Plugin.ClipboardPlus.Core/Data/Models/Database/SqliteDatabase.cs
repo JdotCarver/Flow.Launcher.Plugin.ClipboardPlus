@@ -618,7 +618,7 @@ public class SqliteDatabase : IAsyncDisposable
         await ProcessTaskQueueAsync(async () =>
         {
             // Bound materialization in best-effort mode before decrypting or hashing.
-            var sql = SqlSelectAllRecord.TrimEnd(';');
+            var sql = SqlSelectAllRecord.TrimEnd().TrimEnd(';');
             if (!thorough)
                 sql += " WHERE r.data_type <> @Image AND length(a.data_b64) <= @MaxEncoded AND length(COALESCE(a.plain_text_b64, '')) <= @MaxEncoded";
             rows.AddRange(await Connection.QueryAsync<Record>(sql, new { Image = (int)DataType.Image, MaxEncoded = 32768 }));

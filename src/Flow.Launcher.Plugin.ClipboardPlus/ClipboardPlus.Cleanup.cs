@@ -167,7 +167,7 @@ public partial class ClipboardPlus
                     node is null
                         ? !RecordsList.Any(pair => pair.ClipboardData.HashId == snapshot.Original.HashId)
                         : node.List == RecordsList && snapshot.Matches(node.Value.ClipboardData);
-                if ((automatic && !Settings.AutomaticCleanup) ||
+                if ((automatic && !Settings.AutomaticCleanup) || (duplicate.Saved && UseWindowsClipboardHistoryOnly) ||
                     !StillValid(keeperNode, keeperSnapshot) || !StillValid(duplicateNode, duplicateSnapshot))
                 {
                     return DuplicateRemovalResult.Skipped;
