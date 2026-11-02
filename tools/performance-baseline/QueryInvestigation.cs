@@ -17,7 +17,7 @@ internal static class QueryInvestigation
         var factory = (Func<ClipboardDataPair, string?, Result?>)typeof(Plugin)
             .GetMethod("GetResultFromClipboardData", BindingFlags.Instance | BindingFlags.NonPublic)!
             .CreateDelegate(typeof(Func<ClipboardDataPair, string?, Result?>), plugin);
-        foreach (var (count, longText) in new[] { (333, false), (1000, false), (10000, false), (1000, true) })
+        foreach (var (count, longText) in new[] { (50, false), (100, false), (200, false), (333, false), (1000, false), (10000, false), (1000, true) })
         {
             var records = CreateRecords(count, longText);
             foreach (var (label, search, expected) in new[]
@@ -40,12 +40,11 @@ internal static class QueryInvestigation
                     }
                     if (matched != expected) throw new InvalidOperationException("Synthetic matcher count mismatch");
                 });
-                Measure($"{name} serial results", () =>
+                MeasurePair($"{name}", () =>
                 {
                     if (SearchSequential(records, search, factory).Count != expected)
                         throw new InvalidOperationException("Synthetic serial count mismatch");
-                });
-                Measure($"{name} parallel results", () =>
+                }, () =>
                 {
                     if (SearchParallel(records, search, factory).Count != expected)
                         throw new InvalidOperationException("Synthetic parallel count mismatch");
@@ -116,6 +115,48 @@ internal static class QueryInvestigation
                 throw new InvalidOperationException("Synthetic result content mismatch");
         }
         if (expectedById.Count != 0) throw new InvalidOperationException("Synthetic result identity mismatch");
+    }
+
+    private static void MeasurePair(string name, Action serial, Action parallel)
+    {
+        serial();
+        parallel();
+        var serialTimes = new double[5];
+        var parallelTimes = new double[5];
+        var serialBytes = new long[5];
+        var parallelBytes = new long[5];
+        for (int i = 0; i < serialTimes.Length; i++)
+        {
+            if (i % 2 == 0)
+            {
+                Sample(serial, out serialTimes[i], out serialBytes[i]);
+                Sample(parallel, out parallelTimes[i], out parallelBytes[i]);
+            }
+            else
+            {
+                Sample(parallel, out parallelTimes[i], out parallelBytes[i]);
+                Sample(serial, out serialTimes[i], out serialBytes[i]);
+            }
+        }
+        PrintSamples($"{name} serial results", serialTimes, serialBytes);
+        PrintSamples($"{name} parallel results", parallelTimes, parallelBytes);
+    }
+
+    private static void Sample(Action action, out double elapsed, out long allocated)
+    {
+        long before = GC.GetTotalAllocatedBytes(true);
+        var timer = Stopwatch.StartNew();
+        action();
+        timer.Stop();
+        elapsed = timer.Elapsed.TotalMilliseconds;
+        allocated = GC.GetTotalAllocatedBytes(true) - before;
+    }
+
+    private static void PrintSamples(string name, double[] times, long[] allocations)
+    {
+        Array.Sort(times);
+        Array.Sort(allocations);
+        Console.WriteLine($"{name}: ms min/median/max={times[0]:F2}/{times[2]:F2}/{times[4]:F2}; median allocated={allocations[2] / 1048576.0:F2} MiB");
     }
 
     private static void Measure(string name, Action action)
