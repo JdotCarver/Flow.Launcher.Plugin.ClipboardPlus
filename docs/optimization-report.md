@@ -63,6 +63,23 @@ For 10,000 all-match records, matcher-only allocated 13.73 MiB (median); full se
 
 The same run's actual `QueryAsync` all-match scenario at 10,000 records had a 20.16 ms median and 23.82 MiB median allocation; a deliberately overlapping capture-like record-lock wait had an 11.47 ms median. Reducing lock scope requires a safe ownership/lifetime design for mutable or disposed records and stale results, not merely copying the list. Real Flow settings, scheduling, actual clipboard events and UI latency remain unmeasured.
 
+## Investigated: image pin/unpin (no production change)
+
+[Windows run 41468518387](https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41468518387) measured the existing `ClipboardDataPair.TogglePinned` method on generated opaque frozen bitmaps. Five measured toggles followed a warmup; the test checked pin state, hash, ID and underlying data identity. It excludes the plugin's lock, database updates, forced GC, UI and Windows history.
+
+| Synthetic input | Median | Median managed allocation |
+| --- | ---: | ---: |
+| 512×512 solid image | 2.85 ms | 0.02 MiB |
+| 512×512 noisy image | 23.90 ms | 7.21 MiB |
+| 1024×1024 noisy image | 91.78 ms | 28.90 MiB |
+| Text control | under 0.01 ms | under 0.01 MiB |
+
+Pinning currently calls `ClipboardData.Clone(bool)`, which constructs a record and recomputes the image's PNG-based hash. Reusing a hash for an unchanged frozen image is a candidate, but it has not been implemented or validated against the full pin path. Mutable image data, metadata, hash identity, cloning with a new ID, disposal and Windows-history behavior need explicit coverage before any change.
+
+## Deduplication considerations (discussion only)
+
+Capture currently suppresses only a consecutive duplicate using `DataEquals` (data type and MD5); later repeats receive different record IDs. Import checks record identity rather than content. Full-history deduplication could reduce query work and persisted storage in proportion to the duplicates actually removed, but a scan and duplicate checking have costs and no performance gain is established yet. Content hashes alone are not proof of exact equality; rich text and files have representation/ordering semantics that require agreement. Pinned records, persistence, metadata, previews and Windows clipboard history make deletion and merging potentially destructive. No deduplication behavior has been approved or implemented.
+
 ## Security-relevant observation
 
 `ClipboardData.EncryptData` explicitly excludes images. Enabling the encryption setting therefore does not encrypt saved image assets. This is existing behavior, not introduced by the bulk-insert change; it should be reviewed separately rather than silently changed in a performance PR.
