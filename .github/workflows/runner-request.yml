@@ -222,6 +222,11 @@ jobs:
             Remove-Item "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus\ClipboardPlus.Cleanup.cs" -ErrorAction SilentlyContinue
             Remove-Item "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus\ClipboardPlus.WindowsSuppression.cs" -ErrorAction SilentlyContinue
             Remove-Item "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus\ClipboardPlus.CacheCleanup.cs" -ErrorAction SilentlyContinue
+            # The historical ClipboardData lacks the newer origin marker.
+            Remove-Item "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus.Core.Test\WindowsOriginPinTests.cs" -ErrorAction SilentlyContinue
+            git show be98be6:src/Flow.Launcher.Plugin.ClipboardPlus.Core/Helpers/ClipboardCleanupSnapshot.cs 2>> $diagnostic |
+              Set-Content -Encoding utf8 "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus.Core\Helpers\ClipboardCleanupSnapshot.cs"
+            if ($LASTEXITCODE -ne 0) { throw "Historical snapshot helper unavailable" }
             git show 077bf9c:src/Flow.Launcher.Plugin.ClipboardPlus.Core/Data/Models/Database/SqliteDatabase.cs 2>> $diagnostic |
               Set-Content -Encoding utf8 "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus.Core\Data\Models\Database\SqliteDatabase.cs"
             if ($LASTEXITCODE -ne 0) { throw "Baseline source unavailable" }
@@ -282,9 +287,19 @@ jobs:
             if ($LASTEXITCODE -ne 0) { throw "Cache caller source unavailable" }
             # Pinning baseline differs only in the record implementation.
             Set-Location "${drive}:\"
-            git show 537ba8c:src/Flow.Launcher.Plugin.ClipboardPlus.Core/Data/Models/Clipboard/ClipboardData.cs 2>> $diagnostic |
-              Set-Content -Encoding utf8 "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus.Core\Data\Models\Clipboard\ClipboardData.cs"
-            if ($LASTEXITCODE -ne 0) { throw "Pin baseline source unavailable" }
+            foreach ($relative in @(
+              'src/Flow.Launcher.Plugin.ClipboardPlus.Core/Data/Models/Clipboard/ClipboardData.cs',
+              'src/Flow.Launcher.Plugin.ClipboardPlus.Core/Helpers/ClipboardCleanupSnapshot.cs'
+            )) {
+              git show "HEAD:$relative" 2>> $diagnostic | Set-Content -Encoding utf8 "$scratch\before\$relative"
+              if ($LASTEXITCODE -ne 0) { throw "Pin baseline source unavailable" }
+            }
+            # Isolate the old pinning cost without discarding newer safety metadata.
+            $pinSource = "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus.Core\Data\Models\Clipboard\ClipboardData.cs"
+            $pinText = Get-Content -Raw $pinSource
+            $oldPinText = $pinText.Replace('new ClipboardData(Data, DataType, EncryptData, CanReuseImageHash ? DataMd5 : null)', 'new ClipboardData(Data, DataType, EncryptData)')
+            if ($pinText -eq $oldPinText) { throw "Pin baseline transformation unavailable" }
+            Set-Content -Encoding utf8 $pinSource $oldPinText
             # Restore the current image-capture implementation in the before
             # tree, so that only the hash-reuse change differs.
             foreach ($relative in @(
