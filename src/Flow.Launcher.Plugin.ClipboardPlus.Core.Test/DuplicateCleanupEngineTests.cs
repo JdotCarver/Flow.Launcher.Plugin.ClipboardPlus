@@ -26,7 +26,7 @@ public class DuplicateCleanupEngineTests
             return Task.FromResult(duplicate == 1 ? DuplicateRemovalResult.Removed : DuplicateRemovalResult.Skipped);
         }, updates.Add);
         Assert.Equal(new[] { 1, 2, 3 }, calls);
-        Assert.Equal(3, updates.Count);
+        Assert.Single(updates);
         Assert.Equal(new CleanupReport(1, 0, 0, 1, 1), updates[^1]);
         Assert.Equal(new CleanupReport(1, 0, 0, 1, 1), result);
     }

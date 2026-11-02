@@ -1,7 +1,7 @@
 <!-- deduplication-relative-time-design.md -->
 # Deduplication and relative time: agreed design
 
-Status: **design agreed; not implemented**. This records the decisions from the design discussion. Implementation remains subject to verification, synthetic Windows measurements, and review of measurement-dependent limits. No performance improvement is assumed from deduplication. The existing image-encryption limitation remains out of scope; see [the optimization report](optimization-report.md).
+Status: **implemented; final review pending**. This records the decisions from the design discussion. The best-effort limit remains provisional pending review of synthetic Windows measurements. No performance improvement is assumed from deduplication. The existing image-encryption limitation remains out of scope; see [the optimization report](optimization-report.md).
 
 ## Deduplication
 

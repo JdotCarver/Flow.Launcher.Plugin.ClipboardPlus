@@ -30,6 +30,7 @@ public static class DuplicateCleanupEngine
         var removed = 0;
         var skipped = plan.Skipped;
         var errors = 0;
+        var processed = 0;
         foreach (var candidate in plan.Candidates)
         {
             try
@@ -50,7 +51,9 @@ public static class DuplicateCleanupEngine
                 // Do not expose the exception or any clipboard contents.
                 errors++;
             }
-            progress?.Invoke(new CleanupReport(removed, 0, 0, skipped, errors));
+            processed++;
+            if (processed % 16 == 0 || processed == plan.Candidates.Count)
+                progress?.Invoke(new CleanupReport(removed, 0, 0, skipped, errors));
         }
         return new CleanupReport(removed, 0, 0, skipped, errors);
     }
