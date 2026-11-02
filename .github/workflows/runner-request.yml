@@ -207,6 +207,15 @@ jobs:
             git show 077bf9c:src/Flow.Launcher.Plugin.ClipboardPlus.Core/Data/Models/Database/SqliteDatabase.cs 2>> $diagnostic |
               Set-Content -Encoding utf8 "$scratch\before\src\Flow.Launcher.Plugin.ClipboardPlus.Core\Data\Models\Database\SqliteDatabase.cs"
             if ($LASTEXITCODE -ne 0) { throw "Baseline source unavailable" }
+            # The old database lacks the new image-reuse API, so use the
+            # pre-image versions of its callers in the bulk baseline too.
+            foreach ($relative in @(
+              'src/Flow.Launcher.Plugin.ClipboardPlus/Main.cs',
+              'src/Flow.Launcher.Plugin.ClipboardPlus.Core/Data/Models/Clipboard/ClipboardData.cs'
+            )) {
+              git show "6a8203d:$relative" 2>> $diagnostic | Set-Content -Encoding utf8 "$scratch\before\$relative"
+              if ($LASTEXITCODE -ne 0) { throw "Bulk baseline caller source unavailable" }
+            }
             foreach ($variant in @('before', 'after')) {
               Set-Location "$scratch\$variant"
               dotnet restore tools/performance-baseline/PerformanceBaseline.csproj --source https://api.nuget.org/v3/index.json *> $diagnostic
