@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "c29bc3c6-4b97-4b16-974c-3eb62b9d66b1"
+request_id = "42fc12f5-e92f-4f51-8571-f5d12da40e16"
 target = "local-windows"
-job_name = "Cleanup Contention Measurements"
+job_name = "Pin Events And Manual Evidence"
