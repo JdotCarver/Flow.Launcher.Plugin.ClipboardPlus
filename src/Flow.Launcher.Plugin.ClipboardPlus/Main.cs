@@ -163,7 +163,6 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
     {
         var results = new List<Result>();
         var queryGeneration = Interlocked.Increment(ref cleanupQueryGeneration);
-        Volatile.Write(ref currentResultView, null);
         if (query.FirstSearch == Settings.ClearKeyword)
         {
             // clean windows clipboard history actions
@@ -510,6 +509,10 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
 
                     Context.LogDebug(ClassName, $"Searched {querySearch} and added {results.Count} records successfully");
                 }
+                // Publish the view before releasing the history lock so a
+                // concurrent cleanup can never miss the just-built result list.
+                if (Interlocked.Read(ref cleanupQueryGeneration) == queryGeneration && !token.IsCancellationRequested)
+                    Volatile.Write(ref currentResultView, new CleanupResultView(results, query, token, queryGeneration));
             }
             finally
             {
