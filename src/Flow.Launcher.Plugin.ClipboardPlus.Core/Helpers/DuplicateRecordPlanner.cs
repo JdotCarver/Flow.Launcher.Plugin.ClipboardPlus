@@ -25,9 +25,15 @@ public static class DuplicateRecordPlanner
     {
         var candidates = new List<DuplicateRecordCandidate>();
         var skipped = 0;
+        var ambiguousIds = records.Where(record => !string.IsNullOrEmpty(record.HashId))
+            .GroupBy(record => record.HashId, StringComparer.Ordinal)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key)
+            .ToHashSet(StringComparer.Ordinal);
         var groups = records.Select((record, index) => (Record: record, Index: index))
             .Where(item => !item.Record.Pinned && !item.Record.FromWindowsClipboardHistory() &&
-                           !string.IsNullOrEmpty(item.Record.DataMd5))
+                           !string.IsNullOrEmpty(item.Record.DataMd5) && !string.IsNullOrEmpty(item.Record.HashId) &&
+                           !ambiguousIds.Contains(item.Record.HashId))
             .GroupBy(item => (item.Record.DataType, item.Record.DataMd5));
 
         foreach (var group in groups)

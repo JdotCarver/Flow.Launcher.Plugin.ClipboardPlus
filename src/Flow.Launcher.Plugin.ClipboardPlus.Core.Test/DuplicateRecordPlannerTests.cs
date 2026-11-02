@@ -35,6 +35,15 @@ public class DuplicateRecordPlannerTests
     }
 
     [Fact]
+    public void RepeatedRecordIdsAreExcludedFromPlanning()
+    {
+        var first = Text("same", 2);
+        var repeated = first;
+        var other = Text("same", 1);
+        Assert.Empty(DuplicateRecordPlanner.Plan(new[] { first, repeated, other }, true));
+    }
+
+    [Fact]
     public void ReportsUnavailableImageAndProtectedSavedCandidatesAsSkipped()
     {
         var image = BitmapSource.Create(1, 1, 96, 96, PixelFormats.Bgra32, null, new byte[] { 0, 0, 0, 255 }, 4);
