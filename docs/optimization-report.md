@@ -96,3 +96,31 @@ Capture currently suppresses only a consecutive duplicate using `DataEquals` (da
 ## Open validation gaps
 
 No personal data was used. Real-world UI latency, real clipboard events, actual Flow Launcher process/native memory, Windows clipboard-history synchronization, long-running retention, encryption/image bulk performance, and varied datasets remain unmeasured. Per-scenario methodology and limitations are documented in `tools/performance-baseline/README.md`.
+
+## Investigated, not implemented: forced collection and image startup
+
+[Local Windows run 41712914425](https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41712914425) passed the solution build, tests and synthetic benchmarks. Both comparisons ran sequentially, one warmup and five measured samples per variant. No production source was changed. These are component experiments, not end-to-end application measurements or evidence about other proposed optimizations.
+
+### Forced full collections
+
+The candidate was an otherwise identical scratch build whose `GarbageCollect` method was replaced with a no-op. The benchmark invokes the real synthetic-monitor capture handler with text saving enabled, and the real pin method, waiting for queued database work. It starts with 1,001 synthetic records and a touched 64 MiB live managed array. Each sample averages 20 captures and 10 pin toggles; records and persisted pin state are checked. The database is isolated and in memory. The samples are repeated batches in one process per variant, not independent launches or individual-event tail latencies.
+
+| Metric | Forced GC, min / median / max | Scratch no-op, min / median / max |
+| --- | ---: | ---: |
+| Capture and queued save, ms per operation | 0.806 / 0.846 / 0.875 | 0.064 / 0.066 / 0.073 |
+| Pin toggle and queued save, ms per operation | 0.710 / 0.743 / 0.782 | 0.024 / 0.025 / 0.041 |
+
+Final managed / working-set / private memory in MiB was 65.21 / 125.02 / 92.18 with forced GC and 67.93 / 124.07 / 85.87 without. These are single final snapshots, not peaks or a long-running memory/leak test; the two processes may collect and reserve memory at different times. The synthetic median improvements of about 0.78 ms per capture and 0.72 ms per pin warrant investigating collection placement, but do not establish user-perceived gains, safety, memory behavior under image-heavy workloads, or that every forced collection can be removed.
+
+### Eager image materialization
+
+The current component uses `GetAllRecordsAsync(true)` against a temporary SQLite database containing 24 independently generated opaque noisy 512×512 images. The comparison queries record metadata without loading asset payloads, then separately fetches and materializes one image. It is a deliberately narrow component prototype, **not** a functional replacement for plugin startup: it does not implement the required lazy record, UI, lifetime, concurrency, encryption, pin/cleanup, or error-handling behavior. The harness checks record count and the first image's dimensions and synthetic hash. It does not compare the entire UI, history ordering, or full startup sequence.
+
+| Metric | Eager, min / median / max | Metadata prototype, min / median / max |
+| --- | ---: | ---: |
+| Database load/materialization, ms | 781.52 / 791.24 / 826.29 | 0.25 / 0.27 / 0.32 |
+| First image access after load, ms | 0.00 / 0.00 / 0.00 | 28.68 / 29.91 / 30.37 |
+
+Median managed allocation during the load was 271.65 MiB eager versus 0.01 MiB metadata-only. Median working-set and private-memory changes during load were +77.84 / +78.61 MiB eager and -0.59 / -0.59 MiB for the prototype; negative deltas reflect process/OS accounting noise, not negative memory consumption. These are load-time deltas, not retained heap or peak memory. The prototype shifts about 30 ms to the first image in this synthetic workload, and further images would add further deferred work; it does not eliminate that work. Image size, compressibility, count, cache and real startup behavior may change the result substantially. The magnitude warrants a separate design discussion before considering implementation.
+
+Image payloads are currently excluded from encryption even when encryption is enabled. This security concern is unrelated to these experiments and was not changed.
