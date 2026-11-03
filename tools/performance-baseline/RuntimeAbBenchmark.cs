@@ -34,7 +34,7 @@ internal static class RuntimeAbBenchmark
             database.InitializeDatabaseAsync().GetAwaiter().GetResult();
             var plugin = new Plugin();
             SetField(plugin, "ClipboardMonitor", null);
-            SetField(plugin, "Settings", new Settings { MaxRecords = 20000, AutomaticCleanup = false });
+            SetField(plugin, "Settings", new Settings { MaxRecords = 20000, AutomaticCleanup = false, KeepText = true });
             SetField(plugin, "Context", new PluginInitContext(null, api));
             SetField(plugin, "CultureInfo", CultureInfo.GetCultureInfo("en-US"));
             SetField(plugin, "ScoreHelper", new ScoreHelper(10000));
@@ -60,7 +60,8 @@ internal static class RuntimeAbBenchmark
             // A fixed live synthetic heap exposes collection cost without touching user data.
             var heap = new byte[64 * 1024 * 1024];
             for (int i = 0; i < heap.Length; i += 4096) heap[i] = 1;
-            var add = typeof(Plugin).GetMethod("AddClipboardDataItem", BindingFlags.Instance | BindingFlags.NonPublic, null, [typeof(ClipboardData)], null)!;
+            var capture = typeof(Plugin).GetMethod("ClipboardMonitor_OnClipboardChanged", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            var sender = DispatchProxy.Create<IClipboardMonitor, SyntheticMonitor>();
             var pin = typeof(Plugin).GetMethod("PinRecordAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
             var wait = typeof(SqliteDatabase).GetMethod("WaitTaskQueueAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
             var recordLock = (SemaphoreSlim)typeof(Plugin).GetField("RecordsLock", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(plugin)!;
@@ -71,11 +72,12 @@ internal static class RuntimeAbBenchmark
                 var timer = Stopwatch.StartNew();
                 for (int i = 0; i < 20; i++)
                 {
-                    var data = Record(next++);
-                    recordLock.Wait();
-                    try { add.Invoke(plugin, [data]); }
-                    finally { recordLock.Release(); }
+                    var args = new ClipboardChangedEventArgs($"synthetic gc capture {next++}", DataType.PlainText, SourceApplication.NULL);
+                    capture.Invoke(plugin, [sender, args]);
+                    // Ensure the async-void handler has released its lock before the next capture.
+                    recordLock.Wait(); recordLock.Release();
                 }
+                ((Task)wait.Invoke(database, null)!).GetAwaiter().GetResult();
                 timer.Stop();
                 var captureMs = timer.Elapsed.TotalMilliseconds / 20;
                 timer.Restart();
@@ -83,6 +85,7 @@ internal static class RuntimeAbBenchmark
                 ((Task)wait.Invoke(database, null)!).GetAwaiter().GetResult();
                 timer.Stop();
                 if (pinPair.ClipboardData.Pinned || list.Count != next ||
+                    database.Connection.ExecuteScalar<int>("SELECT COUNT(*) FROM record") != next - 1000 ||
                     database.Connection.ExecuteScalar<int>("SELECT pinned FROM record WHERE hash_id = '0'") != 0)
                     throw new InvalidOperationException("Synthetic capture or pin validation failed");
                 if (sample >= 0) { captures[sample] = captureMs; pins[sample] = timer.Elapsed.TotalMilliseconds / 10; }

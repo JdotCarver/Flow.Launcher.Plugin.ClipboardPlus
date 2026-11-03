@@ -17,6 +17,12 @@ class RuntimeAbTests(unittest.TestCase):
         self.assertIn('private static void GarbageCollect() { }', result)
         self.assertNotEqual(source, result)
 
+    def test_gc_comparison_exercises_capture_and_pin_paths(self):
+        benchmark = (ROOT / 'tools/performance-baseline/RuntimeAbBenchmark.cs').read_text(encoding='utf-8')
+        for token in ('ClipboardMonitor_OnClipboardChanged', 'PinRecordAsync', 'KeepText = true',
+                      'WaitTaskQueueAsync', 'SELECT COUNT(*) FROM record'):
+            self.assertIn(token, benchmark)
+
     def test_workflow_runs_only_synthetic_entry_points_in_scratch(self):
         workflow = (ROOT / '.github/workflows/runner-request.yml').read_text(encoding='utf-8')
         step = workflow.split('      - name: Compare synthetic runtime candidates', 1)[1].split('      - name:', 1)[0]
