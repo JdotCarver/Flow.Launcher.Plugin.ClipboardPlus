@@ -1,7 +1,7 @@
 <!-- history-capacity-and-pin-retention-design.md -->
 # History capacity and pin retention: agreed design
 
-Status: **design confirmed; not yet implemented**. This document records the decisions for a future implementation. It supersedes the capacity-counting assumptions in the [deduplication design](deduplication-relative-time-design.md), not its duplicate-verification safety rules.
+Status: **implemented**. This document records the confirmed design and its implementation boundaries. It supersedes the capacity-counting assumptions in the [deduplication design](deduplication-relative-time-design.md), not its duplicate-verification safety rules.
 
 ## Loaded history capacity
 
@@ -29,4 +29,4 @@ Status: **design confirmed; not yet implemented**. This document records the dec
 - Test the pin-expiry checkbox defaults for upgrades and new settings; both toggle directions, confirmation and cancellation, per-type expiry, safety pins, list refresh, and failure feedback. Use temporary synthetic databases. Cover trusted recovery and a subsequent genuine pin event through integration and database tests.
 - The separate review fixes remain relevant: bind retention and thorough-cleanup tooltips to their semantic resources, and normalize Windows IDs invariantly with a synthetic Turkish-culture test. Document the existing privacy consequences of protective imports and unencrypted images.
 - Investigating or designing clipboard-exclusion markers for WhisperWriter or other apps is a separate follow-up; this document does not authorize an exclusion feature. Preserve privacy: do not expose clipboard contents, identifiers, paths or metadata in diagnostics or test artifacts, and do not modify real clipboard history or the user's database for tests.
-- Build and test on the user's local Windows runner; cloud runner use requires separate permission. This design does not itself authorize implementation.
+- Build and test on the user's local Windows runner; cloud runner use requires separate permission. Implementation was subsequently authorized; further scope changes require separate approval.
