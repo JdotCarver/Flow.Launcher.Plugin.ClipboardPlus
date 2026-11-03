@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "6c1b8c56-f440-4735-b3e9-3834739112f8"
+request_id = "7450aa2b-b395-4c5e-9dbf-a9eeacfba11e"
 target = "local-windows"
-job_name = "Dogfood Image Checks"
+job_name = "Dogfood Capture Checks"
