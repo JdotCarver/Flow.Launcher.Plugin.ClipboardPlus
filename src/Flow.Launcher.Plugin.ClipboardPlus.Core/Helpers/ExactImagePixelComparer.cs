@@ -1,31 +1,53 @@
 // ExactImagePixelComparer.cs
 using System;
-using System.Windows.Media;
 using System.Security.Cryptography;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace Flow.Launcher.Plugin.ClipboardPlus.Core.Helpers;
 
-/// <summary>Conservatively compares frozen, directly comparable pixel buffers.</summary>
+/// <summary>Conservatively compares frozen, directly comparable 8-bit pixel buffers.</summary>
 public static class ExactImagePixelComparer
 {
-    // Bound memory consumed by a single comparison; an oversized image is unknown, not equal.
     private const int MaximumBytes = 64 * 1024 * 1024;
+
+    // Opaque BGR formats are comparable with straight-alpha BGRA. Premultiplied
+    // alpha remains separate: converting it can discard information by rounding.
+    private static (byte[] Pixels, bool Premultiplied)? ReadPixels(BitmapSource? image)
+    {
+        if (image is null || !image.IsFrozen) return null;
+        var format = image.Format;
+        if (format != PixelFormats.Bgra32 && format != PixelFormats.Pbgra32 &&
+            format != PixelFormats.Bgr32 && format != PixelFormats.Bgr24) return null;
+        try
+        {
+            var count = checked(image.PixelWidth * image.PixelHeight);
+            var outputSize = checked(count * 4);
+            if (outputSize <= 0 || outputSize > MaximumBytes) return null;
+            var inputBpp = format == PixelFormats.Bgr24 ? 3 : 4;
+            var stride = checked(image.PixelWidth * inputBpp);
+            var input = new byte[checked(stride * image.PixelHeight)];
+            image.CopyPixels(input, stride, 0);
+            if (format == PixelFormats.Bgra32 || format == PixelFormats.Pbgra32)
+                return (input, format == PixelFormats.Pbgra32);
+            var result = new byte[outputSize];
+            for (var i = 0; i < count; i++)
+            {
+                result[i * 4] = input[i * inputBpp];
+                result[i * 4 + 1] = input[i * inputBpp + 1];
+                result[i * 4 + 2] = input[i * inputBpp + 2];
+                result[i * 4 + 3] = 255;
+            }
+            return (result, false);
+        }
+        catch (Exception) { return null; }
+    }
 
     public static string? Fingerprint(BitmapSource? image)
     {
-        if (image is null || !image.IsFrozen ||
-            (image.Format != PixelFormats.Bgra32 && image.Format != PixelFormats.Bgr32 && image.Format != PixelFormats.Bgr24)) return null;
-        try
-        {
-            var stride = checked(image.PixelWidth * image.Format.BitsPerPixel / 8);
-            var size = checked(stride * image.PixelHeight);
-            if (size <= 0 || size > MaximumBytes) return null;
-            var pixels = new byte[size];
-            image.CopyPixels(pixels, stride, 0);
-            return $"{image.PixelWidth}:{image.PixelHeight}:{image.Format}:{Convert.ToHexString(SHA256.HashData(pixels))}";
-        }
-        catch (Exception) { return null; }
+        var pixels = ReadPixels(image);
+        if (pixels is null || image is null) return null;
+        return $"{image.PixelWidth}:{image.PixelHeight}:{pixels.Value.Premultiplied}:{Convert.ToHexString(SHA256.HashData(pixels.Value.Pixels))}";
     }
 
     public static ClipboardContentComparison Compare(BitmapSource? left, BitmapSource? right)
@@ -34,20 +56,11 @@ public static class ExactImagePixelComparer
             return ClipboardContentComparison.Unavailable;
         if (left.PixelWidth != right.PixelWidth || left.PixelHeight != right.PixelHeight)
             return ClipboardContentComparison.Different;
-        // Do not equate raw indices, color-managed data, or different pixel formats.
-        if (left.Format != right.Format || (left.Format != PixelFormats.Bgra32 && left.Format != PixelFormats.Bgr32 && left.Format != PixelFormats.Bgr24))
+        var a = ReadPixels(left);
+        var b = ReadPixels(right);
+        if (a is null || b is null || a.Value.Premultiplied != b.Value.Premultiplied)
             return ClipboardContentComparison.Unavailable;
-        try
-        {
-            var stride = checked(left.PixelWidth * left.Format.BitsPerPixel / 8);
-            var size = checked(stride * left.PixelHeight);
-            if (size <= 0 || size > MaximumBytes) return ClipboardContentComparison.Unavailable;
-            var a = new byte[size];
-            var b = new byte[size];
-            left.CopyPixels(a, stride, 0);
-            right.CopyPixels(b, stride, 0);
-            return a.AsSpan().SequenceEqual(b) ? ClipboardContentComparison.Equal : ClipboardContentComparison.Different;
-        }
-        catch (Exception) { return ClipboardContentComparison.Unavailable; }
+        return a.Value.Pixels.AsSpan().SequenceEqual(b.Value.Pixels)
+            ? ClipboardContentComparison.Equal : ClipboardContentComparison.Different;
     }
 }
