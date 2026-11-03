@@ -200,6 +200,13 @@ jobs:
               restore = 'saved_formats|restore.*clipboard|clipboard.*restore|preserv.*clipboard'
               threshold = 'clipboard_threshold|char_threshold'
               sleep = 'time\.sleep|sleep\('
+              empty = 'EmptyClipboard'
+              textwrite = 'SetClipboardText'
+              formatread = 'EnumClipboardFormats'
+              formatwrite = 'SetClipboardData'
+              sequence = 'GetClipboardSequenceNumber'
+              viewerignore = 'Clipboard Viewer Ignore'
+              paste = 'Key\.ctrl|ctrl\+v|VK_CONTROL'
             }
             foreach ($key in $checks.Keys) {
               if ($code -match $checks[$key]) { "$key=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8 }
@@ -343,6 +350,34 @@ jobs:
         if: ${{ always() && steps.local-signals.outputs.base == 'true' }}
         shell: pwsh
         run: Write-Host 'Source location status'
+      - name: WhisperWriter signal empty
+        if: ${{ always() && steps.local-signals.outputs.empty == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source signal present'
+      - name: WhisperWriter signal textwrite
+        if: ${{ always() && steps.local-signals.outputs.textwrite == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source signal present'
+      - name: WhisperWriter signal formatread
+        if: ${{ always() && steps.local-signals.outputs.formatread == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source signal present'
+      - name: WhisperWriter signal formatwrite
+        if: ${{ always() && steps.local-signals.outputs.formatwrite == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source signal present'
+      - name: WhisperWriter signal sequence
+        if: ${{ always() && steps.local-signals.outputs.sequence == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source signal present'
+      - name: WhisperWriter signal viewerignore
+        if: ${{ always() && steps.local-signals.outputs.viewerignore == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source signal present'
+      - name: WhisperWriter signal paste
+        if: ${{ always() && steps.local-signals.outputs.paste == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source signal present'
       - name: WhisperWriter source unavailable
         if: ${{ always() && steps.local-signals.outputs.source == 'unavailable' }}
         shell: pwsh
