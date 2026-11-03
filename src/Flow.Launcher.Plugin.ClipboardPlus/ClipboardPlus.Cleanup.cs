@@ -319,17 +319,10 @@ public partial class ClipboardPlus
         var removed = new List<ClipboardDataPair>();
         var limit = HistoryOverflowPolicy.Limit(Settings.MaxRecords, HistoryOverflowPolicy.MaximumOverflow);
         var unpinnedCount = RecordsList.Count(pair => !pair.ClipboardData.Pinned);
-        var node = RecordsList.Last;
-        while (unpinnedCount > limit && node is not null)
+        foreach (var node in OldestUnpinnedNodes().Take(Math.Max(0, unpinnedCount - limit)))
         {
-            var previous = node.Previous;
-            if (!node.Value.ClipboardData.Pinned)
-            {
-                removed.Add(node.Value);
-                RecordsList.Remove(node);
-                unpinnedCount--;
-            }
-            node = previous;
+            removed.Add(node.Value);
+            RecordsList.Remove(node);
         }
         if (removed.Count == 0) return false;
         foreach (var pair in removed) _ = DisposeDetachedRecordAsync(pair);
@@ -370,17 +363,10 @@ public partial class ClipboardPlus
                 (!captured.TryGetValue(pair, out var snapshot) || !snapshot.Matches(pair.ClipboardData)));
             var limit = HistoryOverflowPolicy.Limit(Settings.MaxRecords, reserved + stale);
             var unpinnedCount = RecordsList.Count(pair => !pair.ClipboardData.Pinned);
-            var node = RecordsList.Last;
-            while (unpinnedCount > limit && node is not null)
+            foreach (var node in OldestUnpinnedNodes().Take(Math.Max(0, unpinnedCount - limit)))
             {
-                var previous = node.Previous;
-                if (!node.Value.ClipboardData.Pinned)
-                {
-                    removed.Add(node.Value);
-                    RecordsList.Remove(node);
-                    unpinnedCount--;
-                }
-                node = previous;
+                removed.Add(node.Value);
+                RecordsList.Remove(node);
             }
             if (removed.Count > 0) ScoreHelper.Reset(RecordsList);
         }

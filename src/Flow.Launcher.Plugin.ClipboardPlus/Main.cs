@@ -1212,19 +1212,33 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
     // because automatic duplicate cleanup is disabled or the list is full.
     private bool RemoveOldestUnpinnedRecord()
     {
-        var node = RecordsList.Last;
-        while (node is not null && node.Value.ClipboardData.Pinned) node = node.Previous;
+        var node = OldestUnpinnedNodes().FirstOrDefault();
         if (node is null) return false;
         RecordsList.Remove(node);
         node.Value.Dispose();
         return true;
     }
 
+    // Database restoration and pin events can reorder the list independently of age.
+    // Start at the tail so equal timestamps retain the existing oldest-first tie-break.
+    private IEnumerable<LinkedListNode<ClipboardDataPair>> OldestUnpinnedNodes()
+    {
+        var nodes = new List<LinkedListNode<ClipboardDataPair>>();
+        for (var node = RecordsList.Last; node is not null; node = node.Previous)
+            if (!node.Value.ClipboardData.Pinned) nodes.Add(node);
+        return nodes.OrderBy(node => node.Value.ClipboardData.CreateTime);
+    }
+
     // Called under RecordsLock; capacity unloads records, never deletes database rows.
     private void TrimUnpinnedCapacity(int limit)
     {
         var excess = RecordsList.Count(pair => !pair.ClipboardData.Pinned) - Math.Max(0, limit);
-        while (excess-- > 0 && RemoveOldestUnpinnedRecord()) { }
+        if (excess <= 0) return;
+        foreach (var node in OldestUnpinnedNodes().Take(excess))
+        {
+            RecordsList.Remove(node);
+            node.Value.Dispose();
+        }
     }
 
     public async Task EnforceHistoryCapacityAsync()

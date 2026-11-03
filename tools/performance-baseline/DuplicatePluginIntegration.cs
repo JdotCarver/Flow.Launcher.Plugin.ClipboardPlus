@@ -206,6 +206,15 @@ internal static class DuplicatePluginIntegration
             !list.Any(pair => pair.ClipboardData.HashId == "new-unpinned") ||
             list.Count(pair => pair.ClipboardData.Pinned) != 4)
             throw new InvalidOperationException("Capture did not retain the newest unpinned records alongside pins");
+
+        // A database restore or a pin toggle can leave list order different from age order.
+        list.Clear();
+        add.Invoke(plugin, [Record("newest-first", 9, false)]);
+        add.Invoke(plugin, [Record("oldest-second", 1, false)]);
+        add.Invoke(plugin, [Record("middle-last", 5, false)]);
+        if (list.Any(pair => pair.ClipboardData.HashId == "oldest-second") ||
+            !list.Any(pair => pair.ClipboardData.HashId == "newest-first"))
+            throw new InvalidOperationException("Capacity eviction did not follow record age");
     }
 
     private static void TestCapacityProtection(Plugin plugin)
