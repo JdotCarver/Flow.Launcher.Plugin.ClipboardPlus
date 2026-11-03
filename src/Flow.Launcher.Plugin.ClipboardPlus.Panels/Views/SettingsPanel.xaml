@@ -466,7 +466,7 @@
             IsChecked="{Binding KeepText, Mode=TwoWay}"
             Visibility="{Binding DatabasePanelVisibility, Mode=OneWay}" />
         <ComboBox
- ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_keep}" ToolTipService.ShowOnDisabled="True"            Grid.Row="21"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_retention}" ToolTipService.ShowOnDisabled="True"            Grid.Row="21"
             Grid.Column="1"
             Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
             HorizontalAlignment="Left"
@@ -488,7 +488,7 @@
             IsChecked="{Binding KeepImages, Mode=TwoWay}"
             Visibility="{Binding DatabasePanelVisibility, Mode=OneWay}" />
         <ComboBox
- ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_keep}" ToolTipService.ShowOnDisabled="True"            Grid.Row="22"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_retention}" ToolTipService.ShowOnDisabled="True"            Grid.Row="22"
             Grid.Column="1"
             Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
             HorizontalAlignment="Left"
@@ -510,7 +510,7 @@
             IsChecked="{Binding KeepFiles, Mode=TwoWay}"
             Visibility="{Binding DatabasePanelVisibility, Mode=OneWay}" />
         <ComboBox
- ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_keep}" ToolTipService.ShowOnDisabled="True"            Grid.Row="23"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_retention}" ToolTipService.ShowOnDisabled="True"            Grid.Row="23"
             Grid.Column="1"
             Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
             HorizontalAlignment="Left"
@@ -527,7 +527,7 @@
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_automatic}"
             IsChecked="{Binding AutomaticCleanup, Mode=TwoWay}" />
-        <CheckBox ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_automatic}" ToolTipService.ShowOnDisabled="True" Grid.Row="25" Grid.ColumnSpan="2"
+        <CheckBox ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_thorough}" ToolTipService.ShowOnDisabled="True" Grid.Row="25" Grid.ColumnSpan="2"
             Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
             Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_thorough}"
             IsChecked="{Binding AutomaticCleanupThorough, Mode=TwoWay}"

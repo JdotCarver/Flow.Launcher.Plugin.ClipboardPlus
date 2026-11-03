@@ -529,11 +529,13 @@ public class WindowsClipboardHelper : IDisposable
         return ClipboardData.NULL;
     }
 
+    public static string NormalizeHistoryId(string id) => id.ToLowerInvariant();
+
     // item.Id with numbers and capital letters, while StringUtils.GetGuid() with numbers and lowercase letters
     // Therefore, we need to convert the item.Id to lowercase.
     private static string GetHashId(ClipboardHistoryItem item)
     {
-        return item.Id.ToLower();
+        return NormalizeHistoryId(item.Id);
     }
 
     #endregion

@@ -31,6 +31,13 @@ class SettingsPanelTests(unittest.TestCase):
         self.assertGreater(row('RestoreToDefaultCommand'), row('WindowsSuppressionLifetimeIndex'))
         self.assertFalse(any('CleanupKeyword' in str(control.attrib) for control in self.controls))
 
+    def test_tooltips_describe_the_bound_control(self):
+        for binding in ('AllTextKeepTimes', 'AllImagesKeepTimes', 'AllFilesKeepTimes'):
+            self.assertEqual('{DynamicResource flowlauncher_plugin_clipboardplus_tip_retention}',
+                             self.control_with_binding(binding).attrib['ToolTip'])
+        self.assertEqual('{DynamicResource flowlauncher_plugin_clipboardplus_tip_thorough}',
+                         self.control_with_binding('AutomaticCleanupThorough').attrib['ToolTip'])
+
     def test_tooltips_exist_in_every_language_and_work_when_disabled(self):
         keys = set()
         for control in self.controls:
