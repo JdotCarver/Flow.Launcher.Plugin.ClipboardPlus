@@ -25,6 +25,17 @@ public sealed class PinnedHistoryChangeTracker
             baseline = trusted ? new HashSet<string>(pinnedIds, StringComparer.OrdinalIgnoreCase) : null;
     }
 
+    // Import reads must recover an invalidated baseline without hiding later events
+    // or overwriting a baseline that still needs to detect a pending event.
+    public void EstablishBaselineIfMissing(IEnumerable<string> pinnedIds, bool trusted)
+    {
+        lock (gate)
+        {
+            if (trusted && baseline is null)
+                baseline = new HashSet<string>(pinnedIds, StringComparer.OrdinalIgnoreCase);
+        }
+    }
+
     public IReadOnlyList<(string Id, bool Pinned)> Observe(IEnumerable<string> itemIds, IEnumerable<string> pinnedIds, bool trusted)
     {
         lock (gate)

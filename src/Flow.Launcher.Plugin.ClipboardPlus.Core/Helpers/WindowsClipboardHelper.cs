@@ -335,6 +335,7 @@ public class WindowsClipboardHelper : IDisposable
                 // get the clipboard data
                 var clipboardDataItems = new List<ClipboardData>();
                 var currentPinnedIds = GetPinnedClipboardItemIds(out var trusted);
+                pinChanges.EstablishBaselineIfMissing(currentPinnedIds, trusted);
                 foreach (var item in laterSortedItems)
                 {
                     var clipboardData = await GetClipboardData(item, currentPinnedIds, trusted);
@@ -371,6 +372,7 @@ public class WindowsClipboardHelper : IDisposable
                 // get the clipboard data
                 var clipboardDataItems = new List<ClipboardData>();
                 var currentPinnedIds = GetPinnedClipboardItemIds(out var trusted);
+                pinChanges.EstablishBaselineIfMissing(currentPinnedIds, trusted);
                 foreach (var item in laterSortedItems)
                 {
                     var clipboardData = await GetClipboardData(item, currentPinnedIds, trusted);

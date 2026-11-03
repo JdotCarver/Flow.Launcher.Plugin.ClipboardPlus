@@ -26,4 +26,15 @@ public class PinnedHistoryChangeTrackerTests
         tracker.Invalidate();
         Assert.Empty(tracker.Observe(["first"], [], true));
     }
+    [Fact]
+    public void TrustedImportRecoversBaselineWithoutSwallowingLaterEvents()
+    {
+        var tracker = new PinnedHistoryChangeTracker();
+        tracker.Reset(["first"], true);
+        tracker.Invalidate();
+        tracker.EstablishBaselineIfMissing([], false);
+        tracker.EstablishBaselineIfMissing(["first"], true);
+        tracker.EstablishBaselineIfMissing([], true); // does not overwrite a valid baseline
+        Assert.Equal(new[] { ("first", false) }, tracker.Observe(["first"], [], true));
+    }
 }
