@@ -193,7 +193,7 @@ internal static class DuplicatePluginIntegration
         image.Freeze();
         ClipboardData Make(string id) => new(image, DataType.Image, false)
         {
-            HashId = id, SenderApp = "synthetic", InitScore = 0, CreateTime = new DateTime(2026, 1, 1)
+            HashId = id, SenderApp = "synthetic", InitScore = 0, CreateTime = new DateTime(2026, 1, 1), Pinned = false, Saved = false
         };
         ClipboardDataPair Pair(ClipboardData data) => new()
         {
