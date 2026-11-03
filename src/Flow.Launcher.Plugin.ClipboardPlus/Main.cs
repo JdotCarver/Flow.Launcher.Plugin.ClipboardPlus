@@ -1500,9 +1500,10 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
                     await Database.ExpireRecordsAsync(Settings.KeepTimePairs.Select(pair =>
                         ((int)pair.Item1, pair.Item2.ToKeepTime())), Settings.ProtectPinsFromExpiry);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    Context.LogException(ClassName, "Clearing expired records failed", e);
+                    // Do not log database paths or record details from an exception.
+                    Context.LogDebug(ClassName, "Clearing expired records failed");
                 }
 
                 // restore database records
