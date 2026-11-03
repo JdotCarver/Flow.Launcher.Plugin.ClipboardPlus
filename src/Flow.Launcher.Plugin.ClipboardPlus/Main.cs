@@ -1782,10 +1782,6 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
             clipboardDataPair.TogglePinned();
             RecordsList.Remove(clipboardDataPair);
             RecordsList.AddFirst(clipboardDataPair);
-            if (requery)
-            {
-                ReQuery();
-            }
             if (!clipboardDataPair.ClipboardData.Saved)
             {
                 _ = Database.AddOneRecordAsync(clipboardDataPair.ClipboardData, true);
@@ -1799,6 +1795,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
                 if (Settings.AutomaticCleanup) EnforceCaptureOverflowLimit();
                 else TrimUnpinnedCapacity(Settings.MaxRecords);
             }
+            if (requery) ReQuery();
             Context.LogDebug(ClassName, "Toggled record pin");
         }
         finally
