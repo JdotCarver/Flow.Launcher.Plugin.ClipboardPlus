@@ -65,6 +65,11 @@ jobs:
     needs: select-runner
     runs-on: ${{ fromJSON(needs.select-runner.outputs.runner_labels) }}
     timeout-minutes: 30
+    outputs:
+      gc_before: ${{ steps.runtime_ab.outputs.gc_before }}
+      gc_candidate: ${{ steps.runtime_ab.outputs.gc_candidate }}
+      image_eager: ${{ steps.runtime_ab.outputs.image_eager }}
+      image_metadata: ${{ steps.runtime_ab.outputs.image_metadata }}
     steps:
       - name: Check out the request commit
         uses: actions/checkout@v4
@@ -195,6 +200,64 @@ jobs:
           } finally {
             Set-Location $env:RUNNER_TEMP
             Remove-Item "$env:RUNNER_TEMP\clipboardplus-benchmark.log" -ErrorAction SilentlyContinue
+            subst "${drive}:" /d
+          }
+
+      - name: Compare synthetic runtime candidates
+        id: runtime_ab
+        if: success() || failure()
+        shell: pwsh
+        run: |
+          $drive = @('Z','Y','X','W','V') | Where-Object { -not (Test-Path "${_}:\") } | Select-Object -First 1
+          if (-not $drive) { throw "No temporary drive letter available" }
+          subst "${drive}:" "$env:GITHUB_WORKSPACE"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $scratch = "${drive}:\.runtime-ab"
+          $diagnostic = "$env:RUNNER_TEMP\clipboardplus-runtime-ab.log"
+          try {
+            Set-Location "${drive}:\"
+            New-Item -ItemType Directory -Path "$scratch\before", "$scratch\candidate" -Force | Out-Null
+            git archive --format=tar --output="$scratch\snapshot.tar" HEAD *>> $diagnostic
+            if ($LASTEXITCODE -ne 0) { throw "Runtime snapshot failed" }
+            foreach ($variant in @('before', 'candidate')) {
+              tar -xf "$scratch\snapshot.tar" -C "$scratch\$variant" *>> $diagnostic
+              if ($LASTEXITCODE -ne 0) { throw "Runtime snapshot extraction failed" }
+            }
+            # Only the scratch candidate differs: no production source is changed.
+            $main = "$scratch\candidate\src\Flow.Launcher.Plugin.ClipboardPlus\Main.cs"
+            $source = [IO.File]::ReadAllText($main)
+            $pattern = '(?s)private static void GarbageCollect\(\)\s*\{\s*GC\.Collect\(\);\s*GC\.WaitForPendingFinalizers\(\);\s*GC\.Collect\(\);\s*\}'
+            if ([regex]::Matches($source, $pattern).Count -ne 1) { throw "Runtime candidate seam changed" }
+            [IO.File]::WriteAllText($main, [regex]::Replace($source, $pattern, 'private static void GarbageCollect() { }'))
+            foreach ($variant in @('before', 'candidate')) {
+              Set-Location "$scratch\$variant"
+              dotnet restore tools/performance-baseline/PerformanceBaseline.csproj --source https://api.nuget.org/v3/index.json *> $diagnostic
+              if ($LASTEXITCODE -ne 0) { throw "Runtime restore failed" }
+              dotnet run --project tools/performance-baseline/PerformanceBaseline.csproj --configuration Release --no-restore -- --gc-ab-only *> $diagnostic
+              $exitCode = $LASTEXITCODE
+              $measurements = @(Get-Content $diagnostic | Where-Object { $_ -match '^runtime ab gc [A-Za-z0-9 ,.\-]+$' })
+              if ($exitCode -ne 0 -or $measurements.Count -ne 3) {
+                $codes = @(Get-Content $diagnostic | Select-String -Pattern 'error (CS[0-9]+)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
+                if ($codes.Count -gt 0) { Write-Host ("Compiler error codes: " + ($codes -join ', ')) }
+                throw "Runtime GC comparison failed (details suppressed for privacy)"
+              }
+              foreach ($line in $measurements) { Write-Host "$variant $line" }
+              "gc_$variant=$($measurements -join ' | ')" >> $env:GITHUB_OUTPUT
+            }
+            Set-Location "$scratch\before"
+            foreach ($variant in @('eager', 'metadata')) {
+              dotnet run --project tools/performance-baseline/PerformanceBaseline.csproj --configuration Release --no-build -- "--startup-image-$variant" *> $diagnostic
+              $exitCode = $LASTEXITCODE
+              $measurements = @(Get-Content $diagnostic | Where-Object { $_ -match '^runtime ab image [A-Za-z0-9 ,.\-]+$' })
+              if ($exitCode -ne 0 -or $measurements.Count -ne 3) { throw "Runtime image comparison failed (details suppressed for privacy)" }
+              foreach ($line in $measurements) { Write-Host "$variant $line" }
+              "image_$variant=$($measurements -join ' | ')" >> $env:GITHUB_OUTPUT
+            }
+          } finally {
+            Set-Location "${drive}:\"
+            Remove-Item $scratch -Recurse -Force -ErrorAction SilentlyContinue
+            Set-Location $env:RUNNER_TEMP
+            Remove-Item $diagnostic -ErrorAction SilentlyContinue
             subst "${drive}:" /d
           }
 
@@ -332,6 +395,24 @@ jobs:
           # only against hand-written fixtures.
           & $env:PYTHON tools/github_actions_runner/check_redaction.py
 
+  runtime-results:
+    name: ${{ matrix.result }}
+    needs: [select-runner, workload]
+    if: ${{ always() && needs.workload.outputs.gc_before != '' }}
+    runs-on: ${{ fromJSON(needs.select-runner.outputs.runner_labels) }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - result: 'GC before ${{ needs.workload.outputs.gc_before }}'
+          - result: 'GC candidate ${{ needs.workload.outputs.gc_candidate }}'
+          - result: 'Image eager ${{ needs.workload.outputs.image_eager }}'
+          - result: 'Image metadata ${{ needs.workload.outputs.image_metadata }}'
+    steps:
+      - name: Report synthetic measurements
+        shell: pwsh
+        run: Write-Host 'Synthetic aggregate measurements are in the job name.'
+
   export-logs:
     name: Export logs
     needs:
@@ -339,7 +420,7 @@ jobs:
       - workload
     # This session must not write to a different branch. Job status remains
     # available through the Actions API without publishing exported logs.
-    if: ${{ always() && github.ref != 'refs/heads/arena/a3420224-flow-launcher-plugin-clipboard' }}
+    if: ${{ always() && github.ref != 'refs/heads/arena/a3420224-flow-launcher-plugin-clipboard' && github.ref != 'refs/heads/arena/9261f4f4-flow-launcher-plugin-clipboard' }}
     runs-on: ubuntu-24.04
     permissions:
       # `contents: write` pushes the actions-logs branch. `actions: read` is

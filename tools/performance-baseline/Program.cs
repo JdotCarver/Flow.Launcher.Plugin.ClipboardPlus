@@ -23,6 +23,16 @@ internal static class Program
             LocalPinProbe.RunAsync().GetAwaiter().GetResult();
             return;
         }
+        if (args.Length == 1 && args[0] == "--gc-ab-only")
+        {
+            RuntimeAbBenchmark.RunGc();
+            return;
+        }
+        if (args.Length == 1 && (args[0] == "--startup-image-eager" || args[0] == "--startup-image-metadata"))
+        {
+            RuntimeAbBenchmark.RunImageStartup(args[0] == "--startup-image-metadata");
+            return;
+        }
         if (args.Length == 1 && args[0] == "--image-pin-only")
         {
             ImagePinBenchmark.Run();
