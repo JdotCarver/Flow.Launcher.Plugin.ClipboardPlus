@@ -113,7 +113,7 @@ public class WindowsClipboardHelper : IDisposable
         // Publish a new, never-mutated set while trust is down. Readers must
         // not combine an old snapshot with a later successful verification.
         pinStateTrusted = false;
-        knownPinnedItemIds = ids;
+        knownPinnedItemIds = new HashSet<string>(ids, StringComparer.OrdinalIgnoreCase);
         pinStateTrusted = trusted;
         if (!trusted) pinChanges.Invalidate();
         return ids;
