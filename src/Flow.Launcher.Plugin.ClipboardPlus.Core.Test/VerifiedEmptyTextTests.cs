@@ -19,7 +19,7 @@ public class VerifiedEmptyTextTests
         };
         foreach (var value in new[] { Make("empty", DataType.PlainText, "", ""),
             Make("rich", DataType.RichText, "", ""), Make("pinned", DataType.PlainText, "", "", true),
-            Make("whitespace", DataType.PlainText, " ", ""), Make("rich-plain", DataType.RichText, "", "content") })
+            Make("whitespace", DataType.PlainText, " ", ""), Make("rich-plain", DataType.RichText, "", "content"), Make("excluded", DataType.PlainText, "", "") })
             await database.AddOneRecordAsync(value, true);
         var removed = await database.DeleteVerifiedEmptyTextAsync(["excluded"]);
         Assert.Equal(new[] { "empty", "rich" }.Order(), removed.Order());
