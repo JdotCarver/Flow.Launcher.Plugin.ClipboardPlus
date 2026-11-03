@@ -422,6 +422,34 @@ jobs:
         if: ${{ always() && steps.local-signals.outputs.ast_source_inspection_failed == 'true' }}
         shell: pwsh
         run: Write-Host 'Source structure signal present'
+      - name: WhisperWriter structural signal reachable_sequence_guard
+        if: ${{ always() && steps.local-signals.outputs.ast_reachable_sequence_guard == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source structure signal present'
+      - name: WhisperWriter structural signal reachable_enumerates_formats
+        if: ${{ always() && steps.local-signals.outputs.ast_reachable_enumerates_formats == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source structure signal present'
+      - name: WhisperWriter structural signal reachable_restores_formats
+        if: ${{ always() && steps.local-signals.outputs.ast_reachable_restores_formats == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source structure signal present'
+      - name: WhisperWriter structural signal reachable_writes_text
+        if: ${{ always() && steps.local-signals.outputs.ast_reachable_writes_text == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source structure signal present'
+      - name: WhisperWriter structural signal reachable_empties_clipboard
+        if: ${{ always() && steps.local-signals.outputs.ast_reachable_empties_clipboard == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source structure signal present'
+      - name: WhisperWriter structural signal reachable_waits
+        if: ${{ always() && steps.local-signals.outputs.ast_reachable_waits == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source structure signal present'
+      - name: WhisperWriter structural signal reachable_registers_format
+        if: ${{ always() && steps.local-signals.outputs.ast_reachable_registers_format == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source structure signal present'
       - name: WhisperWriter source unavailable
         if: ${{ always() && steps.local-signals.outputs.source == 'unavailable' }}
         shell: pwsh
