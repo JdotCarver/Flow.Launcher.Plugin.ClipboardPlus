@@ -40,6 +40,33 @@ class SettingsPanelTests(unittest.TestCase):
                          self.control_with_binding('AutomaticCleanupVerificationIndex').attrib['IsEnabled'])
         self.assertFalse(any('CleanupKeyword' in str(control.attrib) for control in self.controls))
 
+    def test_explorer_style_full_width_accordion(self):
+        x = '{http://schemas.microsoft.com/winfx/2006/xaml}'
+        styles = [control for control in self.controls
+                  if control.tag.endswith('Style') and control.attrib.get(x + 'Key') == 'ClipboardPlusExpanderStyle']
+        self.assertEqual(1, len(styles))
+        style = styles[0]
+        setters = {node.attrib.get('Property'): node.attrib.get('Value')
+                   for node in style if node.tag.endswith('Setter')}
+        self.assertEqual('0 0 0 1', setters['BorderThickness'])
+        self.assertEqual('-8 18 24 14', setters['Padding'])
+        header = next(node for node in style.iter() if node.attrib.get(x + 'Name') == 'HeaderSite')
+        self.assertEqual('{StaticResource ExpanderHeaderRightArrowStyle}', header.attrib['Style'])
+        self.assertEqual('{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}',
+                         header.attrib['IsChecked'])
+        container = next(node for node in self.controls if node.attrib.get(x + 'Name') == 'ExpanderContainer')
+        self.assertEqual('-2 0 -2 0', container.attrib['Margin'])
+        sections = [node for node in container if node.tag.endswith('Expander')]
+        self.assertEqual(6, len(sections))
+        for section in sections:
+            self.assertEqual('{StaticResource ClipboardPlusExpanderStyle}', section.attrib['Style'])
+            self.assertEqual('Expander_Expanded', section.attrib['Expanded'])
+            grid = next(node for node in section if node.tag.endswith('Grid'))
+            self.assertEqual('32 -10 0 0', grid.attrib['Margin'])
+        source = (PANEL.with_suffix('.xaml.cs')).read_text(encoding='utf-8-sig')
+        self.assertIn('ExpanderContainer.Children.OfType<Expander>()', source)
+        self.assertIn('other.IsExpanded = false', source)
+
     def test_tooltips_describe_the_bound_control(self):
         for binding in ('AllTextKeepTimes', 'AllImagesKeepTimes', 'AllFilesKeepTimes'):
             self.assertEqual('{DynamicResource flowlauncher_plugin_clipboardplus_tip_retention}',

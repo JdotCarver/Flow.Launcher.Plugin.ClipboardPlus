@@ -18,6 +18,14 @@ public partial class SettingsPanel : UserControl
         DataContext = ViewModel;
     }
 
+    // Explorer keeps at most one section open; preserve the initially open General section.
+    private void Expander_Expanded(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Expander expanded || !ReferenceEquals(e.OriginalSource, expanded) || ExpanderContainer is null) return;
+        foreach (var other in ExpanderContainer.Children.OfType<Expander>())
+            if (!ReferenceEquals(other, expanded) && other.IsExpanded) other.IsExpanded = false;
+    }
+
     private void ListView_SizeChanged(object sender, SizeChangedEventArgs e)
     {
         if (sender is not ListView listView) return;

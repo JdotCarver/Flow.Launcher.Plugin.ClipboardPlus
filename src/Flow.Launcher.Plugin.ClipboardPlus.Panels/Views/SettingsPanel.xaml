@@ -17,11 +17,116 @@
     <UserControl.Resources>
         <converts:MultiParameterConverter x:Key="MultiParameterConverter" />
         <converts:BoolReverseConverter x:Key="BoolReverseConverter" />
+        <!-- Explorer section template, adapted from Flow Launcher v2.1.4. -->
+        <Style x:Key="ClipboardPlusExpanderStyle" TargetType="Expander">
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Color03B}" />
+            <Setter Property="Foreground" Value="{DynamicResource Color05B}" />
+            <Setter Property="BorderThickness" Value="0 0 0 1" />
+            <Setter Property="Padding" Value="-8 18 24 14" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Expander">
+                        <Border
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            SnapsToDevicePixels="true">
+                            <DockPanel>
+                                <ToggleButton
+                                    x:Name="HeaderSite"
+                                    MinWidth="0"
+                                    MinHeight="0"
+                                    Margin="0"
+                                    Padding="{TemplateBinding Padding}"
+                                    HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                    VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                    Content="{TemplateBinding Header}"
+                                    ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                    ContentTemplateSelector="{TemplateBinding HeaderTemplateSelector}"
+                                    DockPanel.Dock="Top"
+                                    FocusVisualStyle="{DynamicResource ExpanderHeaderFocusVisual}"
+                                    FontFamily="{TemplateBinding FontFamily}"
+                                    FontSize="{TemplateBinding FontSize}"
+                                    FontStretch="{TemplateBinding FontStretch}"
+                                    FontStyle="{TemplateBinding FontStyle}"
+                                    FontWeight="{TemplateBinding FontWeight}"
+                                    Foreground="{TemplateBinding Foreground}"
+                                    IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                    Style="{StaticResource ExpanderHeaderRightArrowStyle}" />
+                                <Border
+                                    x:Name="ContentPresenterBorder"
+                                    BorderBrush="{DynamicResource Color03B}"
+                                    BorderThickness="0 1 0 0">
+                                    <ContentPresenter
+                                        x:Name="ExpandSite"
+                                        Margin="{TemplateBinding Padding}"
+                                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                        DockPanel.Dock="Bottom"
+                                        Focusable="false" />
+                                    <Border.LayoutTransform>
+                                        <ScaleTransform ScaleY="0" />
+                                    </Border.LayoutTransform>
+                                </Border>
+                            </DockPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsExpanded" Value="true">
+                                <Setter TargetName="ExpandSite" Property="Visibility" Value="Visible" />
+                                <Setter TargetName="ContentPresenterBorder" Property="BorderThickness" Value="0 1 0 0" />
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="ContentPresenterBorder"
+                                                Storyboard.TargetProperty="(Border.LayoutTransform).(ScaleTransform.ScaleY)"
+                                                From="0.0"
+                                                To="1.0"
+                                                Duration="0:0:0" />
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="ContentPresenterBorder"
+                                                Storyboard.TargetProperty="(Border.Opacity)"
+                                                From="0.0"
+                                                To="1.0"
+                                                Duration="0:0:0" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="ContentPresenterBorder"
+                                                Storyboard.TargetProperty="(Border.LayoutTransform).(ScaleTransform.ScaleY)"
+                                                From="1.0"
+                                                To="0.0"
+                                                Duration="0:0:0" />
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="ContentPresenterBorder"
+                                                Storyboard.TargetProperty="(Border.Opacity)"
+                                                From="1.0"
+                                                To="0.0"
+                                                Duration="0:0:0" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
 
-    <StackPanel Margin="{StaticResource SettingPanelMargin}">
-        <Expander Header="{DynamicResource flowlauncher_plugin_clipboardplus_group_general}" IsExpanded="True">
-            <Grid>
+    <!-- Match Explorer's full-width separators inside the host settings card. -->
+    <StackPanel x:Name="ExpanderContainer" Margin="-2 0 -2 0">
+        <Expander Header="{DynamicResource flowlauncher_plugin_clipboardplus_group_general}" IsExpanded="True"
+            Style="{StaticResource ClipboardPlusExpanderStyle}" Expanded="Expander_Expanded">
+            <Grid Margin="32 -10 0 0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -145,8 +250,9 @@
 
             </Grid>
         </Expander>
-        <Expander Header="{DynamicResource flowlauncher_plugin_clipboardplus_group_windows}" IsExpanded="False">
-            <Grid>
+        <Expander Header="{DynamicResource flowlauncher_plugin_clipboardplus_group_windows}" IsExpanded="False"
+            Style="{StaticResource ClipboardPlusExpanderStyle}" Expanded="Expander_Expanded">
+            <Grid Margin="32 -10 0 0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -219,8 +325,9 @@
 
             </Grid>
         </Expander>
-        <Expander Header="{DynamicResource flowlauncher_plugin_clipboardplus_group_copying}" IsExpanded="False">
-            <Grid>
+        <Expander Header="{DynamicResource flowlauncher_plugin_clipboardplus_group_copying}" IsExpanded="False"
+            Style="{StaticResource ClipboardPlusExpanderStyle}" Expanded="Expander_Expanded">
+            <Grid Margin="32 -10 0 0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -335,8 +442,9 @@
 
             </Grid>
         </Expander>
-        <Expander Header="{DynamicResource flowlauncher_plugin_clipboardplus_group_storage}" IsExpanded="False">
-            <Grid>
+        <Expander Header="{DynamicResource flowlauncher_plugin_clipboardplus_group_storage}" IsExpanded="False"
+            Style="{StaticResource ClipboardPlusExpanderStyle}" Expanded="Expander_Expanded">
+            <Grid Margin="32 -10 0 0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -645,8 +753,9 @@
 
             </Grid>
         </Expander>
-        <Expander Header="{DynamicResource flowlauncher_plugin_clipboardplus_group_duplicates}" IsExpanded="False">
-            <Grid>
+        <Expander Header="{DynamicResource flowlauncher_plugin_clipboardplus_group_duplicates}" IsExpanded="False"
+            Style="{StaticResource ClipboardPlusExpanderStyle}" Expanded="Expander_Expanded">
+            <Grid Margin="32 -10 0 0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -721,8 +830,9 @@
 
             </Grid>
         </Expander>
-        <Expander Header="{DynamicResource flowlauncher_plugin_clipboardplus_group_excluded}" IsExpanded="False">
-            <Grid>
+        <Expander Header="{DynamicResource flowlauncher_plugin_clipboardplus_group_excluded}" IsExpanded="False"
+            Style="{StaticResource ClipboardPlusExpanderStyle}" Expanded="Expander_Expanded">
+            <Grid Margin="32 -10 0 0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -816,6 +926,7 @@
  ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_restore}" ToolTipService.ShowOnDisabled="True"
 
             HorizontalAlignment="Left"
+            Margin="32 10 0 12"
             Command="{Binding RestoreToDefaultCommand}"
             Content="{DynamicResource flowlauncher_plugin_clipboardplus_restore_to_default}" />
 
