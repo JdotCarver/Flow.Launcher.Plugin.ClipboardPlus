@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "0fbfbfbc-27d2-43c0-b5c1-af46e49d4d2a"
+request_id = "b8f13d51-c61c-4ab7-a44c-be939d1c63ac"
 target = "local-windows"
-job_name = "Synthetic Runtime AB"
+job_name = "Complete Synthetic Runtime AB"
