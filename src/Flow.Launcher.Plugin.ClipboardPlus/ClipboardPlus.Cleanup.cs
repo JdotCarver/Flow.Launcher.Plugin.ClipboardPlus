@@ -24,6 +24,9 @@ public partial class ClipboardPlus
 
     private async Task UpdateImageRelationshipsAsync(bool thorough)
     {
+        // Best-effort passes do not verify images; retain still-valid proofs
+        // from an earlier thorough pass instead of replacing them with guesses.
+        if (!thorough) return;
         LinkedListNode<ClipboardDataPair>[] nodes;
         ClipboardCleanupSnapshot[] snapshots;
         bool automaticAtStart;
