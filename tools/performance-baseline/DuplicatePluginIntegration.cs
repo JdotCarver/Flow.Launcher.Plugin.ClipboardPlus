@@ -62,6 +62,14 @@ internal static class DuplicatePluginIntegration
             if (database.GetAllRecordsAsync(false).GetAwaiter().GetResult().Any(record => record.HashId == "unloaded-saved"))
                 throw new InvalidOperationException("Synthetic unloaded saved duplicate survived cleanup");
             var settings = new SettingsViewModel(plugin);
+            if (settings.AutomaticCleanupVerificationIndex != 0)
+                throw new InvalidOperationException("Synthetic default verification mode was not preserved");
+            settings.AutomaticCleanupVerificationIndex = 1;
+            if (!((IClipboardPlus)plugin).Settings.AutomaticCleanupThorough)
+                throw new InvalidOperationException("Synthetic thorough dropdown did not preserve the stored boolean");
+            settings.AutomaticCleanupVerificationIndex = 0;
+            if (((IClipboardPlus)plugin).Settings.AutomaticCleanupThorough)
+                throw new InvalidOperationException("Synthetic best-effort dropdown did not preserve the stored boolean");
             settings.ClearKeyword = "cleanup";
             if (settings.ClearKeyword != "cleanup")
                 throw new InvalidOperationException("Obsolete cleanup keyword must not block the clear keyword");
