@@ -327,11 +327,14 @@ internal static class DuplicatePluginIntegration
             PreviewPanel = new Lazy<UserControl>(() => throw new InvalidOperationException("Preview must stay lazy")) };
         SetField(plugin, "RecordsList", new LinkedList<ClipboardDataPair>([keeper, windows]));
         var pinEvent = typeof(Plugin).GetMethod("WindowsClipboardHelper_OnHistoryItemPinUpdated", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        void WaitForWrites() => ((Task)typeof(SqliteDatabase).GetMethod("WaitTaskQueueAsync", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(database, null)!).GetAwaiter().GetResult();
         pinEvent.Invoke(plugin, [null, ("synthetic-windows-image", true)]);
+        WaitForWrites();
         var savedPin = database.GetAllRecordsAsync(false).GetAwaiter().GetResult();
         if (savedPin.Count != 1 || !savedPin[0].Pinned || !windows.ClipboardData.Saved)
             throw new InvalidOperationException("Synthetic Windows pin was not persisted");
         pinEvent.Invoke(plugin, [null, ("synthetic-windows-image", false)]);
+        WaitForWrites();
         var savedUnpin = database.GetAllRecordsAsync(false).GetAwaiter().GetResult();
         if (savedUnpin.Count != 1 || savedUnpin[0].Pinned)
             throw new InvalidOperationException("Synthetic Windows unpin was not persisted");
