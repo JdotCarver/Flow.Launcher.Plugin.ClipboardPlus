@@ -217,6 +217,13 @@ jobs:
               if ($diagnostic -match 'dedup optout stage files') { $stage = 'optout-files' }
               if ($diagnostic -match 'dedup optout stage assertions') { $stage = 'optout-assertions' }
               if ($diagnostic -match 'dedup optout stage saves') { $stage = 'optout-saves' }
+              if ($diagnostic -match 'dedup optout failure null') { $stage = 'failure-null' }
+              if ($diagnostic -match 'dedup optout failure argument') { $stage = 'failure-argument' }
+              if ($diagnostic -match 'dedup optout failure disposed') { $stage = 'failure-disposed' }
+              if ($diagnostic -match 'dedup optout failure operation') { $stage = 'failure-operation' }
+              if ($diagnostic -match 'dedup optout failure access') { $stage = 'failure-access' }
+              if ($diagnostic -match 'dedup optout failure io') { $stage = 'failure-io' }
+              if ($diagnostic -match 'dedup optout failure other') { $stage = 'failure-other' }
               if ($diagnostic -match 'dedup stage cache') { $stage = 'cache' }
               if ($diagnostic -match 'dedup plugin synthetic record and cache integration checks passed') { $stage = 'contention' }
               if ($diagnostic -match 'dedup integrated') { $stage = 'images' }
@@ -320,6 +327,28 @@ jobs:
       - name: Synthetic optout stopped at saves
         if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'optout-saves' }}
         run: echo Synthetic optout saves stage
+
+      - name: Synthetic optout failure null
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'failure-null' }}
+        run: echo Synthetic optout null failure
+      - name: Synthetic optout failure argument
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'failure-argument' }}
+        run: echo Synthetic optout argument failure
+      - name: Synthetic optout failure disposed
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'failure-disposed' }}
+        run: echo Synthetic optout disposed failure
+      - name: Synthetic optout failure operation
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'failure-operation' }}
+        run: echo Synthetic optout operation failure
+      - name: Synthetic optout failure access
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'failure-access' }}
+        run: echo Synthetic optout access failure
+      - name: Synthetic optout failure io
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'failure-io' }}
+        run: echo Synthetic optout io failure
+      - name: Synthetic optout failure other
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'failure-other' }}
+        run: echo Synthetic optout other failure
 
       - name: Compare actual bulk method before and after
         if: success() || failure()

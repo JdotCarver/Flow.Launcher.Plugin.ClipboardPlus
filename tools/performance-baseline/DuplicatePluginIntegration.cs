@@ -369,8 +369,29 @@ internal static class DuplicatePluginIntegration
             image.Freeze();
             var capture = typeof(Plugin).GetMethod("GetClipboardDataItem", BindingFlags.Instance | BindingFlags.NonPublic)!;
             var savesBefore = Volatile.Read(ref SyntheticHost.SettingsSaveCalls);
-            ClipboardData Create(string id) => (ClipboardData)capture.Invoke(plugin,
-                [image, DataType.Image, id, new DateTime(2026, 1, 1), SourceApplication.NULL, "", "", true, null])!;
+            ClipboardData Create(string id)
+            {
+                try
+                {
+                    return (ClipboardData)capture.Invoke(plugin,
+                        [image, DataType.Image, id, new DateTime(2026, 1, 1), SourceApplication.NULL, "", "", true, null])!;
+                }
+                catch (Exception error)
+                {
+                    var reason = error.GetBaseException() switch
+                    {
+                        NullReferenceException => "null",
+                        ArgumentException => "argument",
+                        ObjectDisposedException => "disposed",
+                        InvalidOperationException => "operation",
+                        UnauthorizedAccessException => "access",
+                        IOException => "io",
+                        _ => "other"
+                    };
+                    Console.WriteLine($"dedup optout failure {reason}");
+                    throw;
+                }
+            }
             var timer = Stopwatch.StartNew();
             Console.WriteLine("dedup optout stage first");
             var first = Create("synthetic-image-one");
