@@ -1,7 +1,7 @@
 <!-- deduplication-relative-time-design.md -->
 # Deduplication and relative time: agreed design
 
-Status: **implemented**. This records the decisions from the design discussion. The conservative best-effort limit was approved after review of synthetic Windows measurements. No performance improvement is assumed from deduplication. The existing image-encryption limitation remains out of scope; see [the optimization report](optimization-report.md).
+Status: **implemented**, except that the later, not-yet-implemented [history capacity and pin retention design](history-capacity-and-pin-retention-design.md) supersedes this document's capacity-counting assumptions. This records the decisions from the original design discussion. The conservative best-effort limit was approved after review of synthetic Windows measurements. No performance improvement is assumed from deduplication. The existing image-encryption limitation remains out of scope; see [the optimization report](optimization-report.md).
 
 ## Deduplication
 
