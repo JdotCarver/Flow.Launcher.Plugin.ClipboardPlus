@@ -157,6 +157,11 @@ jobs:
                 $found = $false
                 foreach ($property in $doc.RootElement.EnumerateObject()) {
                   if ($property.Name -cin @('Items', 'items')) {
+                    if ($property.Name -ceq 'Items') { [void]$known.Add('items-upper') } else { [void]$known.Add('items-lower') }
+                    if ($property.Value.ValueKind -eq [System.Text.Json.JsonValueKind]::Object) {
+                      $itemCount = @($property.Value.EnumerateObject()).Count
+                      if ($itemCount -eq 0) { [void]$known.Add('items-empty') } else { [void]$known.Add('items-nonempty') }
+                    }
                     $found = $true
                     $kind = $property.Value.ValueKind.ToString().ToLowerInvariant()
                     if ($kind -in @('object','array','null','string','number','true','false')) { [void]$shapes.Add('items-' + $kind) }
@@ -174,13 +179,18 @@ jobs:
             else { $shape = 'mixed' }
           } catch { $shape = 'unavailable' }
           "shape=$shape" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
-          foreach ($name in @('version','records','entries','pinned','data','history','metadata','formatversion')) {
+          foreach ($name in @('version','records','entries','pinned','data','history','metadata','formatversion','items-upper','items-lower','items-empty','items-nonempty')) {
             if ($known.Contains($name)) { "$name=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8 }
           }
           $source = 'unavailable'
           try {
             # Do not read configuration, replacement rules, or arbitrary files.
-            $code = [System.IO.File]::ReadAllText((Join-Path 'W:\STREAM\SOFTWARE\Portable - WhisperWriter' 'src\input_simulation.py'))
+            $base = 'W:\STREAM\SOFTWARE\Portable - WhisperWriter'
+            if (Test-Path -LiteralPath 'W:\') { 'drive=true' | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8 }
+            if (Test-Path -LiteralPath $base) { 'base=true' | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8 }
+            $candidate = @(Get-ChildItem -LiteralPath $base -Filter 'input_simulation.py' -File -Recurse -ErrorAction Stop | Select-Object -First 1)
+            if ($candidate.Count -ne 1) { throw 'Source unavailable' }
+            $code = [System.IO.File]::ReadAllText($candidate[0].FullName)
             $source = 'available'
             $checks = @{
               clipboard = 'SetClipboardText|SetClipboardData|pyperclip|clipboard\.copy'
@@ -309,6 +319,30 @@ jobs:
         if: ${{ always() && steps.local-signals.outputs.sleep == 'true' }}
         shell: pwsh
         run: Write-Host 'Source signal present'
+      - name: Pin metadata items-upper
+        if: ${{ always() && steps.local-signals.outputs['items-upper'] == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Coarse metadata category'
+      - name: Pin metadata items-lower
+        if: ${{ always() && steps.local-signals.outputs['items-lower'] == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Coarse metadata category'
+      - name: Pin metadata items-empty
+        if: ${{ always() && steps.local-signals.outputs['items-empty'] == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Coarse metadata category'
+      - name: Pin metadata items-nonempty
+        if: ${{ always() && steps.local-signals.outputs['items-nonempty'] == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Coarse metadata category'
+      - name: WhisperWriter drive available
+        if: ${{ always() && steps.local-signals.outputs.drive == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source location status'
+      - name: WhisperWriter base available
+        if: ${{ always() && steps.local-signals.outputs.base == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source location status'
       - name: WhisperWriter source unavailable
         if: ${{ always() && steps.local-signals.outputs.source == 'unavailable' }}
         shell: pwsh
@@ -378,6 +412,14 @@ jobs:
               if ($exitCode -eq -1073741571) { $fault = 'NativeStackOverflow' }
               if ($exitCode -eq -1073741819) { $fault = 'NativeAccessViolation' }
               "fault=$fault" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+              $frames = @{
+                capture = 'GetClipboardDataItem'; localize = 'Localize'; cache = 'SaveNewImageCache';
+                filename = 'FormatImageName'; ownership = 'ManagedCacheFile'; host = 'SyntheticHost';
+                integration = 'TestOptOutImageCache'; dispatcher = 'Dispatcher'; service = 'GetRequiredService'
+              }
+              foreach ($name in $frames.Keys) {
+                if ($diagnostic -match $frames[$name]) { "frame_$name=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8 }
+              }
               $codes = @(Get-Content "$env:RUNNER_TEMP\clipboardplus-benchmark.log" | Select-String -Pattern 'error (CS[0-9]+)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
               if ($codes.Count -gt 0) { Write-Host ("Compiler error codes: " + ($codes -join ', ')) }
               throw "Baseline failed (details suppressed for privacy)"
@@ -440,6 +482,43 @@ jobs:
         if: ${{ always() && steps.synthetic-baseline.outputs.fault == 'NativeAccessViolation' }}
         shell: pwsh
         run: Write-Host 'Synthetic fault category'
+
+      - name: Synthetic stack frame capture
+        if: ${{ always() && steps.synthetic-baseline.outputs.frame_capture == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Synthetic stack category'
+      - name: Synthetic stack frame localize
+        if: ${{ always() && steps.synthetic-baseline.outputs.frame_localize == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Synthetic stack category'
+      - name: Synthetic stack frame cache
+        if: ${{ always() && steps.synthetic-baseline.outputs.frame_cache == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Synthetic stack category'
+      - name: Synthetic stack frame filename
+        if: ${{ always() && steps.synthetic-baseline.outputs.frame_filename == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Synthetic stack category'
+      - name: Synthetic stack frame ownership
+        if: ${{ always() && steps.synthetic-baseline.outputs.frame_ownership == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Synthetic stack category'
+      - name: Synthetic stack frame host
+        if: ${{ always() && steps.synthetic-baseline.outputs.frame_host == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Synthetic stack category'
+      - name: Synthetic stack frame integration
+        if: ${{ always() && steps.synthetic-baseline.outputs.frame_integration == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Synthetic stack category'
+      - name: Synthetic stack frame dispatcher
+        if: ${{ always() && steps.synthetic-baseline.outputs.frame_dispatcher == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Synthetic stack category'
+      - name: Synthetic stack frame service
+        if: ${{ always() && steps.synthetic-baseline.outputs.frame_service == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Synthetic stack category'
 
       - name: Compare actual bulk method before and after
         if: success() || failure()
