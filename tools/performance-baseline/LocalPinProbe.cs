@@ -13,6 +13,7 @@ internal static class LocalPinProbe
             var root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "Microsoft", "Windows", "Clipboard", "Pinned");
             var trusted = PinnedHistorySnapshotReader.TryRead(root, out var pinnedIds);
+            if (!trusted && HasUtf8Bom(root)) Console.WriteLine("pin_probe_utf8_bom");
             if (!trusted) Console.WriteLine("pin_probe_reason_" + ExplainUntrusted(root));
             var history = await Clipboard.GetHistoryItemsAsync();
             if (history.Status != ClipboardHistoryItemsResultStatus.Success)
@@ -30,6 +31,20 @@ internal static class LocalPinProbe
             Console.WriteLine("pin_probe_history_unavailable");
         }
     }
+    private static bool HasUtf8Bom(string root)
+    {
+        try
+        {
+            foreach (var directory in Directory.EnumerateDirectories(root))
+            {
+                using var stream = File.OpenRead(Path.Combine(directory, "metadata.json"));
+                if (stream.ReadByte() == 0xef && stream.ReadByte() == 0xbb && stream.ReadByte() == 0xbf) return true;
+            }
+        }
+        catch (Exception) { }
+        return false;
+    }
+
     private static string ExplainUntrusted(string root)
     {
         try

@@ -644,7 +644,7 @@ jobs:
             if ($LASTEXITCODE -ne 0) { 'unavailable=true' | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8 }
             else {
               $lines = @(Get-Content $diagnostic)
-              foreach ($category in @('trusted','untrusted','history_empty','history_nonempty','pinned_match','no_pinned_match','history_unavailable','reason_root_files','reason_root_shape','reason_missing_items','reason_items_shape','reason_recovered','reason_directory_missing','reason_file_missing','reason_access','reason_json','reason_io','reason_other')) {
+              foreach ($category in @('trusted','untrusted','history_empty','history_nonempty','pinned_match','no_pinned_match','history_unavailable','reason_root_files','reason_root_shape','reason_missing_items','reason_items_shape','reason_recovered','reason_directory_missing','reason_file_missing','reason_access','reason_json','reason_io','reason_other','utf8_bom')) {
                 if ($lines -ccontains "pin_probe_$category") { "$category=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8 }
               }
             }
@@ -728,6 +728,10 @@ jobs:
         shell: pwsh
         run: Write-Host 'Coarse read-only status'
 
+      - name: Local pin metadata has UTF8 BOM
+        if: ${{ always() && steps.local-pin-probe.outputs.utf8_bom == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Encoding marker present'
       - name: Compare actual bulk method before and after
         if: success() || failure()
         shell: pwsh
