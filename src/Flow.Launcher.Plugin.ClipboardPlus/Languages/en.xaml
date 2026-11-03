@@ -11,6 +11,7 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_group_storage">Storage and retention</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_group_duplicates">Duplicate cleanup</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_group_excluded">Excluded apps</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_verification_label">Automatic deduplication algorithm</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_verification_best">Best effort</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_verification_thorough">Thorough verification</system:String>
 
@@ -81,7 +82,7 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_cleanup">Run duplicate cleanup now; Windows history is not deleted.</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_suppression">Choose whether hidden Windows duplicates remain suppressed after reload. Windows history is not deleted.</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_restore">Restore settings to their defaults.</system:String>
-    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_thorough">Verify more duplicate candidates automatically, potentially using more resources.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_thorough">Verify more duplicate candidates automatically, potentially using more resources. Manual cleanup always uses thorough verification.</system:String>
 
     <system:String x:Key="flowlauncher_plugin_clipboardplus_windows_pin_warning_title">Windows pin status</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_windows_pin_unknown">Could not verify Windows pin status. Imported items are treated as pinned for safety and saved in database mode even when Keep is off. Duplicate cleanup may skip them.</system:String>

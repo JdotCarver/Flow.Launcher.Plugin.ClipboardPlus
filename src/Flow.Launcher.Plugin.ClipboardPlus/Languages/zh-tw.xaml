@@ -11,6 +11,7 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_group_storage">儲存與保留</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_group_duplicates">重複項目清理</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_group_excluded">排除的應用程式</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_verification_label">自動去重演算法</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_verification_best">盡力而為</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_verification_thorough">完整驗證</system:String>
 
@@ -81,7 +82,7 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_cleanup">立即清理重複項；不會刪除 Windows 歷程記錄。</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_suppression">選擇重新載入後是否繼續隱藏 Windows 重複項。不會刪除 Windows 歷程記錄。</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_restore">將設定還原為預設值。</system:String>
-    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_thorough">自動驗證更多重複候選項，可能使用更多資源。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_thorough">自動驗證更多重複候選項，可能使用更多資源。手動清理一律使用徹底驗證。</system:String>
 
     <system:String x:Key="flowlauncher_plugin_clipboardplus_windows_pin_warning_title">Windows 釘選狀態</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_windows_pin_unknown">無法驗證 Windows 釘選狀態。為安全起見，匯入的項目將被釘選；在資料庫模式下，即使關閉保留也會儲存。重複項目清理可能略過它們。</system:String>

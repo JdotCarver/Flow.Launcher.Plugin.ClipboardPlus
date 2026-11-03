@@ -52,6 +52,22 @@ class SettingsPanelTests(unittest.TestCase):
                          self.control_with_binding('AutomaticCleanupVerificationIndex').attrib['IsEnabled'])
         self.assertFalse(any('CleanupKeyword' in str(control.attrib) for control in self.controls))
 
+    def test_verification_label_and_manual_cleanup_tooltip(self):
+        label = next(control for control in self.controls
+                     if control.attrib.get('Text') == '{DynamicResource flowlauncher_plugin_clipboardplus_verification_label}')
+        dropdown = self.control_with_binding('AutomaticCleanupVerificationIndex')
+        self.assertEqual(int(label.attrib['Grid.Row']) + 1, int(dropdown.attrib['Grid.Row']))
+        self.assertEqual(label.attrib['Margin'], dropdown.attrib['Margin'])
+        key = '{http://schemas.microsoft.com/winfx/2006/xaml}Key'
+        for language in ('en', 'fr', 'zh-cn', 'zh-tw'):
+            resources = ET.parse(LANGUAGES / (language + '.xaml')).getroot()
+            values = {item.attrib.get(key): item.text for item in resources}
+            self.assertTrue(values.get('flowlauncher_plugin_clipboardplus_verification_label'), language)
+            self.assertTrue(values.get('flowlauncher_plugin_clipboardplus_tip_thorough'), language)
+        self.assertIn('Manual cleanup always uses thorough verification',
+                      {item.attrib.get(key): item.text for item in ET.parse(LANGUAGES / 'en.xaml').getroot()}
+                      ['flowlauncher_plugin_clipboardplus_tip_thorough'])
+
     def test_explorer_style_full_width_accordion(self):
         x = '{http://schemas.microsoft.com/winfx/2006/xaml}'
         styles = [control for control in self.controls

@@ -11,6 +11,7 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_group_storage">Stockage et conservation</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_group_duplicates">Nettoyage des doublons</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_group_excluded">Applications exclues</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_verification_label">Algorithme de déduplication automatique</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_verification_best">Effort limité</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_verification_thorough">Vérification approfondie</system:String>
 
@@ -81,7 +82,7 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_cleanup">Lance le nettoyage des doublons ; l’historique Windows n’est pas supprimé.</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_suppression">Choisissez si les doublons Windows masqués restent masqués après rechargement. L’historique Windows n’est pas supprimé.</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_restore">Rétablit les valeurs par défaut des paramètres.</system:String>
-    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_thorough">Vérifie automatiquement davantage de doublons, avec une consommation de ressources potentiellement supérieure.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_thorough">Vérifie automatiquement davantage de doublons, avec une consommation de ressources potentiellement supérieure. Le nettoyage manuel utilise toujours une vérification approfondie.</system:String>
 
     <system:String x:Key="flowlauncher_plugin_clipboardplus_windows_pin_warning_title">Épinglage Windows</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_windows_pin_unknown">Impossible de vérifier les épingles Windows. Les éléments importés sont épinglés par sécurité et enregistrés en mode base de données même si Conserver est désactivé. Le nettoyage des doublons peut les ignorer.</system:String>
