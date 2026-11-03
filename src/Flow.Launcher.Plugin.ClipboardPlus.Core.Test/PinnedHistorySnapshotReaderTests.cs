@@ -20,13 +20,18 @@ public class PinnedHistorySnapshotReaderTests
     }
 
     [Fact]
-    public void MissingFolderIsEmptyButMalformedOrMissingMetadataIsUntrusted()
+    public void MissingFolderAndMalformedOrMissingMetadataAreUntrusted()
     {
         var root = Path.Combine(Path.GetTempPath(), $"clipboardplus-pins-{Guid.NewGuid():N}");
         try
         {
+            Assert.False(PinnedHistorySnapshotReader.TryRead(root, out _));
+            Directory.CreateDirectory(root);
             Assert.True(PinnedHistorySnapshotReader.TryRead(root, out var empty));
             Assert.Empty(empty);
+            File.WriteAllText(Path.Combine(root, "unexpected"), "synthetic");
+            Assert.False(PinnedHistorySnapshotReader.TryRead(root, out _));
+            File.Delete(Path.Combine(root, "unexpected"));
             Directory.CreateDirectory(Path.Combine(root, "item"));
             Assert.False(PinnedHistorySnapshotReader.TryRead(root, out _));
             File.WriteAllText(Path.Combine(root, "item", "metadata.json"), "not json");

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 
 namespace Flow.Launcher.Plugin.ClipboardPlus.Core.Helpers;
@@ -14,9 +15,14 @@ public static class PinnedHistorySnapshotReader
         var ids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         try
         {
-            try { _ = File.GetAttributes(pinnedFolder); }
-            catch (DirectoryNotFoundException) { pinnedIds = ids; return true; }
-            catch (FileNotFoundException) { pinnedIds = ids; return true; }
+            // A missing folder is ambiguous: it can mean no metadata or an
+            // unavailable/incomplete snapshot, not proof of zero pins.
+            _ = File.GetAttributes(pinnedFolder);
+            if (Directory.EnumerateFiles(pinnedFolder).Any())
+            {
+                pinnedIds = ids;
+                return false;
+            }
             foreach (var directory in Directory.EnumerateDirectories(pinnedFolder))
             {
                 var metadataPath = Path.Combine(directory, "metadata.json");
