@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "d8470fdd-873b-49d3-9a1e-edb1a0486a38"
+request_id = "e2c6eb3b-c650-4a95-98a8-41d2879c25d3"
 target = "local-windows"
-job_name = "Dogfood Fixes Release Checks"
+job_name = "Dogfood Synthetic Diagnostics"
