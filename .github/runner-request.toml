@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "0ef0a65f-a941-4c5d-b9ce-c30dc26860db"
+request_id = "701c64c9-9cdf-4acf-9f0c-d8283452d7ee"
 target = "local-windows"
-job_name = "Dogfood Pin Reader Investigation"
+job_name = "Dogfood Pin Encoding Check"
