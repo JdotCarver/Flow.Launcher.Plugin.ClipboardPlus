@@ -804,13 +804,19 @@ public class SqliteDatabase : IAsyncDisposable
         await ProcessTaskQueueAsync(async () =>
         {
             using var transaction = Connection.BeginTransaction();
-            var predicate = "r.pinned = 0 AND a.data_b64 = '' AND (r.data_type = 0 OR (r.data_type = 4 AND a.plain_text_b64 = ''))";
+            // An empty payload alone is not proof: a conflicting stored hash or
+            // text field may indicate a damaged or incomplete asset.
+            var predicate = "r.pinned = 0 AND r.encrypt_data IN (0, 1) AND r.data_md5_b64 = @EmptyHash " +
+                "AND r.plain_text = '' AND a.data_b64 = '' AND " +
+                "((r.data_type = 0 AND (a.plain_text_b64 IS NULL OR a.plain_text_b64 = '')) " +
+                "OR (r.data_type = 4 AND a.plain_text_b64 = ''))";
             if (excluded.Length > 0) predicate += " AND r.hash_id NOT IN @Excluded";
-            var parameters = new { Excluded = excluded };
+            var parameters = new { Excluded = excluded, EmptyHash = StringUtils.GetMd5(string.Empty) };
             removed.AddRange(await Connection.QueryAsync<string>(
                 "SELECT r.hash_id FROM record r JOIN asset a ON r.hash_id = a.hash_id WHERE " + predicate,
                 parameters, transaction));
             await Connection.ExecuteAsync("DELETE FROM record WHERE id IN (SELECT r.id FROM record r JOIN asset a ON r.hash_id = a.hash_id WHERE " + predicate + ")", parameters, transaction);
+            await DeleteUnreferencedAssetsAsync(removed, transaction);
             transaction.Commit();
         });
         return removed;
@@ -830,9 +836,18 @@ public class SqliteDatabase : IAsyncDisposable
                 removed.AddRange(await Connection.QueryAsync<string>("SELECT hash_id FROM record WHERE " + predicate, args, transaction));
                 await Connection.ExecuteAsync("DELETE FROM record WHERE " + predicate, args, transaction);
             }
+            await DeleteUnreferencedAssetsAsync(removed, transaction);
             transaction.Commit();
         });
         return removed;
+    }
+
+    private async Task DeleteUnreferencedAssetsAsync(IEnumerable<string> removed, IDbTransaction transaction)
+    {
+        foreach (var hashId in removed)
+            await Connection.ExecuteAsync(
+                "DELETE FROM asset WHERE hash_id = @HashId AND NOT EXISTS (SELECT 1 FROM record WHERE hash_id = @HashId)",
+                new { HashId = hashId }, transaction);
     }
 
     public async Task DeleteRecordsByKeepTimeAsync(int dataType, int keepTime)
