@@ -301,7 +301,13 @@ public class WindowsClipboardHelper : IDisposable
 
     #region History Items
 
-    public async Task<(List<ClipboardData>? Items, bool PinStateTrusted)> GetHistoryItemsAsync()
+    public async Task<List<ClipboardData>?> GetHistoryItemsAsync() =>
+        (await GetHistoryItemsWithPinStateAsync()).Items;
+
+    public async Task<List<ClipboardData>?> GetLaterHistoryItemsAsync(DateTime dateTime) =>
+        (await GetLaterHistoryItemsWithPinStateAsync(dateTime)).Items;
+
+    public async Task<(List<ClipboardData>? Items, bool PinStateTrusted)> GetHistoryItemsWithPinStateAsync()
     {
         if (IsClipboardHistorySupported())
         {
@@ -336,7 +342,7 @@ public class WindowsClipboardHelper : IDisposable
         return (null, false);
     }
 
-    public async Task<(List<ClipboardData>? Items, bool PinStateTrusted)> GetLaterHistoryItemsAsync(DateTime dateTime)
+    public async Task<(List<ClipboardData>? Items, bool PinStateTrusted)> GetLaterHistoryItemsWithPinStateAsync(DateTime dateTime)
     {
         if (IsClipboardHistorySupported())
         {

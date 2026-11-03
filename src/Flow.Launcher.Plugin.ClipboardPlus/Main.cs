@@ -1510,11 +1510,11 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
         if (check)
         {
             var latestDateTime = RecordsList.Count != 0 ? RecordsList.Max(p => p.ClipboardData.CreateTime) : DateTime.MinValue;
-            history = await WindowsClipboardHelper.GetLaterHistoryItemsAsync(latestDateTime);
+            history = await WindowsClipboardHelper.GetLaterHistoryItemsWithPinStateAsync(latestDateTime);
         }
         else
         {
-            history = await WindowsClipboardHelper.GetHistoryItemsAsync();
+            history = await WindowsClipboardHelper.GetHistoryItemsWithPinStateAsync();
         }
 
         // add history items
