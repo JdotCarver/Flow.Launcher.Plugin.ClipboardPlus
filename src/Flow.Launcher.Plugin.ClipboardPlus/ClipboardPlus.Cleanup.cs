@@ -52,6 +52,7 @@ public partial class ClipboardPlus
                     {
                         var left = snapshots[indexes[a]].Original;
                         var right = snapshots[indexes[b]].Original;
+                        if (left.DataMd5 == right.DataMd5 && !left.Pinned && !right.Pinned && left.Saved == right.Saved) continue;
                         if (ExactImagePixelComparer.Compare(left.Data as BitmapSource, right.Data as BitmapSource) != ClipboardContentComparison.Equal) continue;
                         var representation = ClipboardContentComparer.Compare(left, right, true);
                         string? reason = representation == ClipboardContentComparison.Different ? "representation" :
