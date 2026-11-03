@@ -19,53 +19,48 @@
         <converts:BoolReverseConverter x:Key="BoolReverseConverter" />
     </UserControl.Resources>
 
-    <Grid Margin="{StaticResource SettingPanelMargin}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-
+    <StackPanel Margin="{StaticResource SettingPanelMargin}">
+        <Expander Header="{DynamicResource flowlauncher_plugin_clipboardplus_group_general}" IsExpanded="True">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
         <!--  Clear Keyword  -->
         <TextBlock
             Grid.Row="0"
@@ -147,12 +142,50 @@
             Content="{DynamicResource flowlauncher_plugin_clipboardplus_show_notification}"
             IsChecked="{Binding ShowNotification, Mode=TwoWay}" />
 
-        <!--  Seperator  -->
-        <Separator
-            Grid.Row="6"
-            Grid.ColumnSpan="2"
-            Style="{StaticResource SettingPanelSeparatorStyle}" />
 
+            </Grid>
+        </Expander>
+        <Expander Header="{DynamicResource flowlauncher_plugin_clipboardplus_group_windows}" IsExpanded="False">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
         <!--  Sync Windows Clipboard History  -->
         <CheckBox
  ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_sync}" ToolTipService.ShowOnDisabled="True"            Grid.Row="7"
@@ -183,12 +216,50 @@
                 Content="{DynamicResource flowlauncher_plugin_clipboardplus_open_windows_clipboard_settings}" />
         </WrapPanel>
 
-        <!--  Seperator  -->
-        <Separator
-            Grid.Row="9"
-            Grid.ColumnSpan="2"
-            Style="{StaticResource SettingPanelSeparatorStyle}" />
 
+            </Grid>
+        </Expander>
+        <Expander Header="{DynamicResource flowlauncher_plugin_clipboardplus_group_copying}" IsExpanded="False">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
         <!--  Click Action  -->
         <TextBlock
             Grid.Row="10"
@@ -261,12 +332,50 @@
             SelectedValue="{Binding SelectedDefaultFilesCopyOption, Mode=TwoWay}"
             SelectedValuePath="Value" />
 
-        <!--  Seperator  -->
-        <Separator
-            Grid.Row="14"
-            Grid.ColumnSpan="2"
-            Style="{StaticResource SettingPanelSeparatorStyle}" />
 
+            </Grid>
+        </Expander>
+        <Expander Header="{DynamicResource flowlauncher_plugin_clipboardplus_group_storage}" IsExpanded="False">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
         <!--  Cache Images & Cache Images Button  -->
         <WrapPanel
             Grid.Row="15"
@@ -533,16 +642,63 @@
             <TextBlock Text="{Binding RetentionError}" TextWrapping="Wrap" />
         </StackPanel>
 
+
+            </Grid>
+        </Expander>
+        <Expander Header="{DynamicResource flowlauncher_plugin_clipboardplus_group_duplicates}" IsExpanded="False">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
         <!--  Duplicate cleanup  -->
         <CheckBox ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_automatic}" ToolTipService.ShowOnDisabled="True" Grid.Row="25" Grid.ColumnSpan="2"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_automatic}"
             IsChecked="{Binding AutomaticCleanup, Mode=TwoWay}" />
-        <CheckBox ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_thorough}" ToolTipService.ShowOnDisabled="True" Grid.Row="26" Grid.ColumnSpan="2"
+        <ComboBox ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_thorough}" ToolTipService.ShowOnDisabled="True" Grid.Row="26" Grid.ColumnSpan="2"
             Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
-            Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_thorough}"
-            IsChecked="{Binding AutomaticCleanupThorough, Mode=TwoWay}"
-            IsEnabled="{Binding AutomaticCleanup, Mode=OneWay}" />
+            HorizontalAlignment="Left"
+            SelectedIndex="{Binding AutomaticCleanupVerificationIndex, Mode=TwoWay}"
+            IsEnabled="{Binding AutomaticCleanup, Mode=OneWay}">
+            <ComboBoxItem Content="{DynamicResource flowlauncher_plugin_clipboardplus_verification_best}" />
+            <ComboBoxItem Content="{DynamicResource flowlauncher_plugin_clipboardplus_verification_thorough}" />
+        </ComboBox>
         <Button ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_cleanup}" ToolTipService.ShowOnDisabled="True" Grid.Row="27" Grid.ColumnSpan="2" HorizontalAlignment="Left"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_action}"
@@ -562,12 +718,50 @@
             <ComboBoxItem Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_windows_remember}" />
         </ComboBox>
 
-        <!--  Seperator  -->
-        <Separator
-            Grid.Row="30"
-            Grid.ColumnSpan="2"
-            Style="{StaticResource SettingPanelSeparatorStyle}" />
 
+            </Grid>
+        </Expander>
+        <Expander Header="{DynamicResource flowlauncher_plugin_clipboardplus_group_excluded}" IsExpanded="False">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
         <!--  Excluded Apps  -->
         <TextBlock
             Grid.Row="31"
@@ -614,19 +808,16 @@
             </StackPanel>
         </DockPanel>
 
-        <!--  Seperator  -->
-        <Separator
-            Grid.Row="34"
-            Grid.ColumnSpan="2"
-            Style="{StaticResource SettingPanelSeparatorStyle}" />
 
+            </Grid>
+        </Expander>
         <!--  Restore to Default  -->
         <Button
- ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_restore}" ToolTipService.ShowOnDisabled="True"            Grid.Row="35"
-            Grid.ColumnSpan="2"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_restore}" ToolTipService.ShowOnDisabled="True"
+
             HorizontalAlignment="Left"
             Command="{Binding RestoreToDefaultCommand}"
             Content="{DynamicResource flowlauncher_plugin_clipboardplus_restore_to_default}" />
 
-    </Grid>
+    </StackPanel>
 </UserControl>

@@ -5,8 +5,17 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:system="clr-namespace:System;assembly=mscorlib">
 
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_group_general">General</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_group_windows">Windows history</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_group_copying">Copying</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_group_storage">Storage and retention</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_group_duplicates">Duplicate cleanup</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_group_excluded">Excluded apps</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_verification_best">Best effort</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_verification_thorough">Thorough verification</system:String>
+
     <system:String x:Key="flowlauncher_plugin_clipboardplus_protect_pins_expiry">Protect pins from expiring</system:String>
-    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_pin_expiry">Changing this setting immediately runs the retention cleanup and will permanently delete records if said pins are expired. When unchecked, pins follow their type’s retention duration.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_pin_expiry">Changing this setting immediately runs retention cleanup, which can permanently delete expired unpinned records. When unchecked, expired pins can also be deleted; when checked, pins are protected.</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_pin_expiry_confirm">Are you sure you wish to turn off pin protection? Any expired pins will be deleted immediately.</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_pin_expiry_caption">Just checking</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_pin_expiry_error">Cleanup could not be completed. Your setting was saved; cleanup will be retried when history is next initialized.</system:String>

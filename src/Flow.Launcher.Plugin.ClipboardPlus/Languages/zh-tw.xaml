@@ -5,6 +5,15 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:system="clr-namespace:System;assembly=mscorlib">
 
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_group_general">一般</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_group_windows">Windows 歷程記錄</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_group_copying">複製</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_group_storage">儲存與保留</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_group_duplicates">重複項目清理</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_group_excluded">排除的應用程式</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_verification_best">盡力而為</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_verification_thorough">完整驗證</system:String>
+
     <system:String x:Key="flowlauncher_plugin_clipboardplus_protect_pins_expiry">保護釘選的記錄不過期</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_pin_expiry">變更此設定會立即執行保留期限清理，並可能永久刪除記錄。取消勾選後，釘選記錄（包括安全釘選）遵循其類型的保留期限。</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_pin_expiry_confirm">關閉釘選保護？過期的釘選記錄可能立即被永久刪除。</system:String>

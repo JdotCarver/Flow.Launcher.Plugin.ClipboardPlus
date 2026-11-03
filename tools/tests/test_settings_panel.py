@@ -29,10 +29,15 @@ class SettingsPanelTests(unittest.TestCase):
         self.assertEqual('{DynamicResource flowlauncher_plugin_clipboardplus_tip_pin_expiry}', expiry.attrib['ToolTip'])
         self.assertEqual('{Binding RetentionSettingEnabled}', expiry.attrib['IsEnabled'])
         self.assertTrue(any('RetentionError' in str(control.attrib) for control in self.controls))
-        self.assertLess(row('AutomaticCleanup'), row('AutomaticCleanupThorough'))
-        self.assertLess(row('AutomaticCleanupThorough'), row('CleanupCommand'))
+        self.assertLess(row('AutomaticCleanup'), row('AutomaticCleanupVerificationIndex'))
+        self.assertLess(row('AutomaticCleanupVerificationIndex'), row('CleanupCommand'))
         self.assertLess(row('CleanupCommand'), row('WindowsSuppressionLifetimeIndex'))
-        self.assertGreater(row('RestoreToDefaultCommand'), row('WindowsSuppressionLifetimeIndex'))
+        expanders = [control for control in self.controls if control.tag.endswith('Expander')]
+        self.assertEqual(6, len(expanders))
+        self.assertEqual('True', expanders[0].attrib['IsExpanded'])
+        self.assertTrue(all(e.attrib['IsExpanded'] == 'False' for e in expanders[1:]))
+        self.assertEqual('{Binding AutomaticCleanup, Mode=OneWay}',
+                         self.control_with_binding('AutomaticCleanupVerificationIndex').attrib['IsEnabled'])
         self.assertFalse(any('CleanupKeyword' in str(control.attrib) for control in self.controls))
 
     def test_tooltips_describe_the_bound_control(self):
@@ -40,7 +45,7 @@ class SettingsPanelTests(unittest.TestCase):
             self.assertEqual('{DynamicResource flowlauncher_plugin_clipboardplus_tip_retention}',
                              self.control_with_binding(binding).attrib['ToolTip'])
         self.assertEqual('{DynamicResource flowlauncher_plugin_clipboardplus_tip_thorough}',
-                         self.control_with_binding('AutomaticCleanupThorough').attrib['ToolTip'])
+                         self.control_with_binding('AutomaticCleanupVerificationIndex').attrib['ToolTip'])
 
     def test_tooltips_exist_in_every_language_and_work_when_disabled(self):
         keys = set()
