@@ -30,6 +30,37 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_windows_session">仅限本次会话</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_windows_remember">重新加载后保留</system:String>
 
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_keyword">打开清理菜单的关键词。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_limit">列表中保留的最大记录数。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_order">选择剪贴板记录的排序方式。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_relative">以相对时间显示最近的时间戳。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_actiontop">将启动器操作放在记录之前。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_notification">显示支持的操作的可选通知。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_sync">将 Windows 剪贴板历史记录导入插件。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_windowsonly">使用 Windows 剪贴板历史记录而不是插件数据库。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_windowssettings">打开 Windows 剪贴板设置。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_click">选择选中记录时的默认操作。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_rich">选择复制富文本的默认格式。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_image">选择复制图像的默认格式。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_files">选择复制文件的默认格式。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_cache">将捕获的图像保存到缓存文件夹。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_opencache">打开图像缓存文件夹。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_clearcache">清空图像缓存文件夹。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_format">编辑缓存图像的文件名格式或插入格式元素。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_encryption">加密支持的已保存数据。图像不会加密。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_import">从 JSON 文件导入记录。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_export">将记录导出到 JSON 文件。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_keep">将此类型的记录保存到插件数据库。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_retention">选择此类型的已保存记录的保留时间。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_excluded">从剪贴板监视中排除的前台应用；Windows 历史记录导入不受此设置影响。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_addapp">将应用添加到排除列表。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_deleteapp">从排除列表中移除选定的应用。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_automatic">自动合并已验证的重复项；固定的记录会受到保护。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_cleanup">立即清理重复项；不会删除 Windows 历史记录。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_suppression">选择重新加载后是否继续隐藏 Windows 重复项。不会删除 Windows 历史记录。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_restore">将设置恢复为默认值。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_thorough">自动验证更多重复候选项，可能使用更多资源。</system:String>
+
     <!--  General  -->
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_name">剪切板+</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_description">轻松管理你的剪切板历史与Windows剪切板历史，支持文字、图像和文件</system:String>

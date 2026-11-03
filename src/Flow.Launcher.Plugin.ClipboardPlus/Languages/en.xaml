@@ -30,6 +30,37 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_windows_session">Session only</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_windows_remember">Remember across reloads</system:String>
 
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_keyword">Keyword that opens the clear menu.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_limit">Maximum number of records kept in the list.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_order">Choose how clipboard records are ordered.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_relative">Display recent timestamps relative to the current time.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_actiontop">Place launcher actions above clipboard records.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_notification">Show optional notifications for supported operations.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_sync">Import Windows clipboard history into the plugin.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_windowsonly">Use Windows clipboard history instead of the plugin database.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_windowssettings">Open Windows clipboard settings.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_click">Choose the default action when selecting a record.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_rich">Choose the default format for copying rich text.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_image">Choose the default format for copying images.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_files">Choose the default format for copying files.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_cache">Save captured images to the cache folder.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_opencache">Open the image cache folder.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_clearcache">Clear the image cache folder.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_format">Edit or insert parts of the cached image filename format.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_encryption">Encrypt supported stored data. Images are not encrypted.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_import">Import records from a JSON file.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_export">Export records to a JSON file.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_keep">Save this type of record in the plugin database.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_retention">Choose how long saved records of this type are kept.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_excluded">Foreground applications excluded from clipboard monitoring; Windows history imports are separate.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_addapp">Add an application to the exclusion list.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_deleteapp">Remove selected applications from the exclusion list.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_automatic">Consolidate verified duplicates automatically; pinned records are protected.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_cleanup">Run duplicate cleanup now; Windows history is not deleted.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_suppression">Choose whether hidden Windows duplicates remain suppressed after reload. Windows history is not deleted.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_restore">Restore settings to their defaults.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_thorough">Verify more duplicate candidates automatically, potentially using more resources.</system:String>
+
     <!--  General  -->
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_name">Clipboard+</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_description">Easily manage your clipboard history and Windows Clipboard History with support for text, images, and files</system:String>

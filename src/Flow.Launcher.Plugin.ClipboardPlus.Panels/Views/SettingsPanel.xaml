@@ -73,7 +73,7 @@
             VerticalAlignment="Center"
             Text="{DynamicResource flowlauncher_plugin_clipboardplus_clear_keyword}" />
         <TextBox
-            Grid.Row="0"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_keyword}" ToolTipService.ShowOnDisabled="True"            Grid.Row="0"
             Grid.Column="1"
             MinWidth="120"
             Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
@@ -90,7 +90,7 @@
             VerticalAlignment="Center"
             Text="{DynamicResource flowlauncher_plugin_clipboardplus_max_records}" />
         <ui:NumberBox
-            Grid.Row="1"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_limit}" ToolTipService.ShowOnDisabled="True"            Grid.Row="1"
             Grid.Column="1"
             Width="120"
             MinWidth="120"
@@ -110,7 +110,7 @@
             VerticalAlignment="Center"
             Text="{DynamicResource flowlauncher_plugin_clipboardplus_order_by}" />
         <ComboBox
-            Grid.Row="2"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_order}" ToolTipService.ShowOnDisabled="True"            Grid.Row="2"
             Grid.Column="1"
             Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
             HorizontalAlignment="Left"
@@ -120,9 +120,17 @@
             SelectedValue="{Binding SelectedRecordOrder, Mode=TwoWay}"
             SelectedValuePath="Value" />
 
+        <!--  Relative timestamps  -->
+        <CheckBox
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_relative}" ToolTipService.ShowOnDisabled="True"            Grid.Row="3"
+            Grid.ColumnSpan="2"
+            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
+            Content="{DynamicResource flowlauncher_plugin_clipboardplus_relative_time_setting}"
+            IsChecked="{Binding UseRelativeTime, Mode=TwoWay}" />
+
         <!--  Action Top  -->
         <CheckBox
-            Grid.Row="3"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_actiontop}" ToolTipService.ShowOnDisabled="True"            Grid.Row="4"
             Grid.ColumnSpan="2"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             VerticalAlignment="Center"
@@ -131,7 +139,7 @@
 
         <!--  Show Notification  -->
         <CheckBox
-            Grid.Row="4"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_notification}" ToolTipService.ShowOnDisabled="True"            Grid.Row="5"
             Grid.ColumnSpan="2"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             VerticalAlignment="Center"
@@ -140,13 +148,13 @@
 
         <!--  Seperator  -->
         <Separator
-            Grid.Row="5"
+            Grid.Row="6"
             Grid.ColumnSpan="2"
             Style="{StaticResource SettingPanelSeparatorStyle}" />
 
         <!--  Sync Windows Clipboard History  -->
         <CheckBox
-            Grid.Row="6"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_sync}" ToolTipService.ShowOnDisabled="True"            Grid.Row="7"
             Grid.ColumnSpan="2"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             VerticalAlignment="Center"
@@ -157,17 +165,17 @@
 
         <!--  Use Windows Clipboard History Only  -->
         <WrapPanel
-            Grid.Row="7"
+            Grid.Row="8"
             Grid.ColumnSpan="2"
             Orientation="Horizontal"
             Visibility="{Binding SyncWindowsClipboardHistoryVisibility, Mode=OneTime}">
             <CheckBox
-                Margin="{StaticResource SettingPanelItemRightTopBottomMargin}"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_windowsonly}" ToolTipService.ShowOnDisabled="True"                Margin="{StaticResource SettingPanelItemRightTopBottomMargin}"
                 VerticalAlignment="Center"
                 Content="{DynamicResource flowlauncher_plugin_clipboardplus_use_windows_clipboard_history_only}"
                 IsChecked="{Binding UseWindowsClipboardHistoryOnly, Mode=TwoWay}" />
             <Button
-                Margin="{StaticResource SettingPanelItemTopBottomMargin}"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_windowssettings}" ToolTipService.ShowOnDisabled="True"                Margin="{StaticResource SettingPanelItemTopBottomMargin}"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Center"
                 Command="{Binding OpenWindowsClipboardSettingsCommand}"
@@ -176,19 +184,19 @@
 
         <!--  Seperator  -->
         <Separator
-            Grid.Row="8"
+            Grid.Row="9"
             Grid.ColumnSpan="2"
             Style="{StaticResource SettingPanelSeparatorStyle}" />
 
         <!--  Click Action  -->
         <TextBlock
-            Grid.Row="9"
+            Grid.Row="10"
             Grid.Column="0"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             VerticalAlignment="Center"
             Text="{DynamicResource flowlauncher_plugin_clipboardplus_click_action}" />
         <ComboBox
-            Grid.Row="9"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_click}" ToolTipService.ShowOnDisabled="True"            Grid.Row="10"
             Grid.Column="1"
             Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
             HorizontalAlignment="Left"
@@ -200,13 +208,13 @@
 
         <!--  Default Rich Text Copy Option  -->
         <TextBlock
-            Grid.Row="10"
+            Grid.Row="11"
             Grid.Column="0"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             VerticalAlignment="Center"
             Text="{DynamicResource flowlauncher_plugin_clipboardplus_default_rich_text_copy_option}" />
         <ComboBox
-            Grid.Row="10"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_rich}" ToolTipService.ShowOnDisabled="True"            Grid.Row="11"
             Grid.Column="1"
             Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
             HorizontalAlignment="Left"
@@ -218,13 +226,13 @@
 
         <!--  Default Image Copy Option  -->
         <TextBlock
-            Grid.Row="11"
+            Grid.Row="12"
             Grid.Column="0"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             VerticalAlignment="Center"
             Text="{DynamicResource flowlauncher_plugin_clipboardplus_default_image_copy_option}" />
         <ComboBox
-            Grid.Row="11"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_image}" ToolTipService.ShowOnDisabled="True"            Grid.Row="12"
             Grid.Column="1"
             Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
             HorizontalAlignment="Left"
@@ -236,13 +244,13 @@
 
         <!--  Default Files Copy Option  -->
         <TextBlock
-            Grid.Row="12"
+            Grid.Row="13"
             Grid.Column="0"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             VerticalAlignment="Center"
             Text="{DynamicResource flowlauncher_plugin_clipboardplus_default_files_copy_option}" />
         <ComboBox
-            Grid.Row="12"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_files}" ToolTipService.ShowOnDisabled="True"            Grid.Row="13"
             Grid.Column="1"
             Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
             HorizontalAlignment="Left"
@@ -254,29 +262,29 @@
 
         <!--  Seperator  -->
         <Separator
-            Grid.Row="13"
+            Grid.Row="14"
             Grid.ColumnSpan="2"
             Style="{StaticResource SettingPanelSeparatorStyle}" />
 
         <!--  Cache Images & Cache Images Button  -->
         <WrapPanel
-            Grid.Row="14"
+            Grid.Row="15"
             Grid.ColumnSpan="2"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             Orientation="Horizontal">
             <CheckBox
-                Margin="{StaticResource SettingPanelItemRightTopBottomMargin}"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_cache}" ToolTipService.ShowOnDisabled="True"                Margin="{StaticResource SettingPanelItemRightTopBottomMargin}"
                 VerticalAlignment="Center"
                 Content="{DynamicResource flowlauncher_plugin_clipboardplus_cache_images}"
                 IsChecked="{Binding CacheImages, Mode=TwoWay}" />
             <Button
-                Margin="{StaticResource SettingPanelItemRightTopBottomMargin}"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_opencache}" ToolTipService.ShowOnDisabled="True"                Margin="{StaticResource SettingPanelItemRightTopBottomMargin}"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Center"
                 Command="{Binding OpenCacheImageFolderCommand}"
                 Content="{DynamicResource flowlauncher_plugin_clipboardplus_open_cache_folder}" />
             <Button
-                Margin="{StaticResource SettingPanelItemTopBottomMargin}"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_clearcache}" ToolTipService.ShowOnDisabled="True"                Margin="{StaticResource SettingPanelItemTopBottomMargin}"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Center"
                 Command="{Binding ClearCacheImageFolderCommand}"
@@ -285,14 +293,14 @@
 
         <!--  Cache Format  -->
         <TextBlock
-            Grid.Row="15"
+            Grid.Row="16"
             Grid.Column="0"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             VerticalAlignment="Center"
             Text="{DynamicResource flowlauncher_plugin_clipboardplus_cache_format}" />
         <TextBox
-            x:Name="CacheFormatTextBox"
-            Grid.Row="15"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_format}" ToolTipService.ShowOnDisabled="True"            x:Name="CacheFormatTextBox"
+            Grid.Row="16"
             Grid.Column="1"
             MinWidth="200"
             Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
@@ -304,14 +312,14 @@
 
         <!--  Cache Format Buttons  -->
         <WrapPanel
-            Grid.Row="16"
+            Grid.Row="17"
             Grid.Column="2"
             Margin="{StaticResource SettingPanelItemLeftMargin}"
             HorizontalAlignment="Left"
             VerticalAlignment="Center"
             Orientation="Horizontal">
             <Button
-                MinWidth="30"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_format}" ToolTipService.ShowOnDisabled="True"                MinWidth="30"
                 Margin="{StaticResource SettingPanelItemRightTopBottomMargin}"
                 Command="{Binding FormatStringInsertCommand}"
                 Content="{DynamicResource flowlauncher_plugin_clipboardplus_format_year}">
@@ -323,7 +331,7 @@
                 </Button.CommandParameter>
             </Button>
             <Button
-                MinWidth="30"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_format}" ToolTipService.ShowOnDisabled="True"                MinWidth="30"
                 Margin="{StaticResource SettingPanelItemRightTopBottomMargin}"
                 Command="{Binding FormatStringInsertCommand}"
                 Content="{DynamicResource flowlauncher_plugin_clipboardplus_format_month}">
@@ -335,7 +343,7 @@
                 </Button.CommandParameter>
             </Button>
             <Button
-                MinWidth="30"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_format}" ToolTipService.ShowOnDisabled="True"                MinWidth="30"
                 Margin="{StaticResource SettingPanelItemRightTopBottomMargin}"
                 Command="{Binding FormatStringInsertCommand}"
                 Content="{DynamicResource flowlauncher_plugin_clipboardplus_format_day}">
@@ -347,7 +355,7 @@
                 </Button.CommandParameter>
             </Button>
             <Button
-                MinWidth="30"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_format}" ToolTipService.ShowOnDisabled="True"                MinWidth="30"
                 Margin="{StaticResource SettingPanelItemRightTopBottomMargin}"
                 Command="{Binding FormatStringInsertCommand}"
                 Content="{DynamicResource flowlauncher_plugin_clipboardplus_format_hour}">
@@ -359,7 +367,7 @@
                 </Button.CommandParameter>
             </Button>
             <Button
-                MinWidth="30"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_format}" ToolTipService.ShowOnDisabled="True"                MinWidth="30"
                 Margin="{StaticResource SettingPanelItemRightTopBottomMargin}"
                 Command="{Binding FormatStringInsertCommand}"
                 Content="{DynamicResource flowlauncher_plugin_clipboardplus_format_minute}">
@@ -371,7 +379,7 @@
                 </Button.CommandParameter>
             </Button>
             <Button
-                MinWidth="30"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_format}" ToolTipService.ShowOnDisabled="True"                MinWidth="30"
                 Margin="{StaticResource SettingPanelItemRightTopBottomMargin}"
                 Command="{Binding FormatStringInsertCommand}"
                 Content="{DynamicResource flowlauncher_plugin_clipboardplus_format_second}">
@@ -383,7 +391,7 @@
                 </Button.CommandParameter>
             </Button>
             <Button
-                MinWidth="30"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_format}" ToolTipService.ShowOnDisabled="True"                MinWidth="30"
                 Margin="{StaticResource SettingPanelItemTopBottomMargin}"
                 Command="{Binding FormatStringInsertCommand}"
                 Content="{DynamicResource flowlauncher_plugin_clipboardplus_format_app}">
@@ -398,13 +406,13 @@
 
         <!--  Cache Format Preview  -->
         <TextBlock
-            Grid.Row="17"
+            Grid.Row="18"
             Grid.Column="0"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             VerticalAlignment="Center"
             Text="{DynamicResource flowlauncher_plugin_clipboardplus_cache_format_preview}" />
         <TextBox
-            Grid.Row="17"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_format}" ToolTipService.ShowOnDisabled="True"            Grid.Row="18"
             Grid.Column="1"
             MinWidth="200"
             Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
@@ -418,30 +426,30 @@
 
         <!--  Seperator  -->
         <Separator
-            Grid.Row="18"
+            Grid.Row="19"
             Grid.ColumnSpan="2"
             Style="{StaticResource SettingPanelSeparatorStyle}"
             Visibility="{Binding DatabasePanelVisibility, Mode=OneWay}" />
 
         <!--  Encrypt Data & Import & Export Records Button  -->
         <WrapPanel
-            Grid.Row="19"
+            Grid.Row="20"
             Grid.ColumnSpan="2"
             Orientation="Horizontal"
             Visibility="{Binding DatabasePanelVisibility, Mode=OneWay}">
             <CheckBox
-                Margin="{StaticResource SettingPanelItemRightTopBottomMargin}"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_encryption}" ToolTipService.ShowOnDisabled="True"                Margin="{StaticResource SettingPanelItemRightTopBottomMargin}"
                 VerticalAlignment="Center"
                 Content="{DynamicResource flowlauncher_plugin_clipboardplus_encrypt_data}"
                 IsChecked="{Binding EncryptData, Mode=TwoWay}" />
             <Button
-                Margin="{StaticResource SettingPanelItemRightTopBottomMargin}"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_import}" ToolTipService.ShowOnDisabled="True"                Margin="{StaticResource SettingPanelItemRightTopBottomMargin}"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Center"
                 Command="{Binding ImportJsonRecordsCommand}"
                 Content="{DynamicResource flowlauncher_plugin_clipboardplus_import_records}" />
             <Button
-                Margin="{StaticResource SettingPanelItemTopBottomMargin}"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_export}" ToolTipService.ShowOnDisabled="True"                Margin="{StaticResource SettingPanelItemTopBottomMargin}"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Center"
                 Command="{Binding ExportJsonRecordsCommand}"
@@ -450,7 +458,7 @@
 
         <!--  Keep Text  -->
         <CheckBox
-            Grid.Row="20"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_keep}" ToolTipService.ShowOnDisabled="True"            Grid.Row="21"
             Grid.Column="0"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             VerticalAlignment="Center"
@@ -458,7 +466,7 @@
             IsChecked="{Binding KeepText, Mode=TwoWay}"
             Visibility="{Binding DatabasePanelVisibility, Mode=OneWay}" />
         <ComboBox
-            Grid.Row="20"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_keep}" ToolTipService.ShowOnDisabled="True"            Grid.Row="21"
             Grid.Column="1"
             Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
             HorizontalAlignment="Left"
@@ -472,7 +480,7 @@
 
         <!--  Keep Images  -->
         <CheckBox
-            Grid.Row="21"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_keep}" ToolTipService.ShowOnDisabled="True"            Grid.Row="22"
             Grid.Column="0"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             VerticalAlignment="Center"
@@ -480,7 +488,7 @@
             IsChecked="{Binding KeepImages, Mode=TwoWay}"
             Visibility="{Binding DatabasePanelVisibility, Mode=OneWay}" />
         <ComboBox
-            Grid.Row="21"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_keep}" ToolTipService.ShowOnDisabled="True"            Grid.Row="22"
             Grid.Column="1"
             Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
             HorizontalAlignment="Left"
@@ -494,7 +502,7 @@
 
         <!--  Keep Files  -->
         <CheckBox
-            Grid.Row="22"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_keep}" ToolTipService.ShowOnDisabled="True"            Grid.Row="23"
             Grid.Column="0"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             VerticalAlignment="Center"
@@ -502,7 +510,7 @@
             IsChecked="{Binding KeepFiles, Mode=TwoWay}"
             Visibility="{Binding DatabasePanelVisibility, Mode=OneWay}" />
         <ComboBox
-            Grid.Row="22"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_keep}" ToolTipService.ShowOnDisabled="True"            Grid.Row="23"
             Grid.Column="1"
             Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
             HorizontalAlignment="Left"
@@ -514,23 +522,52 @@
             SelectedValuePath="Value"
             Visibility="{Binding DatabasePanelVisibility, Mode=OneWay}" />
 
+        <!--  Duplicate cleanup  -->
+        <CheckBox ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_automatic}" ToolTipService.ShowOnDisabled="True" Grid.Row="24" Grid.ColumnSpan="2"
+            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
+            Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_automatic}"
+            IsChecked="{Binding AutomaticCleanup, Mode=TwoWay}" />
+        <CheckBox ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_automatic}" ToolTipService.ShowOnDisabled="True" Grid.Row="25" Grid.ColumnSpan="2"
+            Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
+            Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_thorough}"
+            IsChecked="{Binding AutomaticCleanupThorough, Mode=TwoWay}"
+            IsEnabled="{Binding AutomaticCleanup, Mode=OneWay}" />
+        <Button ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_cleanup}" ToolTipService.ShowOnDisabled="True" Grid.Row="26" Grid.ColumnSpan="2" HorizontalAlignment="Left"
+            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
+            Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_action}"
+            Command="{Binding CleanupCommand}" />
+        <TextBlock Grid.Row="27" Grid.ColumnSpan="2" TextWrapping="Wrap"
+            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
+            Text="{Binding CleanupFeedback, Mode=OneWay}" />
+
+        <TextBlock Grid.Row="28" Grid.Column="0"
+            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
+            VerticalAlignment="Center"
+            Text="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_windows_lifetime}" />
+        <ComboBox ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_suppression}" ToolTipService.ShowOnDisabled="True" Grid.Row="28" Grid.Column="1"
+            Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
+            HorizontalAlignment="Left" SelectedIndex="{Binding WindowsSuppressionLifetimeIndex, Mode=TwoWay}">
+            <ComboBoxItem Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_windows_session}" />
+            <ComboBoxItem Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_windows_remember}" />
+        </ComboBox>
+
         <!--  Seperator  -->
         <Separator
-            Grid.Row="23"
+            Grid.Row="29"
             Grid.ColumnSpan="2"
             Style="{StaticResource SettingPanelSeparatorStyle}" />
 
         <!--  Excluded Apps  -->
         <TextBlock
-            Grid.Row="24"
+            Grid.Row="30"
             Grid.Column="0"
             Grid.ColumnSpan="2"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             VerticalAlignment="Top"
             Text="{DynamicResource flowlauncher_plugin_clipboardplus_excluded_apps}" />
         <ListView
-            x:Name="ProgramSourceView"
-            Grid.Row="25"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_excluded}" ToolTipService.ShowOnDisabled="True"            x:Name="ProgramSourceView"
+            Grid.Row="31"
             Grid.ColumnSpan="2"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             AllowDrop="True"
@@ -551,15 +588,15 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <DockPanel Grid.Row="26" Grid.ColumnSpan="2">
+        <DockPanel Grid.Row="32" Grid.ColumnSpan="2">
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                 <Button
-                    MinWidth="100"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_deleteapp}" ToolTipService.ShowOnDisabled="True"                    MinWidth="100"
                     Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
                     Click="DeleteProgramSource_OnClick"
                     Content="{DynamicResource flowlauncher_plugin_clipboardplus_delete}" />
                 <Button
-                    MinWidth="100"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_addapp}" ToolTipService.ShowOnDisabled="True"                    MinWidth="100"
                     Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
                     Click="AddProgramSource_OnClick"
                     Content="{DynamicResource flowlauncher_plugin_clipboardplus_add}" />
@@ -568,50 +605,13 @@
 
         <!--  Seperator  -->
         <Separator
-            Grid.Row="27"
+            Grid.Row="33"
             Grid.ColumnSpan="2"
             Style="{StaticResource SettingPanelSeparatorStyle}" />
 
-        <!--  Relative timestamps  -->
-        <CheckBox
-            Grid.Row="29"
-            Grid.ColumnSpan="2"
-            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
-            Content="{DynamicResource flowlauncher_plugin_clipboardplus_relative_time_setting}"
-            IsChecked="{Binding UseRelativeTime, Mode=TwoWay}" />
-
-        <!--  Duplicate cleanup  -->
-        <CheckBox Grid.Row="31" Grid.ColumnSpan="2"
-            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
-            Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_automatic}"
-            IsChecked="{Binding AutomaticCleanup, Mode=TwoWay}" />
-        <CheckBox Grid.Row="32" Grid.ColumnSpan="2"
-            Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
-            Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_thorough}"
-            IsChecked="{Binding AutomaticCleanupThorough, Mode=TwoWay}"
-            IsEnabled="{Binding AutomaticCleanup, Mode=OneWay}" />
-        <Button Grid.Row="33" Grid.ColumnSpan="2" HorizontalAlignment="Left"
-            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
-            Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_action}"
-            Command="{Binding CleanupCommand}" />
-        <TextBlock Grid.Row="34" Grid.ColumnSpan="2" TextWrapping="Wrap"
-            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
-            Text="{Binding CleanupFeedback, Mode=OneWay}" />
-
-        <TextBlock Grid.Row="35" Grid.Column="0"
-            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
-            VerticalAlignment="Center"
-            Text="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_windows_lifetime}" />
-        <ComboBox Grid.Row="35" Grid.Column="1"
-            Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
-            HorizontalAlignment="Left" SelectedIndex="{Binding WindowsSuppressionLifetimeIndex, Mode=TwoWay}">
-            <ComboBoxItem Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_windows_session}" />
-            <ComboBoxItem Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_windows_remember}" />
-        </ComboBox>
-
         <!--  Restore to Default  -->
         <Button
-            Grid.Row="28"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_restore}" ToolTipService.ShowOnDisabled="True"            Grid.Row="34"
             Grid.ColumnSpan="2"
             HorizontalAlignment="Left"
             Command="{Binding RestoreToDefaultCommand}"

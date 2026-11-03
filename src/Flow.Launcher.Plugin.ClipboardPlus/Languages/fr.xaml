@@ -30,6 +30,37 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_windows_session">Session uniquement</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_windows_remember">Mémoriser après rechargement</system:String>
 
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_keyword">Mot-clé ouvrant le menu de nettoyage.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_limit">Nombre maximal d’entrées conservées dans la liste.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_order">Choisissez l’ordre des entrées.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_relative">Affiche les dates récentes relativement à l’heure actuelle.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_actiontop">Place les actions au-dessus des entrées.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_notification">Affiche les notifications facultatives des opérations concernées.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_sync">Importe l’historique du Presse-papiers Windows dans le plugin.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_windowsonly">Utilise l’historique Windows au lieu de la base du plugin.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_windowssettings">Ouvre les paramètres du Presse-papiers Windows.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_click">Choisissez l’action par défaut lors de la sélection d’une entrée.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_rich">Choisissez le format de copie par défaut du texte enrichi.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_image">Choisissez le format de copie par défaut des images.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_files">Choisissez le format de copie par défaut des fichiers.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_cache">Enregistre les images capturées dans le dossier de cache.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_opencache">Ouvre le dossier de cache des images.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_clearcache">Vide le dossier de cache des images.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_format">Modifiez le format de nom des images en cache ou insérez-y des éléments.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_encryption">Chiffre les données enregistrées prises en charge. Les images ne sont pas chiffrées.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_import">Importe des entrées depuis un fichier JSON.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_export">Exporte les entrées vers un fichier JSON.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_keep">Enregistre ce type d’entrée dans la base du plugin.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_retention">Choisissez la durée de conservation de ce type d’entrée.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_excluded">Applications au premier plan exclues de la surveillance ; les imports Windows sont distincts.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_addapp">Ajoute une application à la liste d’exclusion.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_deleteapp">Retire les applications sélectionnées de la liste d’exclusion.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_automatic">Regroupe automatiquement les doublons vérifiés ; les entrées épinglées sont protégées.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_cleanup">Lance le nettoyage des doublons ; l’historique Windows n’est pas supprimé.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_suppression">Choisissez si les doublons Windows masqués restent masqués après rechargement. L’historique Windows n’est pas supprimé.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_restore">Rétablit les valeurs par défaut des paramètres.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_thorough">Vérifie automatiquement davantage de doublons, avec une consommation de ressources potentiellement supérieure.</system:String>
+
     <!--  General  -->
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_name">Clipboard+</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_description">Gérer simplement l'historique de votre presse-papiers et l'historique du presse-papiers Windows grâce à la prise en charge du texte, des images et des fichiers.</system:String>
