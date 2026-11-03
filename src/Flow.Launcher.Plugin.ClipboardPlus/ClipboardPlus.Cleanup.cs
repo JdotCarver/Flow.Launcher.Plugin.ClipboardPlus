@@ -26,9 +26,13 @@ public partial class ClipboardPlus
     {
         LinkedListNode<ClipboardDataPair>[] nodes;
         ClipboardCleanupSnapshot[] snapshots;
+        bool automaticAtStart;
+        bool thoroughAtStart;
         await RecordsLock.WaitAsync();
         try
         {
+            automaticAtStart = Settings.AutomaticCleanup;
+            thoroughAtStart = Settings.AutomaticCleanupThorough;
             var items = new List<LinkedListNode<ClipboardDataPair>>();
             for (var node = RecordsList.First; node is not null; node = node.Next)
                 if (node.Value.ClipboardData.DataType == DataType.Image) items.Add(node);
@@ -89,6 +93,7 @@ public partial class ClipboardPlus
         await RecordsLock.WaitAsync();
         try
         {
+            if (automaticAtStart != Settings.AutomaticCleanup || thoroughAtStart != Settings.AutomaticCleanupThorough) return;
             imageRelationships = results.Where(item => item.Target.List == RecordsList && item.Other.List == RecordsList &&
                 item.TargetSnapshot.Matches(item.Target.Value.ClipboardData) && item.OtherSnapshot.Matches(item.Other.Value.ClipboardData)).ToList();
             imageRelationshipAutomatic = Settings.AutomaticCleanup;
