@@ -304,6 +304,9 @@ internal static class DuplicatePluginIntegration
     private static void TestManualImageEvidenceRetention()
     {
         var plugin = new Plugin();
+        var database = new SqliteDatabase("synthetic-pin-events", new ClipboardPlus(), SqliteCacheMode.Private, SqliteOpenMode.Memory);
+        database.InitializeDatabaseAsync().GetAwaiter().GetResult();
+        SetField(plugin, "Database", database);
         var settings = new Settings { AutomaticCleanup = true };
         SetField(plugin, "Settings", settings);
         SetField(plugin, "Context", new PluginInitContext(null, Ioc.Default.GetRequiredService<IPublicAPI>()));
@@ -325,7 +328,13 @@ internal static class DuplicatePluginIntegration
         SetField(plugin, "RecordsList", new LinkedList<ClipboardDataPair>([keeper, windows]));
         var pinEvent = typeof(Plugin).GetMethod("WindowsClipboardHelper_OnHistoryItemPinUpdated", BindingFlags.Instance | BindingFlags.NonPublic)!;
         pinEvent.Invoke(plugin, [null, ("synthetic-windows-image", true)]);
+        var savedPin = database.GetAllRecordsAsync(false).GetAwaiter().GetResult();
+        if (savedPin.Count != 1 || !savedPin[0].Pinned || !windows.ClipboardData.Saved)
+            throw new InvalidOperationException("Synthetic Windows pin was not persisted");
         pinEvent.Invoke(plugin, [null, ("synthetic-windows-image", false)]);
+        var savedUnpin = database.GetAllRecordsAsync(false).GetAwaiter().GetResult();
+        if (savedUnpin.Count != 1 || savedUnpin[0].Pinned)
+            throw new InvalidOperationException("Synthetic Windows unpin was not persisted");
         if (windows.ClipboardData.Pinned || !windows.ClipboardData.FromWindowsClipboardHistory() ||
             DuplicateRecordPlanner.Plan([keeper.ClipboardData, windows.ClipboardData], true).Count != 0)
             throw new InvalidOperationException("Synthetic pin events lost Windows origin");
@@ -338,6 +347,7 @@ internal static class DuplicatePluginIntegration
         if (!(bool)hidden.Invoke(plugin, [windows])!) throw new InvalidOperationException("Best effort discarded valid manual image evidence");
         windows.TogglePinned();
         if ((bool)hidden.Invoke(plugin, [windows])!) throw new InvalidOperationException("Pinned synthetic Windows item was hidden");
+        database.DisposeAsync().AsTask().GetAwaiter().GetResult();
     }
 
     private static void TestOptOutImageCache(Plugin plugin)
