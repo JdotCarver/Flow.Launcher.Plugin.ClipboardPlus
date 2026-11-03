@@ -1484,21 +1484,25 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
     private async Task InitRecordsFromSystemAsync(bool check)
     {
         // get history items
-        List<ClipboardData>? historyItems;
+        (List<ClipboardData>? Items, bool PinStateTrusted) history;
         if (check)
         {
             var latestDateTime = RecordsList.Count != 0 ? RecordsList.Max(p => p.ClipboardData.CreateTime) : DateTime.MinValue;
-            historyItems = await WindowsClipboardHelper.GetLaterHistoryItemsAsync(latestDateTime);
+            history = await WindowsClipboardHelper.GetLaterHistoryItemsAsync(latestDateTime);
         }
         else
         {
-            historyItems = await WindowsClipboardHelper.GetHistoryItemsAsync();
+            history = await WindowsClipboardHelper.GetHistoryItemsAsync();
         }
 
         // add history items
-        if (historyItems != null && historyItems.Count != 0)
+        if (history.Items is { Count: > 0 } historyItems)
         {
+            var protectedImport = WindowsImportPinPolicy.ProtectUnverified(historyItems, history.PinStateTrusted, !UseWindowsClipboardHistoryOnly);
             AddClipboardDataItem(historyItems);
+            if (protectedImport)
+                Context.ShowMsg(Localize.flowlauncher_plugin_clipboardplus_windows_pin_warning_title(),
+                    Localize.flowlauncher_plugin_clipboardplus_windows_pin_unknown());
         }
         RequestWindowsEvidenceRefresh();
     }

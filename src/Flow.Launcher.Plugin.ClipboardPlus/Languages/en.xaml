@@ -61,6 +61,8 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_restore">Restore settings to their defaults.</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_thorough">Verify more duplicate candidates automatically, potentially using more resources.</system:String>
 
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_windows_pin_warning_title">Windows pin status</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_windows_pin_unknown">Couldn't verify Windows pin status. Imported items are treated as pinned for safety, so duplicate cleanup may skip them.</system:String>
     <!--  General  -->
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_name">Clipboard+</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_description">Easily manage your clipboard history and Windows Clipboard History with support for text, images, and files</system:String>

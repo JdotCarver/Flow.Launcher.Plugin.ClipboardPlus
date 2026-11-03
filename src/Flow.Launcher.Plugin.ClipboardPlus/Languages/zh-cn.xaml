@@ -61,6 +61,8 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_restore">将设置恢复为默认值。</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_thorough">自动验证更多重复候选项，可能使用更多资源。</system:String>
 
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_windows_pin_warning_title">Windows 固定状态</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_windows_pin_unknown">无法验证 Windows 固定状态。为安全起见，导入的项目将视为已固定，因此重复项清理可能会跳过它们。</system:String>
     <!--  General  -->
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_name">剪切板+</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_description">轻松管理你的剪切板历史与Windows剪切板历史，支持文字、图像和文件</system:String>
