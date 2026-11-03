@@ -203,6 +203,10 @@ jobs:
               if ($diagnostic -match 'plugin query') { $stage = 'query' }
               if ($diagnostic -match 'plugin synthetic text add') { $stage = 'planner' }
               if ($diagnostic -match 'dedup database') { $stage = 'integration' }
+              if ($diagnostic -match 'dedup stage before menu') { $stage = 'menucheck' }
+              if ($diagnostic -match 'dedup stage after menu') { $stage = 'manualcheck' }
+              if ($diagnostic -match 'dedup stage after manual') { $stage = 'pincheck' }
+              if ($diagnostic -match 'dedup stage after pins') { $stage = 'remaining' }
               if ($diagnostic -match 'dedup plugin synthetic record and cache integration checks passed') { $stage = 'contention' }
               if ($diagnostic -match 'dedup integrated') { $stage = 'images' }
               if ($diagnostic -match 'dedup saved images') { $stage = 'later' }
@@ -249,6 +253,18 @@ jobs:
       - name: Synthetic stopped at integration
         if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'integration' }}
         run: echo Synthetic integration stage
+      - name: Synthetic stopped in menu check
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'menucheck' }}
+        run: echo Synthetic menu check
+      - name: Synthetic stopped in manual check
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'manualcheck' }}
+        run: echo Synthetic manual check
+      - name: Synthetic stopped in pin check
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'pincheck' }}
+        run: echo Synthetic pin check
+      - name: Synthetic stopped in remaining integration checks
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'remaining' }}
+        run: echo Synthetic remaining integration checks
       - name: Synthetic stopped at contention
         if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'contention' }}
         run: echo Synthetic contention stage

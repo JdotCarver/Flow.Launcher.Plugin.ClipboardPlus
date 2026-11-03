@@ -60,6 +60,7 @@ internal static class DuplicatePluginIntegration
                 throw new InvalidOperationException("Synthetic displayed results were not refreshed");
             if (database.GetAllRecordsAsync(false).GetAwaiter().GetResult().Any(record => record.HashId == "unloaded-saved"))
                 throw new InvalidOperationException("Synthetic unloaded saved duplicate survived cleanup");
+            Console.WriteLine("dedup stage before menu");
             var settings = new SettingsViewModel(plugin);
             settings.ClearKeyword = "cleanup";
             if (settings.ClearKeyword != "cleanup")
@@ -81,9 +82,12 @@ internal static class DuplicatePluginIntegration
             var legacy = System.Text.Json.JsonSerializer.Deserialize<Settings>("{\"CleanupKeyword\":\"obsolete\",\"ClearKeyword\":\"purge\",\"MaxRecords\":1234}");
             if (legacy is null || legacy.ClearKeyword != "purge" || legacy.MaxRecords != 1234)
                 throw new InvalidOperationException("Legacy settings lost unrelated preferences");
+            Console.WriteLine("dedup stage after menu");
             TestUnloadedSavedKeeper();
             TestManualActionRefresh();
+            Console.WriteLine("dedup stage after manual");
             TestPinnedCaptureLimit();
+            Console.WriteLine("dedup stage after pins");
             TestCapacityProtection(plugin);
             TestBoundedWindowsAndSkippedOverflow(plugin);
             TestDisabledEvidenceRefresh(plugin);
