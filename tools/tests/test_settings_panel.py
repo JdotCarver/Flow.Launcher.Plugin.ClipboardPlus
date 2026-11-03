@@ -29,9 +29,21 @@ class SettingsPanelTests(unittest.TestCase):
         self.assertEqual('{DynamicResource flowlauncher_plugin_clipboardplus_tip_pin_expiry}', expiry.attrib['ToolTip'])
         self.assertEqual('{Binding RetentionSettingEnabled}', expiry.attrib['IsEnabled'])
         self.assertTrue(any('RetentionError' in str(control.attrib) for control in self.controls))
+        self.assertLess(row('CleanupCommand'), row('CleanupFeedback'))
+        self.assertLess(row('CleanupFeedback'), row('AutomaticCleanup'))
         self.assertLess(row('AutomaticCleanup'), row('AutomaticCleanupVerificationIndex'))
-        self.assertLess(row('AutomaticCleanupVerificationIndex'), row('CleanupCommand'))
-        self.assertLess(row('CleanupCommand'), row('WindowsSuppressionLifetimeIndex'))
+        self.assertLess(row('AutomaticCleanupVerificationIndex'), row('WindowsSuppressionLifetimeIndex'))
+        checkbox = self.control_with_binding('AutomaticCleanup')
+        verification = self.control_with_binding('AutomaticCleanupVerificationIndex')
+        self.assertEqual(checkbox.attrib['Margin'], verification.attrib['Margin'])
+        self.assertEqual(checkbox.attrib.get('Grid.Column', '0'), verification.attrib.get('Grid.Column', '0'))
+        feedback = self.control_with_binding('CleanupFeedback')
+        triggers = [node for node in feedback.iter() if node.tag.endswith('DataTrigger')]
+        self.assertEqual(1, len(triggers))
+        self.assertEqual('{Binding CleanupFeedback, Mode=OneWay}', triggers[0].attrib['Binding'])
+        self.assertEqual('', triggers[0].attrib['Value'])
+        self.assertTrue(any(node.attrib.get('Property') == 'Visibility' and node.attrib.get('Value') == 'Collapsed'
+                            for node in triggers[0].iter()))
         expanders = [control for control in self.controls if control.tag.endswith('Expander')]
         self.assertEqual(6, len(expanders))
         self.assertEqual('True', expanders[0].attrib['IsExpanded'])

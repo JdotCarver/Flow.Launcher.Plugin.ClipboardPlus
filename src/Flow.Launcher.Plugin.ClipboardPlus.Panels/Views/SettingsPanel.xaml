@@ -796,25 +796,35 @@
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
         <!--  Duplicate cleanup  -->
-        <CheckBox ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_automatic}" ToolTipService.ShowOnDisabled="True" Grid.Row="25" Grid.ColumnSpan="2"
+        <Button ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_cleanup}" ToolTipService.ShowOnDisabled="True" Grid.Row="25" Grid.ColumnSpan="2" HorizontalAlignment="Left"
+            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
+            Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_action}"
+            Command="{Binding CleanupCommand}" />
+        <TextBlock Grid.Row="26" Grid.ColumnSpan="2" TextWrapping="Wrap"
+            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
+            Text="{Binding CleanupFeedback, Mode=OneWay}">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding CleanupFeedback, Mode=OneWay}" Value="">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+        <CheckBox ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_automatic}" ToolTipService.ShowOnDisabled="True" Grid.Row="27" Grid.ColumnSpan="2"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_automatic}"
             IsChecked="{Binding AutomaticCleanup, Mode=TwoWay}" />
-        <ComboBox ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_thorough}" ToolTipService.ShowOnDisabled="True" Grid.Row="26" Grid.ColumnSpan="2"
-            Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
+        <ComboBox ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_thorough}" ToolTipService.ShowOnDisabled="True" Grid.Row="28" Grid.ColumnSpan="2"
+            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             HorizontalAlignment="Left"
             SelectedIndex="{Binding AutomaticCleanupVerificationIndex, Mode=TwoWay}"
             IsEnabled="{Binding AutomaticCleanup, Mode=OneWay}">
             <ComboBoxItem Content="{DynamicResource flowlauncher_plugin_clipboardplus_verification_best}" />
             <ComboBoxItem Content="{DynamicResource flowlauncher_plugin_clipboardplus_verification_thorough}" />
         </ComboBox>
-        <Button ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_cleanup}" ToolTipService.ShowOnDisabled="True" Grid.Row="27" Grid.ColumnSpan="2" HorizontalAlignment="Left"
-            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
-            Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_action}"
-            Command="{Binding CleanupCommand}" />
-        <TextBlock Grid.Row="28" Grid.ColumnSpan="2" TextWrapping="Wrap"
-            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
-            Text="{Binding CleanupFeedback, Mode=OneWay}" />
 
         <TextBlock Grid.Row="29" Grid.Column="0"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
