@@ -391,12 +391,22 @@ internal static class DuplicatePluginIntegration
         SetField(plugin, "RecordsList", new LinkedList<ClipboardDataPair>([keeper, windows]));
         var pinEvent = typeof(Plugin).GetMethod("WindowsClipboardHelper_OnHistoryItemPinUpdated", BindingFlags.Instance | BindingFlags.NonPublic)!;
         void WaitForWrites() => ((Task)typeof(SqliteDatabase).GetMethod("WaitTaskQueueAsync", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(database, null)!).GetAwaiter().GetResult();
-        pinEvent.Invoke(plugin, [null, ("synthetic-windows-image", true)]);
+        var tracker = (PinnedHistoryChangeTracker)typeof(WindowsClipboardHelper)
+            .GetField("pinChanges", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(helper)!;
+        tracker.Reset(["synthetic-windows-image"], true);
+        tracker.Invalidate(); // failed metadata read
+        tracker.EstablishBaselineIfMissing([], true); // successful trusted import, no retroactive change
+        if (windows.ClipboardData.Pinned) throw new InvalidOperationException("Recovery changed an existing synthetic pin");
+        var pinChanges = tracker.Observe(["synthetic-windows-image"], ["synthetic-windows-image"], true);
+        if (pinChanges.Count != 1) throw new InvalidOperationException("Trusted import swallowed a later synthetic pin event");
+        foreach (var change in pinChanges) pinEvent.Invoke(plugin, [null, change]);
         WaitForWrites();
         var savedPin = database.GetAllRecordsAsync(false).GetAwaiter().GetResult();
         if (savedPin.Count != 1 || !savedPin[0].Pinned || !windows.ClipboardData.Saved)
             throw new InvalidOperationException("Synthetic Windows pin was not persisted");
-        pinEvent.Invoke(plugin, [null, ("synthetic-windows-image", false)]);
+        var unpinChanges = tracker.Observe(["synthetic-windows-image"], [], true);
+        if (unpinChanges.Count != 1) throw new InvalidOperationException("Synthetic unpin event was lost");
+        foreach (var change in unpinChanges) pinEvent.Invoke(plugin, [null, change]);
         WaitForWrites();
         var savedUnpin = database.GetAllRecordsAsync(false).GetAwaiter().GetResult();
         if (savedUnpin.Count != 1 || savedUnpin[0].Pinned)
