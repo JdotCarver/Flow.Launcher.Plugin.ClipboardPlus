@@ -80,6 +80,10 @@ public class PinnedHistorySnapshotReaderTests
     [InlineData("{\"items\":null}")]
     [InlineData("{\"items\":[]}")]
     [InlineData("{\"items\":\"synthetic\"}")]
+    [InlineData("{\"items\":{},\"Items\":{}}")]
+    [InlineData("{\"items\":{},\"items\":{}}")]
+    [InlineData("{\"items\":{\"\":{}}}")]
+    [InlineData("{\"items\":{\"synthetic\":null}}")]
     public void UnexpectedMetadataShapesRemainUntrusted(string metadata)
     {
         var root = Path.Combine(Path.GetTempPath(), $"clipboardplus-pins-{Guid.NewGuid():N}");

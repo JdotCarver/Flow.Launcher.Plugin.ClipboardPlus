@@ -29,18 +29,35 @@ public static class PinnedHistorySnapshotReader
                 var metadataPath = Path.Combine(directory, "metadata.json");
                 using var stream = File.OpenRead(metadataPath);
                 using var document = JsonDocument.Parse(ReadMetadataJson(stream));
-                if (!document.RootElement.TryGetProperty("Items", out var items) &&
-                    !document.RootElement.TryGetProperty("items", out items))
+                if (document.RootElement.ValueKind != JsonValueKind.Object)
                 {
                     pinnedIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                     return false;
                 }
-                if (items.ValueKind != JsonValueKind.Object)
+                JsonElement items = default;
+                var itemProperties = 0;
+                foreach (var property in document.RootElement.EnumerateObject())
+                {
+                    if (property.Name is "Items" or "items")
+                    {
+                        items = property.Value;
+                        itemProperties++;
+                    }
+                }
+                // Duplicate or conflicting fields are not reliable evidence.
+                if (itemProperties != 1 || items.ValueKind != JsonValueKind.Object)
                 {
                     pinnedIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                     return false;
                 }
-                foreach (var item in items.EnumerateObject()) ids.Add(item.Name.ToLowerInvariant());
+                foreach (var item in items.EnumerateObject())
+                {
+                    if (string.IsNullOrWhiteSpace(item.Name) || item.Value.ValueKind != JsonValueKind.Object || !ids.Add(item.Name))
+                    {
+                        pinnedIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                        return false;
+                    }
+                }
             }
             pinnedIds = ids;
             return true;
