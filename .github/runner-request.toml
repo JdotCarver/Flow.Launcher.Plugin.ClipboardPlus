@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "e183968f-516e-4961-9af9-59bcd8b2110a"
+request_id = "ca0cb2e5-6536-47af-9863-bf3534e4f56e"
 target = "local-windows"
-job_name = "ClipboardPlus Capacity And Retention Validation"
+job_name = "ClipboardPlus Final Validation"
