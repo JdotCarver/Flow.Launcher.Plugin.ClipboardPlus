@@ -45,13 +45,22 @@ public partial class ClipboardPlus
             foreach (var group in groups)
             {
                 var indexes = group.Select(item => item.Index).ToArray();
-                for (var a = 0; a < indexes.Length; a++)
+                // Partition by relevant metadata so large groups of identical,
+                // unpinned images do not trigger quadratic pixel comparisons.
+                var categories = indexes.GroupBy(index =>
                 {
-                    // Bound work for very large equal-image groups; no unverified claim is emitted.
-                    for (var b = a + 1; b < indexes.Length && b <= a + 64; b++)
+                    var data = snapshots[index].Original;
+                    return (data.DataMd5, data.Pinned, data.Saved, Windows: data.FromWindowsClipboardHistory());
+                }).Select(category => category.ToArray()).ToArray();
+                foreach (var targetIndex in indexes)
+                {
+                    var left = snapshots[targetIndex].Original;
+                    var found = 0;
+                    foreach (var category in categories)
                     {
-                        var left = snapshots[indexes[a]].Original;
-                        var right = snapshots[indexes[b]].Original;
+                        var otherIndex = category.FirstOrDefault(index => index != targetIndex, -1);
+                        if (otherIndex < 0) continue;
+                        var right = snapshots[otherIndex].Original;
                         if (left.DataMd5 == right.DataMd5 && !left.Pinned && !right.Pinned && left.Saved == right.Saved) continue;
                         if (ExactImagePixelComparer.Compare(left.Data as BitmapSource, right.Data as BitmapSource) != ClipboardContentComparison.Equal) continue;
                         var representation = ClipboardContentComparer.Compare(left, right, true);
@@ -60,8 +69,16 @@ public partial class ClipboardPlus
                             representation == ClipboardContentComparison.Equal && left.Saved != right.Saved &&
                                 !left.FromWindowsClipboardHistory() && !right.FromWindowsClipboardHistory() ? "persistence" : null;
                         if (reason is null) continue;
-                        results.Add(new(nodes[indexes[a]], snapshots[indexes[a]], nodes[indexes[b]], snapshots[indexes[b]], reason));
-                        results.Add(new(nodes[indexes[b]], snapshots[indexes[b]], nodes[indexes[a]], snapshots[indexes[a]], reason));
+                        results.Add(new(nodes[targetIndex], snapshots[targetIndex], nodes[otherIndex], snapshots[otherIndex], reason));
+                        if (++found == 2) break; // The footer only needs one example and an additional-match indicator.
+                        // Two verified peers from the same category are enough to indicate more matches.
+                        var anotherIndex = category.FirstOrDefault(index => index != targetIndex && index != otherIndex, -1);
+                        if (anotherIndex < 0) continue;
+                        var another = snapshots[anotherIndex].Original;
+                        if (ExactImagePixelComparer.Compare(left.Data as BitmapSource, another.Data as BitmapSource) != ClipboardContentComparison.Equal ||
+                            ClipboardContentComparer.Compare(left, another, true) != representation) continue;
+                        results.Add(new(nodes[targetIndex], snapshots[targetIndex], nodes[anotherIndex], snapshots[anotherIndex], reason));
+                        if (++found == 2) break;
                     }
                 }
             }
