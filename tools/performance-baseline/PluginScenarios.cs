@@ -173,6 +173,7 @@ public class SyntheticHost : DispatchProxy
 {
     public static Action? BeforeFirstMatch;
     public static int SettingsSaveCalls;
+    public static int ConfirmationCalls;
     public static Flow.Launcher.Infrastructure.StringMatcher Matcher = null!;
 
     protected override object? Invoke(MethodInfo? method, object?[]? args)
@@ -181,6 +182,7 @@ public class SyntheticHost : DispatchProxy
         if (method.Name.StartsWith("Log", StringComparison.Ordinal) || method.Name == "ReQuery") return null;
         if (method.Name == "SaveSettingJsonStorage") { Interlocked.Increment(ref SettingsSaveCalls); return null; }
         if (method.Name == "GetTranslation") return "synthetic";
+        if (method.Name == "ShowMsgBox") { Interlocked.Increment(ref ConfirmationCalls); return System.Windows.MessageBoxResult.No; }
         if (method.Name == "FuzzySearch")
         {
             Interlocked.Exchange(ref BeforeFirstMatch, null)?.Invoke();

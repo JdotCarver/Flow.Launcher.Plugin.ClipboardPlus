@@ -76,6 +76,11 @@ internal static class DuplicatePluginIntegration
             var clearMenu = plugin.QueryAsync(QueryFor("cleanup"), CancellationToken.None).GetAwaiter().GetResult();
             if (clearMenu.Count == 0 || clearMenu[^1].Score != 0 || clearMenu.Take(clearMenu.Count - 1).Any(result => result.Score <= 0))
                 throw new InvalidOperationException("Cleanup must follow existing clear actions");
+            var invalidAction = clearMenu.First(result => result.Score == 10000);
+            var beforeConfirmation = SyntheticHost.ConfirmationCalls;
+            var beforeCancelCount = list.Count;
+            if (invalidAction.Action(null!) || SyntheticHost.ConfirmationCalls != beforeConfirmation + 1 || list.Count != beforeCancelCount)
+                throw new InvalidOperationException("Cancelling invalid-record cleanup changed synthetic history");
             settings.ClearKeyword = "purge";
             var oldCommand = plugin.QueryAsync(QueryFor("cleanup"), CancellationToken.None).GetAwaiter().GetResult();
             var customClear = plugin.QueryAsync(QueryFor("purge"), CancellationToken.None).GetAwaiter().GetResult();
