@@ -64,14 +64,19 @@ public partial class ClipboardPlus
     {
         Result action = null!;
         void Publish() => _ = PublishLiveResultsAsync(new CleanupResultView(results, query, token, generation), true);
-        var finished = false;
+        var finished = 0;
+        string FormatReport(CleanupReport report)
+        {
+            var text = Localize.flowlauncher_plugin_clipboardplus_cleanup_counts(report.RecordsRemoved, report.CacheFilesRemoved, report.WindowsItemsHidden);
+            if (report.Skipped > 0) text += " " + Localize.flowlauncher_plugin_clipboardplus_cleanup_skipped(report.Skipped);
+            if (report.Errors > 0) text += " " + Localize.flowlauncher_plugin_clipboardplus_cleanup_errors(report.Errors);
+            return text;
+        }
         async Task CompleteAsync(Task<CleanupReport> task)
         {
             var report = await task;
-            finished = true;
-            action.SubTitle = Localize.flowlauncher_plugin_clipboardplus_cleanup_counts(report.RecordsRemoved, report.CacheFilesRemoved, report.WindowsItemsHidden);
-            if (report.Skipped > 0) action.SubTitle += " " + Localize.flowlauncher_plugin_clipboardplus_cleanup_skipped(report.Skipped);
-            if (report.Errors > 0) action.SubTitle += " " + Localize.flowlauncher_plugin_clipboardplus_cleanup_errors(report.Errors);
+            Interlocked.Exchange(ref finished, 1);
+            action.SubTitle = FormatReport(report);
             Publish();
         }
         action = new Result
@@ -84,12 +89,11 @@ public partial class ClipboardPlus
             AddSelectedCount = false,
             Action = context =>
             {
-                finished = false;
+                Interlocked.Exchange(ref finished, 0);
                 var progress = new Progress<CleanupReport>(report =>
                 {
-                    if (finished) return;
-                    action.SubTitle = Localize.flowlauncher_plugin_clipboardplus_cleanup_running() + " " +
-                        Localize.flowlauncher_plugin_clipboardplus_cleanup_counts(report.RecordsRemoved, report.CacheFilesRemoved, report.WindowsItemsHidden);
+                    if (Volatile.Read(ref finished) != 0) return;
+                    action.SubTitle = Localize.flowlauncher_plugin_clipboardplus_cleanup_running() + " " + FormatReport(report);
                     Publish();
                 });
                 var request = RequestManualCleanup(progress);
