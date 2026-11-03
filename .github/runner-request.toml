@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "3bd682bb-895a-4a5d-a0ad-e3caf269a55f"
+request_id = "0fbfbfbc-27d2-43c0-b5c1-af46e49d4d2a"
 target = "local-windows"
-job_name = "Merged Dogfood Validation"
+job_name = "Synthetic Runtime AB"
