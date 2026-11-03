@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "318e44dd-5a11-4fec-93b5-a5cfad14133a"
+request_id = "3fdb9040-8ba4-45de-a2a2-32848b8f2f0f"
 target = "local-windows"
-job_name = "ClipboardPlus Settings Layout Validation"
+job_name = "Duplicate Cleanup Layout Validation"
