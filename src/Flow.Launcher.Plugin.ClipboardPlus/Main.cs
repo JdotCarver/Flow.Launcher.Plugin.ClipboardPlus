@@ -1212,7 +1212,12 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
     // because automatic duplicate cleanup is disabled or the list is full.
     private bool RemoveOldestUnpinnedRecord()
     {
-        var node = OldestUnpinnedNodes().FirstOrDefault();
+        LinkedListNode<ClipboardDataPair>? oldest = null;
+        for (var candidate = RecordsList.Last; candidate is not null; candidate = candidate.Previous)
+            if (!candidate.Value.ClipboardData.Pinned &&
+                (oldest is null || candidate.Value.ClipboardData.CreateTime < oldest.Value.ClipboardData.CreateTime))
+                oldest = candidate;
+        var node = oldest;
         if (node is null) return false;
         RecordsList.Remove(node);
         node.Value.Dispose();
@@ -1234,6 +1239,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
     {
         var excess = RecordsList.Count(pair => !pair.ClipboardData.Pinned) - Math.Max(0, limit);
         if (excess <= 0) return;
+        if (excess == 1) { RemoveOldestUnpinnedRecord(); return; }
         foreach (var node in OldestUnpinnedNodes().Take(excess))
         {
             RecordsList.Remove(node);

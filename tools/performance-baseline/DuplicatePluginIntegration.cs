@@ -264,6 +264,24 @@ internal static class DuplicatePluginIntegration
         if (list.Any(pair => pair.ClipboardData.HashId == "oldest-second") ||
             !list.Any(pair => pair.ClipboardData.HashId == "newest-first"))
             throw new InvalidOperationException("Capacity eviction did not follow record age");
+
+        var limitSettings = new Settings { AutomaticCleanup = false, MaxRecords = 1 };
+        SetField(plugin, "Settings", limitSettings);
+        ((IClipboardPlus)plugin).EnforceHistoryCapacityAsync().GetAwaiter().GetResult();
+        if (list.Count != 1 || list.First!.Value.ClipboardData.HashId != "newest-first")
+            throw new InvalidOperationException("Lowering the limit did not immediately evict the oldest unpinned entry");
+
+        var savedPin = Record("saved-old-pin", 0, true, true);
+        plugin.Database.AddOneRecordAsync(savedPin, true).GetAwaiter().GetResult();
+        var pair = new ClipboardDataPair { ClipboardData = savedPin,
+            PreviewPanel = new Lazy<UserControl>(() => throw new InvalidOperationException("Preview must stay lazy")) };
+        list.AddFirst(pair);
+        var pin = typeof(Plugin).GetMethod("PinRecordAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        ((Task)pin.Invoke(plugin, [pair, false])!).GetAwaiter().GetResult();
+        ((Task)typeof(SqliteDatabase).GetMethod("WaitTaskQueueAsync", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(plugin.Database, null)!).GetAwaiter().GetResult();
+        if (list.Count != 1 || list.First!.Value.ClipboardData.HashId != "newest-first" ||
+            !plugin.Database.GetAllRecordsAsync(false).GetAwaiter().GetResult().Any(record => record.HashId == "saved-old-pin" && !record.Pinned))
+            throw new InvalidOperationException("Unpinning did not enforce loaded capacity while preserving the saved record");
     }
 
     private static void TestCapacityProtection(Plugin plugin)
