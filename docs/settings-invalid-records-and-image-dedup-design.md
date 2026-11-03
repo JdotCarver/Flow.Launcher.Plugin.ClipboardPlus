@@ -1,7 +1,7 @@
 <!-- settings-invalid-records-and-image-dedup-design.md -->
 # Settings, invalid records and image deduplication: agreed design
 
-Status: **design confirmed; not implemented**. The settings grouping is a starting point to review and potentially revise after seeing it in use. Implementation requires separate authorization.
+Status: **implemented and awaiting user review**. The settings grouping is a starting point to review and potentially revise after seeing it in use.
 
 ## Reported image duplicate and investigation
 
@@ -37,3 +37,9 @@ Replace the automatic thorough-verification checkbox with a dropdown offering **
 ## Review and validation
 
 Before implementation, inspect the actual synthetic failure path and agree on any material trade-offs not resolved above. Cover comparison correctness without relying on a hash as proof; matching pixels with differing representation; equal representations; pinned, saved and temporary records; timestamp collisions; stale session explanations; disabled or best-effort cleanup; and preview responsiveness. Test manual confirmation and cancellation, conservative startup cleanup and failure handling, settings migration and disabled dropdown behavior, localization, keyboard accessibility and layout. Use the user's local Windows runner under the existing safety constraints; do not use cloud runners without explicit permission. No WhisperWriter exclusion feature is authorized by this design.
+
+## Implementation limits
+
+Pixel explanations are conservative: comparisons require frozen images, supported 8-bit BGR/BGRA or premultiplied-BGRA formats, and a pixel buffer no larger than 64 MiB. Opaque BGR formats are compared against straight-alpha BGRA without losing color data; premultiplied-alpha pixels are compared only with the same representation to avoid rounding-based claims. Unsupported, oversized or otherwise unverifiable images have no relationship explanation. Fingerprints only find candidates; pixel buffers and stored representations are compared before reporting a relationship. Comparison metadata stays in memory.
+
+Synthetic tests cover two trusted Windows-origin images with identical stored representations in both automatic and manual suppression paths, plus distinct representations with identical pixels. They do not establish why the user's actual image pair remained visible; no actual clipboard content or history was inspected or modified.
