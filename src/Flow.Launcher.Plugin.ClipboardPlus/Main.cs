@@ -503,7 +503,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
                         }
                     }
 
-                    Context.LogDebug(ClassName, $"Searched {querySearch} and added {results.Count} records successfully");
+                    Context.LogDebug(ClassName, $"Search added {results.Count} records successfully");
                 }
                 // Publish the view before releasing the history lock so a
                 // concurrent cleanup can never miss the just-built result list.
@@ -1192,11 +1192,11 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
             _ = encodedImage is null
                 ? Database.AddOneRecordAsync(clipboardData, true)
                 : Database.AddOneRecordWithEncodedImageAsync(clipboardData, encodedImage);
-            Context.LogDebug(ClassName, $"Record {clipboardData.HashId} added to list and database");
+            Context.LogDebug(ClassName, "Record added to list and database");
         }
         else
         {
-            Context.LogDebug(ClassName, $"Record {clipboardData.HashId} added to list");
+            Context.LogDebug(ClassName, "Record added to list");
         }
 
         // remove last record if needed
@@ -1242,11 +1242,11 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
             if (clipboardData.Saved)
             {
                 _ = Database.AddOneRecordAsync(clipboardData, true);  // no need to wait
-                Context.LogDebug(ClassName, $"Record {clipboardData.HashId} added to list and database");
+                Context.LogDebug(ClassName, "Record added to list and database");
             }
             else
             {
-                Context.LogDebug(ClassName, $"Record {clipboardData.HashId} added to list");
+                Context.LogDebug(ClassName, "Record added to list");
             }
             if (Settings.AutomaticCleanup) trimmedOverflow |= EnforceCaptureOverflowLimit(false);
         }
@@ -1378,11 +1378,11 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
                 }
                 RecordsList.Remove(clipboardDataPair);
                 RecordsList.AddFirst(clipboardDataPair);
-                Context.LogDebug(ClassName, $"Updated pin status for record: {e.HashId}, pinned: {e.Pinned}");
+                Context.LogDebug(ClassName, "Updated record pin status");
             }
             else
             {
-                Context.LogDebug(ClassName, $"Unable to find the record for update: {e.HashId}");
+                Context.LogDebug(ClassName, "Unable to find record for pin update");
             }
         }
         finally
@@ -1640,7 +1640,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
                     ReQuery();
                 }
                 _ = Database.AddOneRecordAsync(clipboardData, true);
-                Context.LogDebug(ClassName, $"Save record to database: {clipboardDataPair.ClipboardData.HashId}");
+                Context.LogDebug(ClassName, "Saved record to database");
             }
         }
         finally
@@ -1665,7 +1665,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
             {
                 ReQuery();
             }
-            Context.LogDebug(ClassName, $"Remove record from list: {clipboardDataPair.ClipboardData.HashId}");
+            Context.LogDebug(ClassName, "Removed record from list");
         }
         finally
         {
@@ -1691,7 +1691,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
                 ReQuery();
             }
             _ = Database.DeleteOneRecordAsync(clipboardData);
-            Context.LogDebug(ClassName, $"Remove record from list and database: {clipboardDataPair.ClipboardData.HashId}");
+            Context.LogDebug(ClassName, "Removed record from list and database");
         }
         finally
         {
@@ -1720,7 +1720,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
             {
                 _ = Database.PinOneRecordAsync(clipboardDataPair.ClipboardData);
             }
-            Context.LogDebug(ClassName, $"Pin one record: {clipboardDataPair.ClipboardData.HashId}");
+            Context.LogDebug(ClassName, "Toggled record pin");
         }
         finally
         {

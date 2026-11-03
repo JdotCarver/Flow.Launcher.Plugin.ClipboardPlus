@@ -223,7 +223,7 @@ public class WindowsClipboardHelper : IDisposable
                     .ToArray();
                 if (removedItems.Length == 0) return;
                 OnHistoryItemRemoved?.Invoke(this, removedItems);
-                _context.LogDebug(ClassName, $"Clipboard_HistoryChanged: Removed items: {string.Join(", ", removedItems)}");
+                _context.LogDebug(ClassName, $"Clipboard_HistoryChanged: Removed {removedItems.Length} items");
             }
 
             async Task AddItemAsync(IReadOnlyList<ClipboardHistoryItem> items)
@@ -236,11 +236,11 @@ public class WindowsClipboardHelper : IDisposable
                 if (!addedItem.IsNull())
                 {
                     OnHistoryItemAdded?.Invoke(this, addedItem);
-                    _context.LogDebug(ClassName, $"Clipboard_HistoryChanged: Added item: {GetHashId(newItem)}");
+                    _context.LogDebug(ClassName, "Clipboard_HistoryChanged: Added item");
                 }
                 else
                 {
-                    _context.LogDebug(ClassName, $"Clipboard_HistoryChanged: Failed to get clipboard data for added item: {GetHashId(newItem)}");
+                    _context.LogDebug(ClassName, "Clipboard_HistoryChanged: Failed to get clipboard data for added item");
                 }
             }
 
