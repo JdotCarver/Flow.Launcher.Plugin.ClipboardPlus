@@ -199,6 +199,14 @@ jobs:
               elseif ($diagnostic -match 'DuplicatePluginIntegration') { $category = 'integration' }
               elseif ($diagnostic -match 'error CS[0-9]+') { $category = 'compilation' }
               "category=$category" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+              $stage = 'startup'
+              if ($diagnostic -match 'plugin query') { $stage = 'query' }
+              if ($diagnostic -match 'plugin synthetic text add') { $stage = 'planner' }
+              if ($diagnostic -match 'dedup database') { $stage = 'integration' }
+              if ($diagnostic -match 'dedup plugin synthetic record and cache integration checks passed') { $stage = 'contention' }
+              if ($diagnostic -match 'dedup integrated') { $stage = 'images' }
+              if ($diagnostic -match 'dedup saved images') { $stage = 'later' }
+              "stage=$stage" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
               $codes = @(Get-Content "$env:RUNNER_TEMP\clipboardplus-benchmark.log" | Select-String -Pattern 'error (CS[0-9]+)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
               if ($codes.Count -gt 0) { Write-Host ("Compiler error codes: " + ($codes -join ', ')) }
               throw "Baseline failed (details suppressed for privacy)"
@@ -228,6 +236,28 @@ jobs:
       - name: Synthetic diagnostic - other
         if: ${{ always() && steps.synthetic-baseline.outputs.category == 'other' }}
         run: echo Synthetic benchmark failed without a recognized category
+
+      - name: Synthetic stopped at startup
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'startup' }}
+        run: echo Synthetic startup stage
+      - name: Synthetic stopped at query
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'query' }}
+        run: echo Synthetic query stage
+      - name: Synthetic stopped at planner
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'planner' }}
+        run: echo Synthetic planner stage
+      - name: Synthetic stopped at integration
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'integration' }}
+        run: echo Synthetic integration stage
+      - name: Synthetic stopped at contention
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'contention' }}
+        run: echo Synthetic contention stage
+      - name: Synthetic stopped at images
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'images' }}
+        run: echo Synthetic image stage
+      - name: Synthetic stopped at later checks
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'later' }}
+        run: echo Synthetic later stage
 
       - name: Compare actual bulk method before and after
         if: success() || failure()
