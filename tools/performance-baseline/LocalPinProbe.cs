@@ -2,6 +2,7 @@
 // Read-only local diagnostic: emit fixed status categories, never IDs or data.
 using Flow.Launcher.Plugin.ClipboardPlus.Core.Helpers;
 using Windows.ApplicationModel.DataTransfer;
+using System.Text.Json;
 
 internal static class LocalPinProbe
 {
@@ -12,6 +13,7 @@ internal static class LocalPinProbe
             var root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "Microsoft", "Windows", "Clipboard", "Pinned");
             var trusted = PinnedHistorySnapshotReader.TryRead(root, out var pinnedIds);
+            if (!trusted) Console.WriteLine("pin_probe_reason_" + ExplainUntrusted(root));
             var history = await Clipboard.GetHistoryItemsAsync();
             if (history.Status != ClipboardHistoryItemsResultStatus.Success)
             {
@@ -28,4 +30,29 @@ internal static class LocalPinProbe
             Console.WriteLine("pin_probe_history_unavailable");
         }
     }
+    private static string ExplainUntrusted(string root)
+    {
+        try
+        {
+            _ = File.GetAttributes(root);
+            if (Directory.EnumerateFiles(root).Any()) return "root_files";
+            foreach (var directory in Directory.EnumerateDirectories(root))
+            {
+                using var stream = File.OpenRead(Path.Combine(directory, "metadata.json"));
+                using var document = JsonDocument.Parse(stream);
+                if (document.RootElement.ValueKind != JsonValueKind.Object) return "root_shape";
+                if (!document.RootElement.TryGetProperty("Items", out var items) &&
+                    !document.RootElement.TryGetProperty("items", out items)) return "missing_items";
+                if (items.ValueKind != JsonValueKind.Object) return "items_shape";
+            }
+            return "recovered";
+        }
+        catch (DirectoryNotFoundException) { return "directory_missing"; }
+        catch (FileNotFoundException) { return "file_missing"; }
+        catch (UnauthorizedAccessException) { return "access"; }
+        catch (JsonException) { return "json"; }
+        catch (IOException) { return "io"; }
+        catch (Exception) { return "other"; }
+    }
+
 }

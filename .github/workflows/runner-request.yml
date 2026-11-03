@@ -644,7 +644,7 @@ jobs:
             if ($LASTEXITCODE -ne 0) { 'unavailable=true' | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8 }
             else {
               $lines = @(Get-Content $diagnostic)
-              foreach ($category in @('trusted','untrusted','history_empty','history_nonempty','pinned_match','no_pinned_match','history_unavailable')) {
+              foreach ($category in @('trusted','untrusted','history_empty','history_nonempty','pinned_match','no_pinned_match','history_unavailable','reason_root_files','reason_root_shape','reason_missing_items','reason_items_shape','reason_recovered','reason_directory_missing','reason_file_missing','reason_access','reason_json','reason_io','reason_other')) {
                 if ($lines -ccontains "pin_probe_$category") { "$category=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8 }
               }
             }
@@ -680,6 +680,51 @@ jobs:
         run: Write-Host 'Coarse read-only status'
       - name: Local pin status unavailable
         if: ${{ always() && steps.local-pin-probe.outputs.unavailable == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Coarse read-only status'
+
+      - name: Local pin failure reason root_files
+        if: ${{ always() && steps.local-pin-probe.outputs.reason_root_files == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Coarse read-only status'
+      - name: Local pin failure reason root_shape
+        if: ${{ always() && steps.local-pin-probe.outputs.reason_root_shape == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Coarse read-only status'
+      - name: Local pin failure reason missing_items
+        if: ${{ always() && steps.local-pin-probe.outputs.reason_missing_items == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Coarse read-only status'
+      - name: Local pin failure reason items_shape
+        if: ${{ always() && steps.local-pin-probe.outputs.reason_items_shape == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Coarse read-only status'
+      - name: Local pin failure reason recovered
+        if: ${{ always() && steps.local-pin-probe.outputs.reason_recovered == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Coarse read-only status'
+      - name: Local pin failure reason directory_missing
+        if: ${{ always() && steps.local-pin-probe.outputs.reason_directory_missing == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Coarse read-only status'
+      - name: Local pin failure reason file_missing
+        if: ${{ always() && steps.local-pin-probe.outputs.reason_file_missing == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Coarse read-only status'
+      - name: Local pin failure reason access
+        if: ${{ always() && steps.local-pin-probe.outputs.reason_access == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Coarse read-only status'
+      - name: Local pin failure reason json
+        if: ${{ always() && steps.local-pin-probe.outputs.reason_json == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Coarse read-only status'
+      - name: Local pin failure reason io
+        if: ${{ always() && steps.local-pin-probe.outputs.reason_io == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Coarse read-only status'
+      - name: Local pin failure reason other
+        if: ${{ always() && steps.local-pin-probe.outputs.reason_other == 'true' }}
         shell: pwsh
         run: Write-Host 'Coarse read-only status'
 
