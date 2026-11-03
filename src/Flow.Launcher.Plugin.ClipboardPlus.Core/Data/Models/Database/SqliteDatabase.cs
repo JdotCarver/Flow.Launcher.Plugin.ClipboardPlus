@@ -796,6 +796,23 @@ public class SqliteDatabase : IAsyncDisposable
         return [.. results.Select(ClipboardData.FromRecord)];
     }
 
+    /// <summary>Delete only unpinned text whose stored fields are conclusively empty.</summary>
+    public async Task<List<string>> DeleteVerifiedEmptyTextAsync()
+    {
+        var removed = new List<string>();
+        await ProcessTaskQueueAsync(async () =>
+        {
+            using var transaction = Connection.BeginTransaction();
+            const string predicate = "r.pinned = 0 AND a.data_b64 = '' AND (r.data_type = 0 OR (r.data_type = 4 AND a.plain_text_b64 = ''))";
+            removed.AddRange(await Connection.QueryAsync<string>(
+                "SELECT r.hash_id FROM record r JOIN asset a ON r.hash_id = a.hash_id WHERE " + predicate,
+                transaction: transaction));
+            await Connection.ExecuteAsync("DELETE FROM record WHERE id IN (SELECT r.id FROM record r JOIN asset a ON r.hash_id = a.hash_id WHERE " + predicate + ")", transaction: transaction);
+            transaction.Commit();
+        });
+        return removed;
+    }
+
     /// <summary>Atomically expire records across all types and return their identities for list refresh.</summary>
     public async Task<List<string>> ExpireRecordsAsync(IEnumerable<(int DataType, int KeepTime)> durations, bool protectPins)
     {

@@ -595,6 +595,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
         }
 
         RefreshAutomaticCleanup();
+        _ = Task.Run(RunStartupEmptyTextCleanupAsync);
 
         // init excluded apps
         if (ClipboardMonitor != null && Settings.ExcludedApps != null && Settings.ExcludedApps.Count > 0)
@@ -1468,6 +1469,45 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
     #endregion
 
     #region List & Database & Windows History
+
+    private static bool IsVerifiedEmptyText(ClipboardData data) => !data.Pinned &&
+        data.Data is string { Length: 0 } &&
+        (data.DataType == DataType.PlainText ||
+         (data.DataType == DataType.RichText && data.PlainText is string { Length: 0 }));
+
+    private async Task RunStartupEmptyTextCleanupAsync()
+    {
+        try
+        {
+            await RecordsLock.WaitAsync();
+            try
+            {
+                var deleted = UseWindowsClipboardHistoryOnly
+                    ? new HashSet<string>(StringComparer.Ordinal)
+                    : new HashSet<string>(await Database.DeleteVerifiedEmptyTextAsync(), StringComparer.Ordinal);
+                var node = RecordsList.First;
+                while (node is not null)
+                {
+                    var next = node.Next;
+                    var data = node.Value.ClipboardData;
+                    if (IsVerifiedEmptyText(data) && (!data.Saved || deleted.Contains(data.HashId)))
+                    {
+                        var pair = node.Value;
+                        RecordsList.Remove(node);
+                        pair.Dispose();
+                    }
+                    node = next;
+                }
+                ScoreHelper.Reset(RecordsList);
+            }
+            finally { RecordsLock.Release(); }
+            await PublishCurrentResultsAsync();
+        }
+        catch (Exception)
+        {
+            // Uncertainty or failure is never a reason to delete a record.
+        }
+    }
 
     public async Task RunRetentionExpiryAsync()
     {
