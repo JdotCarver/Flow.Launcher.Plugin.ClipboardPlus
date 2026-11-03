@@ -346,6 +346,9 @@ internal static class DuplicatePluginIntegration
         var hidden = typeof(Plugin).GetMethod("IsWindowsSuppressed", BindingFlags.Instance | BindingFlags.NonPublic)!;
         ((Task<CleanupReport>)refresh.Invoke(plugin, [CleanupWork.ManualThorough, true, generation])!).GetAwaiter().GetResult();
         if (!(bool)hidden.Invoke(plugin, [windows])!) throw new InvalidOperationException("Manual synthetic image was not suppressed");
+        typeof(WindowsClipboardHelper).GetField("pinStateTrusted", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(helper, false);
+        if ((bool)hidden.Invoke(plugin, [windows])!) throw new InvalidOperationException("Unverified pin state must fail open");
+        typeof(WindowsClipboardHelper).GetField("pinStateTrusted", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(helper, true);
         ((Task<CleanupReport>)refresh.Invoke(plugin, [CleanupWork.AutomaticBestEffort, false, generation])!).GetAwaiter().GetResult();
         if (!(bool)hidden.Invoke(plugin, [windows])!) throw new InvalidOperationException("Best effort discarded valid manual image evidence");
         windows.TogglePinned();
