@@ -91,16 +91,29 @@ public class WindowsClipboardHelper : IDisposable
     #region Pinned Items Helper
 
     private volatile bool pinStateTrusted;
+    private volatile HashSet<string> knownPinnedItemIds = new(StringComparer.OrdinalIgnoreCase);
     private readonly PinnedHistoryChangeTracker pinChanges = new();
 
     /// <summary>False means pin state could not be verified and suppression must fail open.</summary>
     public bool IsPinStateTrusted => pinStateTrusted;
+
+    /// <summary>Suppression is safe only while the latest verified snapshot excludes the item.</summary>
+    public bool IsKnownUnpinned(string id)
+    {
+        var snapshot = knownPinnedItemIds;
+        return !string.IsNullOrWhiteSpace(id) && pinStateTrusted && !snapshot.Contains(id) &&
+            ReferenceEquals(snapshot, knownPinnedItemIds) && pinStateTrusted;
+    }
 
     private HashSet<string> GetPinnedClipboardItemIds(out bool trusted)
     {
         var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "Microsoft", "Windows", "Clipboard", "Pinned");
         trusted = PinnedHistorySnapshotReader.TryRead(folder, out var ids);
+        // Publish a new, never-mutated set while trust is down. Readers must
+        // not combine an old snapshot with a later successful verification.
+        pinStateTrusted = false;
+        knownPinnedItemIds = ids;
         pinStateTrusted = trusted;
         if (!trusted) pinChanges.Invalidate();
         return ids;

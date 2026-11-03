@@ -349,6 +349,10 @@ internal static class DuplicatePluginIntegration
         typeof(WindowsClipboardHelper).GetField("pinStateTrusted", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(helper, false);
         if ((bool)hidden.Invoke(plugin, [windows])!) throw new InvalidOperationException("Unverified pin state must fail open");
         typeof(WindowsClipboardHelper).GetField("pinStateTrusted", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(helper, true);
+        var knownPins = typeof(WindowsClipboardHelper).GetField("knownPinnedItemIds", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        knownPins.SetValue(helper, new HashSet<string>(StringComparer.OrdinalIgnoreCase) { windows.ClipboardData.HashId });
+        if ((bool)hidden.Invoke(plugin, [windows])!) throw new InvalidOperationException("Verified Windows pin must not be suppressed on recovery");
+        knownPins.SetValue(helper, new HashSet<string>(StringComparer.OrdinalIgnoreCase));
         ((Task<CleanupReport>)refresh.Invoke(plugin, [CleanupWork.AutomaticBestEffort, false, generation])!).GetAwaiter().GetResult();
         if (!(bool)hidden.Invoke(plugin, [windows])!) throw new InvalidOperationException("Best effort discarded valid manual image evidence");
         windows.TogglePinned();

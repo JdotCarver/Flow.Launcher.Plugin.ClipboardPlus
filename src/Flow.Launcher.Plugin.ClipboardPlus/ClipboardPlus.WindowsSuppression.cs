@@ -27,7 +27,7 @@ public partial class ClipboardPlus
     private bool IsWindowsSuppressed(ClipboardDataPair pair)
     {
         var data = pair.ClipboardData;
-        if (!data.FromWindowsClipboardHistory() || !WindowsClipboardHelper.IsPinStateTrusted ||
+        if (!data.FromWindowsClipboardHistory() || !WindowsClipboardHelper.IsKnownUnpinned(data.HashId) ||
             !windowsEvidence.TryGetValue(data.HashId, out var evidence)) return false;
         var verified = evidence.Target.List == RecordsList && evidence.Keeper.List == RecordsList &&
             ReferenceEquals(evidence.Target.Value, pair) &&
@@ -108,7 +108,8 @@ public partial class ClipboardPlus
                 var keeperIndex = indexed[candidate.KeeperIndex].Index;
                 var target = nodes[targetIndex];
                 var keeper = nodes[keeperIndex];
-                if (!WindowsClipboardHelper.IsPinStateTrusted || target.List != RecordsList || keeper.List != RecordsList ||
+                if (!WindowsClipboardHelper.IsKnownUnpinned(snapshots[targetIndex].Original.HashId) ||
+                    target.List != RecordsList || keeper.List != RecordsList ||
                     !snapshots[targetIndex].Matches(target.Value.ClipboardData) ||
                     !snapshots[keeperIndex].Matches(keeper.Value.ClipboardData))
                 {
