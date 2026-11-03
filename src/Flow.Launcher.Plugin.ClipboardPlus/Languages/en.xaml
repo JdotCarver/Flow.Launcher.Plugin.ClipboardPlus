@@ -6,9 +6,9 @@
     xmlns:system="clr-namespace:System;assembly=mscorlib">
 
     <system:String x:Key="flowlauncher_plugin_clipboardplus_protect_pins_expiry">Protect pins from expiring</system:String>
-    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_pin_expiry">Changing this setting immediately runs retention cleanup and can permanently delete records. When unchecked, pins, including safety pins, follow their type’s retention duration.</system:String>
-    <system:String x:Key="flowlauncher_plugin_clipboardplus_pin_expiry_confirm">Turn off pin protection? Expired pinned records may be permanently deleted immediately.</system:String>
-    <system:String x:Key="flowlauncher_plugin_clipboardplus_pin_expiry_caption">Confirm retention cleanup</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_pin_expiry">Changing this setting immediately runs the retention cleanup and will permanently delete records if said pins are expired. When unchecked, pins follow their type’s retention duration.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_pin_expiry_confirm">Are you sure you wish to turn off pin protection? Any expired pins will be deleted immediately.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_pin_expiry_caption">Just checking</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_pin_expiry_error">Cleanup could not be completed. Your setting was saved; cleanup will be retried when history is next initialized.</system:String>
 
     <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_time_setting">Show relative timestamps</system:String>
