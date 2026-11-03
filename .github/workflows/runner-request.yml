@@ -169,6 +169,7 @@ jobs:
           }
 
       - name: Synthetic performance baseline
+        id: synthetic-baseline
         if: success() || failure()
         shell: pwsh
         run: |
@@ -188,6 +189,16 @@ jobs:
               $_ -match '^(text create and display|image hashing only|image construct and serialize|two forced collections and finalizer wait|SQLite disk bulk insert and read|SQLite reopen and materialize|10000 live synthetic text records|plugin query|plugin synthetic text add|plugin repeated query managed heap delta|plugin capture lock wait during query|dedup planner|dedup database|dedup plugin|dedup integrated|dedup optout|dedup saved images|SQLite transaction experiment|image experiment|query experiment|image pin)[A-Za-z0-9 ,.;/():=+\-]*$'
             } | ForEach-Object { Write-Host $_ }
             if ($exitCode -ne 0) {
+              # Publish only fixed coarse categories as step outputs; never
+              # publish arbitrary exception messages or local paths.
+              $diagnostic = Get-Content -Raw "$env:RUNNER_TEMP\clipboardplus-benchmark.log"
+              $category = 'other'
+              if ($diagnostic -match 'Capacity trimming') { $category = 'capacity' }
+              elseif ($diagnostic -match 'clear menu|clear actions|obsolete command|Legacy settings|cleanup keyword') { $category = 'menu' }
+              elseif ($diagnostic -match 'TimeoutException') { $category = 'timeout' }
+              elseif ($diagnostic -match 'DuplicatePluginIntegration') { $category = 'integration' }
+              elseif ($diagnostic -match 'error CS[0-9]+') { $category = 'compilation' }
+              "category=$category" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
               $codes = @(Get-Content "$env:RUNNER_TEMP\clipboardplus-benchmark.log" | Select-String -Pattern 'error (CS[0-9]+)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
               if ($codes.Count -gt 0) { Write-Host ("Compiler error codes: " + ($codes -join ', ')) }
               throw "Baseline failed (details suppressed for privacy)"
@@ -197,6 +208,26 @@ jobs:
             Remove-Item "$env:RUNNER_TEMP\clipboardplus-benchmark.log" -ErrorAction SilentlyContinue
             subst "${drive}:" /d
           }
+
+      # These fixed step names expose only a coarse synthetic failure category.
+      - name: Synthetic diagnostic - capacity
+        if: ${{ always() && steps.synthetic-baseline.outputs.category == 'capacity' }}
+        run: echo Synthetic capacity check failed
+      - name: Synthetic diagnostic - menu
+        if: ${{ always() && steps.synthetic-baseline.outputs.category == 'menu' }}
+        run: echo Synthetic menu check failed
+      - name: Synthetic diagnostic - timeout
+        if: ${{ always() && steps.synthetic-baseline.outputs.category == 'timeout' }}
+        run: echo Synthetic check timed out
+      - name: Synthetic diagnostic - integration
+        if: ${{ always() && steps.synthetic-baseline.outputs.category == 'integration' }}
+        run: echo Synthetic integration check failed
+      - name: Synthetic diagnostic - compilation
+        if: ${{ always() && steps.synthetic-baseline.outputs.category == 'compilation' }}
+        run: echo Synthetic benchmark compilation failed
+      - name: Synthetic diagnostic - other
+        if: ${{ always() && steps.synthetic-baseline.outputs.category == 'other' }}
+        run: echo Synthetic benchmark failed without a recognized category
 
       - name: Compare actual bulk method before and after
         if: success() || failure()
