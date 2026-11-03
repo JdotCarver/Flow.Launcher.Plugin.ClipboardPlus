@@ -191,7 +191,9 @@ jobs:
             } | ForEach-Object { Write-Host $_ }
             if ($exitCode -ne 0) {
               $codes = @(Get-Content "$env:RUNNER_TEMP\clipboardplus-benchmark.log" | Select-String -Pattern 'error (CS[0-9]+)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
-              if ($codes.Count -gt 0) { Write-Host ("Compiler error codes: " + ($codes -join ', ')) }
+              if ($codes.Count -gt 0) { Write-Host ("::error::Compiler error codes: " + ($codes -join ', ')) }
+              $methods = @(Get-Content "$env:RUNNER_TEMP\clipboardplus-benchmark.log" | Select-String -Pattern 'DuplicatePluginIntegration\.[A-Za-z0-9_]+' | ForEach-Object { $_.Matches[0].Value } | Select-Object -Unique)
+              if ($methods.Count -gt 0) { Write-Host ("::error::Synthetic integration methods: " + ($methods -join ', ')) }
               throw "Baseline failed (details suppressed for privacy)"
             }
           } finally {
@@ -248,7 +250,11 @@ jobs:
               dotnet run --project tools/performance-baseline/PerformanceBaseline.csproj --configuration Release --no-restore -- --bulk-only *> $diagnostic
               $exitCode = $LASTEXITCODE
               $measurement = @(Get-Content $diagnostic | Where-Object { $_ -match '^actual bulk insert 500 records: ms min/median/max=[0-9,./]+$' })
-              if ($exitCode -ne 0 -or $measurement.Count -ne 1) { throw "A/B benchmark failed (details suppressed for privacy)" }
+              if ($exitCode -ne 0 -or $measurement.Count -ne 1) {
+                $codes = @(Get-Content $diagnostic | Select-String -Pattern 'error (CS[0-9]+)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
+                if ($codes.Count -gt 0) { Write-Host ("::error::A/B compiler codes: " + ($codes -join ', ')) }
+                throw "A/B benchmark failed (details suppressed for privacy)"
+              }
               Write-Host "$variant $($measurement[0])"
             }
             # Replace only the three pre-image-change production files in the

@@ -11,6 +11,7 @@ using CommunityToolkit.Mvvm.DependencyInjection;
 using Flow.Launcher.Plugin;
 using Flow.Launcher.Plugin.ClipboardPlus.Panels.ViewModels;
 using Flow.Launcher.Plugin.ClipboardPlus.Core.Data.Enums;
+using Flow.Launcher.Plugin.ClipboardPlus.Core.Data.Contracts;
 using Flow.Launcher.Plugin.ClipboardPlus.Core.Data.Models;
 using Flow.Launcher.Plugin.ClipboardPlus.Core.Helpers;
 using Flow.Launcher.Plugin.ClipboardPlus.Core.Test;
@@ -123,7 +124,7 @@ internal static class DuplicatePluginIntegration
             SetField(plugin, "Database", database);
             SetField(plugin, "RecordsList", list);
             SetField(plugin, "ScoreHelper", new ScoreHelper(10000));
-            plugin.RunRetentionExpiryAsync().GetAwaiter().GetResult();
+            ((IClipboardPlus)plugin).RunRetentionExpiryAsync().GetAwaiter().GetResult();
             if (list.Count != 1 || !list.First!.Value.ClipboardData.Pinned ||
                 database.GetAllRecordsAsync(false).GetAwaiter().GetResult().Count != 1)
                 throw new InvalidOperationException("Protected expiry did not refresh synthetic history");
