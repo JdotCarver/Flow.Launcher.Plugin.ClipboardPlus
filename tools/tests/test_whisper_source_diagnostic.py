@@ -42,6 +42,20 @@ class InputSimulator:
         self.assertTrue(result['reachable_restores_formats'])
         self.assertFalse(result['paste_restores_formats'])
 
+    def test_tracks_sequence_values_passed_to_a_helper(self):
+        result = MODULE.inspect_source('''
+class InputSimulator:
+    def _paste_with_clipboard_preservation(self):
+        number = clipboard.GetClipboardSequenceNumber()
+        self.restore(number)
+    def restore(self, original_sequence):
+        if clipboard.GetClipboardSequenceNumber() != original_sequence:
+            return
+        clipboard.SetClipboardData(1, b"synthetic")
+''')
+        self.assertTrue(result['reachable_passed_sequence_guard'])
+        self.assertTrue(result['reachable_restores_formats'])
+
     def test_absent_function_has_only_a_fixed_status(self):
         self.assertEqual({'paste_function': False}, MODULE.inspect_source('value = 1'))
 

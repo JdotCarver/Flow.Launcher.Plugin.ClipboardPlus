@@ -450,6 +450,10 @@ jobs:
         if: ${{ always() && steps.local-signals.outputs.ast_reachable_registers_format == 'true' }}
         shell: pwsh
         run: Write-Host 'Source structure signal present'
+      - name: WhisperWriter structural signal reachable_passed_sequence_guard
+        if: ${{ always() && steps.local-signals.outputs.ast_reachable_passed_sequence_guard == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source structure signal present'
       - name: WhisperWriter source unavailable
         if: ${{ always() && steps.local-signals.outputs.source == 'unavailable' }}
         shell: pwsh
@@ -626,6 +630,58 @@ jobs:
         if: ${{ always() && steps.synthetic-baseline.outputs.frame_service == 'true' }}
         shell: pwsh
         run: Write-Host 'Synthetic stack category'
+
+      # Read Windows history identifiers in memory only; publish fixed status
+      # categories, never clipboard content, IDs, metadata, or local paths.
+      - name: Read-only local pin status
+        id: local-pin-probe
+        if: ${{ success() && needs.select-runner.outputs.target == 'local-windows' }}
+        shell: pwsh
+        run: |
+          $diagnostic = Join-Path $env:RUNNER_TEMP 'clipboardplus-pin-probe.log'
+          try {
+            dotnet run --project tools/performance-baseline/PerformanceBaseline.csproj --configuration Release --no-build -- --local-pin-probe *> $diagnostic
+            if ($LASTEXITCODE -ne 0) { 'unavailable=true' | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8 }
+            else {
+              $lines = @(Get-Content $diagnostic)
+              foreach ($category in @('trusted','untrusted','history_empty','history_nonempty','pinned_match','no_pinned_match','history_unavailable')) {
+                if ($lines -ccontains "pin_probe_$category") { "$category=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8 }
+              }
+            }
+          } finally { Remove-Item $diagnostic -Force -ErrorAction SilentlyContinue }
+
+      - name: Local pin status trusted
+        if: ${{ always() && steps.local-pin-probe.outputs.trusted == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Coarse read-only status'
+      - name: Local pin status untrusted
+        if: ${{ always() && steps.local-pin-probe.outputs.untrusted == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Coarse read-only status'
+      - name: Local pin status history_empty
+        if: ${{ always() && steps.local-pin-probe.outputs.history_empty == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Coarse read-only status'
+      - name: Local pin status history_nonempty
+        if: ${{ always() && steps.local-pin-probe.outputs.history_nonempty == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Coarse read-only status'
+      - name: Local pin status pinned_match
+        if: ${{ always() && steps.local-pin-probe.outputs.pinned_match == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Coarse read-only status'
+      - name: Local pin status no_pinned_match
+        if: ${{ always() && steps.local-pin-probe.outputs.no_pinned_match == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Coarse read-only status'
+      - name: Local pin status history_unavailable
+        if: ${{ always() && steps.local-pin-probe.outputs.history_unavailable == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Coarse read-only status'
+      - name: Local pin status unavailable
+        if: ${{ always() && steps.local-pin-probe.outputs.unavailable == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Coarse read-only status'
 
       - name: Compare actual bulk method before and after
         if: success() || failure()

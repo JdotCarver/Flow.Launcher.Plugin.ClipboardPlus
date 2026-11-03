@@ -51,6 +51,49 @@ def inspect_source(source):
     def reachable_name(name):
         return any(contains_name(function, name) for function in reachable)
 
+    # Follow a sequence number passed into locally defined helper parameters.
+    tainted = {function.name: set() for function in reachable}
+    changed = True
+    while changed:
+        changed = False
+        for function in reachable:
+            names = tainted[function.name]
+            for node in ast.walk(function):
+                if isinstance(node, (ast.Assign, ast.AnnAssign)) and node.value is not None and (
+                    contains_name(node.value, 'GetClipboardSequenceNumber') or
+                    any(contains_name(node.value, name) for name in names)
+                ):
+                    targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+                    for target in targets:
+                        for item in ast.walk(target):
+                            if isinstance(item, ast.Name) and item.id not in names:
+                                names.add(item.id)
+                                changed = True
+                if not isinstance(node, ast.Call):
+                    continue
+                called_name = node.func.attr if isinstance(node.func, ast.Attribute) else getattr(node.func, 'id', None)
+                target = by_name.get(called_name)
+                if target is None or called_name not in tainted:
+                    continue
+                parameters = target.args.args
+                if isinstance(node.func, ast.Attribute) and parameters and parameters[0].arg in ('self', 'cls'):
+                    parameters = parameters[1:]
+                for argument, parameter in zip(node.args, parameters):
+                    if contains_name(argument, 'GetClipboardSequenceNumber') or any(contains_name(argument, name) for name in names):
+                        if parameter.arg not in tainted[called_name]:
+                            tainted[called_name].add(parameter.arg)
+                            changed = True
+                for keyword in node.keywords:
+                    if keyword.arg and (contains_name(keyword.value, 'GetClipboardSequenceNumber') or
+                                        any(contains_name(keyword.value, name) for name in names)):
+                        if keyword.arg not in tainted[called_name]:
+                            tainted[called_name].add(keyword.arg)
+                            changed = True
+
+    def guard_checks_sequence(function):
+        return any(any(contains_name(node.test, name) for name in tainted[function.name])
+                   for node in ast.walk(function) if isinstance(node, (ast.If, ast.While, ast.IfExp)))
+
     return {
         'paste_function': True,
         'paste_sequence_call': contains_name(paste, 'GetClipboardSequenceNumber'),
@@ -62,6 +105,7 @@ def inspect_source(source):
         'paste_waits': contains_name(paste, 'sleep'),
         'paste_100ms_constant': any(isinstance(node, ast.Constant) and node.value == 0.1 for node in ast.walk(paste)),
         'reachable_sequence_guard': any(has_sequence_guard(function) for function in reachable),
+        'reachable_passed_sequence_guard': any(guard_checks_sequence(function) for function in reachable),
         'reachable_enumerates_formats': reachable_name('EnumClipboardFormats'),
         'reachable_restores_formats': reachable_name('SetClipboardData'),
         'reachable_writes_text': reachable_name('SetClipboardText'),
