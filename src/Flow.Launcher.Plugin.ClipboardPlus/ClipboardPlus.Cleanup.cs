@@ -122,7 +122,13 @@ public partial class ClipboardPlus
         }
     }
 
-    public async Task<string> GetImageDeduplicationExplanationAsync(ClipboardData data)
+    public Task<string> GetImageDeduplicationExplanationAsync(ClipboardData data) =>
+        GetImageDeduplicationExplanationAsync(data, null);
+
+    public Task<string> GetImageDeduplicationExplanationAsync(ClipboardDataPair pair) =>
+        GetImageDeduplicationExplanationAsync(null, pair);
+
+    private async Task<string> GetImageDeduplicationExplanationAsync(ClipboardData? data, ClipboardDataPair? pair)
     {
         await RecordsLock.WaitAsync();
         try
@@ -130,7 +136,8 @@ public partial class ClipboardPlus
             if (Settings.AutomaticCleanup != imageRelationshipAutomatic || Settings.AutomaticCleanupThorough != imageRelationshipThorough) return string.Empty;
             var matches = imageRelationships.Where(item => (item.Reason != "windows" || !WindowsClipboardHelper.IsPinStateTrusted) &&
                 item.Target.List == RecordsList && item.Other.List == RecordsList &&
-                item.Target.Value.ClipboardData.HashId == data.HashId && item.TargetSnapshot.Matches(data) &&
+                (pair is not null ? ReferenceEquals(item.Target.Value, pair) :
+                    data.HasValue && item.Target.Value.ClipboardData.HashId == data.Value.HashId && item.TargetSnapshot.Matches(data.Value)) &&
                 item.TargetSnapshot.Matches(item.Target.Value.ClipboardData) && item.OtherSnapshot.Matches(item.Other.Value.ClipboardData)).ToArray();
             if (matches.Length == 0) return string.Empty;
             var first = matches[0];
@@ -368,11 +375,7 @@ public partial class ClipboardPlus
                     if (keeperNode is null)
                     {
                         var visibleKeeper = keeper with { InitScore = duplicate.InitScore };
-                        var pair = new ClipboardDataPair
-                        {
-                            ClipboardData = visibleKeeper,
-                            PreviewPanel = new Lazy<System.Windows.Controls.UserControl>(() => new PreviewPanel(this, visibleKeeper))
-                        };
+                        var pair = CreateClipboardDataPair(visibleKeeper);
                         keeperNode = RecordsList.AddBefore(duplicateNode, pair);
                         keeperSnapshot = new ClipboardCleanupSnapshot(visibleKeeper);
                         allNodes[keeperIndex] = keeperNode;

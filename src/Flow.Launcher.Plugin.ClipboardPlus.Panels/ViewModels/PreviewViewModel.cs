@@ -15,11 +15,17 @@ public class PreviewViewModel : BaseModel
     private PluginInitContext? Context => ClipboardPlus.Context;
 
     private ClipboardData ClipboardData;
+    private readonly ClipboardDataPair? livePair;
+    private long explanationRefreshVersion;
 
     public PreviewViewModel(IClipboardPlus clipboardPlus, ClipboardData clipboardData)
+        : this(clipboardPlus, clipboardData, null) { }
+
+    public PreviewViewModel(IClipboardPlus clipboardPlus, ClipboardData clipboardData, ClipboardDataPair? pair)
     {
         ClipboardPlus = clipboardPlus;
         ClipboardData = clipboardData;
+        livePair = pair;
         _isTextPreviewEnabled = ClipboardData.DataType == DataType.Files || ClipboardData.DataType == DataType.Image;
     }
 
@@ -68,7 +74,12 @@ public class PreviewViewModel : BaseModel
 
     public async System.Threading.Tasks.Task RefreshDeduplicationExplanationAsync()
     {
-        DeduplicationExplanation = await ClipboardPlus.GetImageDeduplicationExplanationAsync(ClipboardData);
+        var version = System.Threading.Interlocked.Increment(ref explanationRefreshVersion);
+        var explanation = livePair is null
+            ? await ClipboardPlus.GetImageDeduplicationExplanationAsync(ClipboardData)
+            : await ClipboardPlus.GetImageDeduplicationExplanationAsync(livePair);
+        if (version == System.Threading.Interlocked.Read(ref explanationRefreshVersion))
+            DeduplicationExplanation = explanation;
     }
 
     #region Dependency Properties

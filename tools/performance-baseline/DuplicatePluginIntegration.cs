@@ -99,6 +99,7 @@ internal static class DuplicatePluginIntegration
             TestManualActionRefresh();
             TestTwoImportedWindowsImageDuplicates();
             TestImageRelationshipExplanations();
+            TestExistingPreviewAcrossPinChanges();
             TestRetentionPassRefreshesLoadedRecords();
             TestPinnedCaptureLimit();
             TestPinsDoNotConsumeCapacity(plugin);
@@ -181,6 +182,54 @@ internal static class DuplicatePluginIntegration
         list.RemoveLast();
         if (!string.IsNullOrEmpty(((IClipboardPlus)plugin).GetImageDeduplicationExplanationAsync(first).GetAwaiter().GetResult()))
             throw new InvalidOperationException("Stale synthetic image relationship was not discarded");
+    }
+
+    private static void TestExistingPreviewAcrossPinChanges()
+    {
+        var plugin = new Plugin();
+        SetField(plugin, "Settings", new Settings { AutomaticCleanup = true, AutomaticCleanupThorough = true });
+        SetField(plugin, "CultureInfo", CultureInfo.GetCultureInfo("en-US"));
+        var image = BitmapSource.Create(1, 1, 96, 96, PixelFormats.Bgra32, null, new byte[] { 5, 6, 7, 255 }, 4);
+        image.Freeze();
+        ClipboardData Make(string id) => new(image, DataType.Image, false)
+        {
+            HashId = id, SenderApp = "synthetic", InitScore = 0, CreateTime = new DateTime(2026, 1, 1)
+        };
+        ClipboardDataPair Pair(ClipboardData data) => new()
+        {
+            ClipboardData = data, PreviewPanel = new Lazy<UserControl>(() => throw new InvalidOperationException("Preview must stay lazy"))
+        };
+        var first = Pair(Make("preview-first"));
+        var second = Pair(Make("preview-second"));
+        var list = new LinkedList<ClipboardDataPair>([first, second]);
+        SetField(plugin, "RecordsList", list);
+        var preview = new PreviewViewModel(plugin, first.ClipboardData, first);
+        var update = typeof(Plugin).GetMethod("UpdateImageRelationshipsAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        void VerifyAndRefresh() {
+            ((Task)update.Invoke(plugin, [true])!).GetAwaiter().GetResult();
+            preview.RefreshDeduplicationExplanationAsync().GetAwaiter().GetResult();
+        }
+        VerifyAndRefresh();
+        if (!string.IsNullOrEmpty(preview.DeduplicationExplanation))
+            throw new InvalidOperationException("Unpinned identical images have no verified retention reason");
+        first.TogglePinned();
+        VerifyAndRefresh();
+        if (string.IsNullOrEmpty(preview.DeduplicationExplanation))
+            throw new InvalidOperationException("Existing preview missed the verified pin explanation");
+        first.TogglePinned();
+        preview.RefreshDeduplicationExplanationAsync().GetAwaiter().GetResult();
+        if (!string.IsNullOrEmpty(preview.DeduplicationExplanation))
+            throw new InvalidOperationException("Existing preview retained a stale pin explanation");
+        VerifyAndRefresh();
+        if (!string.IsNullOrEmpty(preview.DeduplicationExplanation))
+            throw new InvalidOperationException("Unpinned preview retained an explanation");
+        first.TogglePinned();
+        VerifyAndRefresh();
+        list.Remove(first);
+        list.AddFirst(Pair(first.ClipboardData));
+        VerifyAndRefresh();
+        if (!string.IsNullOrEmpty(preview.DeduplicationExplanation))
+            throw new InvalidOperationException("A replaced record reused an old preview explanation");
     }
 
     private static void TestRetentionPassRefreshesLoadedRecords()

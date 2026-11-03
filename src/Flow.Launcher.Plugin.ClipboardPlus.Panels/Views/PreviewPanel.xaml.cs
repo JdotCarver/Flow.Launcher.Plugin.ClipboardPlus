@@ -10,8 +10,14 @@ public partial class PreviewPanel : UserControl, IDisposable
     public PreviewViewModel ViewModel;
 
     public PreviewPanel(IClipboardPlus clipboardPlus, ClipboardData clipboardData)
+        : this(new PreviewViewModel(clipboardPlus, clipboardData)) { }
+
+    public PreviewPanel(IClipboardPlus clipboardPlus, ClipboardData clipboardData, ClipboardDataPair pair)
+        : this(new PreviewViewModel(clipboardPlus, clipboardData, pair)) { }
+
+    private PreviewPanel(PreviewViewModel viewModel)
     {
-        ViewModel = new PreviewViewModel(clipboardPlus, clipboardData);
+        ViewModel = viewModel;
         DataContext = ViewModel;
         InitializeComponent();
         DataContext = ViewModel;

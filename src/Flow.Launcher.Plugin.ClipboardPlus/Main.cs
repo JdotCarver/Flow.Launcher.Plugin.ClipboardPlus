@@ -1177,6 +1177,17 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
 
     private long captureGeneration;
 
+    private ClipboardDataPair CreateClipboardDataPair(ClipboardData data)
+    {
+        ClipboardDataPair? pair = null;
+        pair = new ClipboardDataPair
+        {
+            ClipboardData = data,
+            PreviewPanel = new Lazy<UserControl>(() => new PreviewPanel(this, data, pair!))
+        };
+        return pair;
+    }
+
     private void AddClipboardDataItem(ClipboardData clipboardData) => AddClipboardDataItem(clipboardData, null);
 
     private void AddClipboardDataItem(ClipboardData clipboardData, string? encodedImage)
@@ -1184,11 +1195,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
         // Called under RecordsLock. An in-flight cleanup must not trim a newer capture.
         captureGeneration++;
         // add to list and database if no repeat
-        RecordsList.AddFirst(new ClipboardDataPair()
-        {
-            ClipboardData = clipboardData,
-            PreviewPanel = new Lazy<UserControl>(() => new PreviewPanel(this, clipboardData))
-        });
+        RecordsList.AddFirst(CreateClipboardDataPair(clipboardData));
 
         // update score
         ScoreHelper.Add();
@@ -1276,11 +1283,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
         foreach (var clipboardData in clipboardDataList)
         {
             // add to list and database if no repeat
-            RecordsList.AddFirst(new ClipboardDataPair()
-            {
-                ClipboardData = clipboardData,
-                PreviewPanel = new Lazy<UserControl>(() => new PreviewPanel(this, clipboardData))
-            });
+            RecordsList.AddFirst(CreateClipboardDataPair(clipboardData));
 
             // save to database if needed
             if (clipboardData.Saved)
@@ -1566,11 +1569,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
                 var records = await Database.GetAllRecordsAsync(true);
                 if (records.Count != 0)
                 {
-                    databaseDataPairs = records.Select(record => new ClipboardDataPair()
-                    {
-                        ClipboardData = record,
-                        PreviewPanel = new Lazy<UserControl>(() => new PreviewPanel(this, record))
-                    });
+                    databaseDataPairs = records.Select(CreateClipboardDataPair);
                 }
             }
         }
