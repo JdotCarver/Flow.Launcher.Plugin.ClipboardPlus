@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "9cd8b325-5a30-47eb-93b3-199e98ae1cc5"
+request_id = "a533d882-e747-4bd0-9611-10c1876708e8"
 target = "local-windows"
-job_name = "Dogfood Pin Safety Validation"
+job_name = "ClipboardPlus Synthetic Validation"
