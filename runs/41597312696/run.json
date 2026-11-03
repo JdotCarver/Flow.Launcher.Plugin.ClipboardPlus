@@ -1,0 +1,34 @@
+{
+  "capture_note": "Status is captured while Export logs is still in progress; use the final workflow conclusion for that job's result.",
+  "conclusion": null,
+  "event": "push",
+  "head_branch": "branch",
+  "head_sha": "5c9386383e90c82e81e60b498991cc6ab77acb1e",
+  "id": 41597312696,
+  "jobs": [
+    {
+      "conclusion": "success",
+      "id": 125787576609,
+      "name": "Select runner",
+      "status": "completed",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41597312696/job/125787576609"
+    },
+    {
+      "conclusion": "success",
+      "id": 125787627304,
+      "name": "Merged Feature Validation",
+      "status": "completed",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41597312696/job/125787627304"
+    },
+    {
+      "conclusion": null,
+      "id": 125791049582,
+      "name": "Export logs",
+      "status": "in_progress",
+      "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41597312696/job/125791049582"
+    }
+  ],
+  "name": "Runner request",
+  "status": "in_progress",
+  "url": "https://github.com/JdotCarver/Flow.Launcher.Plugin.ClipboardPlus/actions/runs/41597312696"
+}
