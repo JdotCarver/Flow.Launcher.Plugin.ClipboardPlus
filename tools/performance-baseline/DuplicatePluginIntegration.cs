@@ -175,6 +175,9 @@ internal static class DuplicatePluginIntegration
         ((Task)update.Invoke(plugin, [true])!).GetAwaiter().GetResult();
         if (string.IsNullOrEmpty(((IClipboardPlus)plugin).GetImageDeduplicationExplanationAsync(first).GetAwaiter().GetResult()))
             throw new InvalidOperationException("Verified synthetic relationship was not explained");
+        ((Task)update.Invoke(plugin, [false])!).GetAwaiter().GetResult();
+        if (string.IsNullOrEmpty(((IClipboardPlus)plugin).GetImageDeduplicationExplanationAsync(first).GetAwaiter().GetResult()))
+            throw new InvalidOperationException("Best-effort cleanup lost a verified synthetic relationship");
         list.RemoveLast();
         if (!string.IsNullOrEmpty(((IClipboardPlus)plugin).GetImageDeduplicationExplanationAsync(first).GetAwaiter().GetResult()))
             throw new InvalidOperationException("Stale synthetic image relationship was not discarded");
