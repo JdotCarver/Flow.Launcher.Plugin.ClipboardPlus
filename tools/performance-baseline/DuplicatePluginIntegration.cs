@@ -79,10 +79,11 @@ internal static class DuplicatePluginIntegration
                 throw new InvalidOperationException("Windows-only clear menu must end with cleanup");
             SetField(plugin, "UseWindowsClipboardHistoryOnly", false);
             var legacy = System.Text.Json.JsonSerializer.Deserialize<Settings>("{\"CleanupKeyword\":\"obsolete\",\"ClearKeyword\":\"purge\",\"MaxRecords\":1234}");
-            if (legacy is null || legacy.ClearKeyword != "purge" || legacy.MaxRecords != 1234)
+            if (legacy is null || legacy.ClearKeyword != "purge" || legacy.MaxRecords != 1234 || !legacy.ProtectPinsFromExpiry)
                 throw new InvalidOperationException("Legacy settings lost unrelated preferences");
             TestUnloadedSavedKeeper();
             TestManualActionRefresh();
+            TestRetentionPassRefreshesLoadedRecords();
             TestPinnedCaptureLimit();
             TestPinsDoNotConsumeCapacity(plugin);
             TestCapacityProtection(plugin);
@@ -97,6 +98,40 @@ internal static class DuplicatePluginIntegration
         {
             database.DisposeAsync().AsTask().GetAwaiter().GetResult();
         }
+    }
+
+    private static void TestRetentionPassRefreshesLoadedRecords()
+    {
+        var database = new SqliteDatabase("synthetic-retention-pass", new ClipboardPlus(), SqliteCacheMode.Private, SqliteOpenMode.Memory);
+        try
+        {
+            database.InitializeDatabaseAsync().GetAwaiter().GetResult();
+            var old = Record("expired-unpinned", 1, true);
+            var pin = Record("expired-pin", 2, true, true);
+            old.CreateTime = DateTime.Now.AddDays(-5);
+            pin.CreateTime = DateTime.Now.AddDays(-5);
+            database.AddRecordsAsync([old, pin], true).GetAwaiter().GetResult();
+            var list = new LinkedList<ClipboardDataPair>(new[] { old, pin }.Select(record => new ClipboardDataPair
+            {
+                ClipboardData = record,
+                PreviewPanel = new Lazy<UserControl>(() => throw new InvalidOperationException("Preview must stay lazy"))
+            }));
+            var settings = new Settings { TextKeepTime = KeepTime.Hour1, ProtectPinsFromExpiry = true };
+            var plugin = new Plugin();
+            SetField(plugin, "Settings", settings);
+            SetField(plugin, "Database", database);
+            SetField(plugin, "RecordsList", list);
+            SetField(plugin, "ScoreHelper", new ScoreHelper(10000));
+            plugin.RunRetentionExpiryAsync().GetAwaiter().GetResult();
+            if (list.Count != 1 || !list.First!.Value.ClipboardData.Pinned ||
+                database.GetAllRecordsAsync(false).GetAwaiter().GetResult().Count != 1)
+                throw new InvalidOperationException("Protected expiry did not refresh synthetic history");
+            settings.ProtectPinsFromExpiry = false;
+            plugin.RunRetentionExpiryAsync().GetAwaiter().GetResult();
+            if (list.Count != 0 || database.GetAllRecordsAsync(false).GetAwaiter().GetResult().Count != 0)
+                throw new InvalidOperationException("Unprotected expiry did not refresh synthetic history");
+        }
+        finally { database.DisposeAsync().AsTask().GetAwaiter().GetResult(); }
     }
 
     private static void TestPinnedCaptureLimit()
