@@ -833,8 +833,10 @@ public class SqliteDatabase : IAsyncDisposable
             foreach (var duration in durations)
             {
                 var args = new { duration.DataType, duration.KeepTime, ProtectPins = protectPins ? 1 : 0 };
-                removed.AddRange(await Connection.QueryAsync<string>("SELECT hash_id FROM record WHERE " + predicate, args, transaction));
-                await Connection.ExecuteAsync("DELETE FROM record WHERE " + predicate, args, transaction);
+                // A single statement both chooses and reports the rows it deletes;
+                // a clock boundary cannot make the reported set diverge.
+                removed.AddRange(await Connection.QueryAsync<string>(
+                    "DELETE FROM record WHERE " + predicate + " RETURNING hash_id", args, transaction));
             }
             await DeleteUnreferencedAssetsAsync(removed, transaction);
             transaction.Commit();

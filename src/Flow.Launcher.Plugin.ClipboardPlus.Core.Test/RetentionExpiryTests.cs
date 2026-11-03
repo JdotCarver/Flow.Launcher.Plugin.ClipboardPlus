@@ -45,6 +45,33 @@ public class RetentionExpiryTests
     }
 
     [Fact]
+    public async Task ExpiryReportsExactlyTheDeletedRowsAcrossAClockBoundary()
+    {
+        await using var db = new SqliteDatabase("synthetic-expiry-boundary", new ClipboardPlus(), SqliteCacheMode.Private, SqliteOpenMode.Memory);
+        await db.InitializeDatabaseAsync();
+        var record = new ClipboardData("synthetic", DataType.PlainText, false)
+        {
+            HashId = "boundary", SenderApp = "synthetic", InitScore = 0,
+            CreateTime = DateTime.Now, Pinned = false, Saved = true
+        };
+        await db.AddOneRecordAsync(record, true);
+        // The synthetic clock advances a second on each use of 'now'. The
+        // record is exactly at the limit on the first call, and expires on the next.
+        var clockReads = 0;
+        db.Connection.CreateFunction<string, string, string>("strftime", (format, value) =>
+            value == "now" ? (10000 + clockReads++).ToString() : "6400");
+        var durations = new[] { ((int)DataType.PlainText, 1) };
+        var first = await db.ExpireRecordsAsync(durations, false);
+        Assert.Empty(first);
+        Assert.Equal(1, await db.Connection.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM record"));
+        Assert.Equal(1, await db.Connection.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM asset"));
+        var second = await db.ExpireRecordsAsync(durations, false);
+        Assert.Equal(new[] { "boundary" }, second);
+        Assert.Equal(0, await db.Connection.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM record"));
+        Assert.Equal(0, await db.Connection.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM asset"));
+    }
+
+    [Fact]
     public async Task ExpiryRollsBackRecordsWhenAssetDeletionFails()
     {
         await using var db = new SqliteDatabase("synthetic-expiry-rollback", new ClipboardPlus(), SqliteCacheMode.Private, SqliteOpenMode.Memory);
