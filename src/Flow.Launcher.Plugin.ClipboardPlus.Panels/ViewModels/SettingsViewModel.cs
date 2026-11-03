@@ -146,7 +146,6 @@ public class SettingsViewModel : BaseModel
         RestoreKeepTimes();
 
         base.OnPropertyChanged(nameof(ClearKeyword));
-        base.OnPropertyChanged(nameof(CleanupKeyword));
         base.OnPropertyChanged(nameof(AutomaticCleanup));
         base.OnPropertyChanged(nameof(AutomaticCleanupThorough));
         base.OnPropertyChanged(nameof(WindowsSuppressionLifetimeIndex));
@@ -215,36 +214,12 @@ public class SettingsViewModel : BaseModel
                 ShowClearKeywordEmptyError();
                 return;
             }
-            if (CleanupKeywordValidator.Validate(Settings.CleanupKeyword, value) == CleanupKeywordValidation.ConflictsWithClear)
-            {
-                CleanupFeedback = Localize.flowlauncher_plugin_clipboardplus_cleanup_keyword_invalid();
-                base.OnPropertyChanged(nameof(ClearKeyword));
-                return;
-            }
             Settings.ClearKeyword = value;
             OnPropertyChanged();
         }
     }
 
     #endregion
-
-    public string CleanupKeyword
-    {
-        get => Settings.CleanupKeyword;
-        set
-        {
-            if (value == Settings.CleanupKeyword) return;
-            if (CleanupKeywordValidator.Validate(value, Settings.ClearKeyword) != CleanupKeywordValidation.Valid)
-            {
-                CleanupFeedback = Localize.flowlauncher_plugin_clipboardplus_cleanup_keyword_invalid();
-                base.OnPropertyChanged(nameof(CleanupKeyword));
-                return;
-            }
-            Settings.CleanupKeyword = value;
-            CleanupFeedback = string.Empty;
-            OnPropertyChanged();
-        }
-    }
 
     public bool AutomaticCleanup
     {

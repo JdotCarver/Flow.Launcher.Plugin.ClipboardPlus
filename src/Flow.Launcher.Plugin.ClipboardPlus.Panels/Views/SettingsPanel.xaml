@@ -581,13 +581,6 @@
             IsChecked="{Binding UseRelativeTime, Mode=TwoWay}" />
 
         <!--  Duplicate cleanup  -->
-        <TextBlock Grid.Row="30" Grid.Column="0"
-            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
-            VerticalAlignment="Center"
-            Text="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_keyword}" />
-        <TextBox Grid.Row="30" Grid.Column="1" MinWidth="120"
-            Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
-            HorizontalAlignment="Left" Text="{Binding CleanupKeyword, Mode=TwoWay}" />
         <CheckBox Grid.Row="31" Grid.ColumnSpan="2"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_automatic}"

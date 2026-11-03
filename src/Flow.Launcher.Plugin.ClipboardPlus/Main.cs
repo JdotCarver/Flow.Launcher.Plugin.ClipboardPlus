@@ -355,15 +355,11 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
                     ]
                 );
             }
+            results.Add(CreateCleanupAction(results, query, token, queryGeneration));
         }
         else
         {
             var querySearch = query.Search;
-            if (CleanupKeywordValidator.Validate(Settings.CleanupKeyword, Settings.ClearKeyword) == CleanupKeywordValidation.Valid &&
-                CleanupKeywordValidator.IsExactQuery(querySearch, Settings.CleanupKeyword))
-            {
-                results.Add(CreateCleanupAction(results, query, token, queryGeneration));
-            }
             if (string.IsNullOrWhiteSpace(querySearch))
             {
                 // clean action

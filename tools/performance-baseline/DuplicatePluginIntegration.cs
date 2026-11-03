@@ -62,13 +62,16 @@ internal static class DuplicatePluginIntegration
                 throw new InvalidOperationException("Synthetic unloaded saved duplicate survived cleanup");
             var settings = new SettingsViewModel(plugin);
             settings.ClearKeyword = "cleanup";
-            settings.CleanupKeyword = "clear";
-            if (settings.ClearKeyword != "clear" || settings.CleanupKeyword != "cleanup" || string.IsNullOrEmpty(settings.CleanupFeedback))
-                throw new InvalidOperationException("Synthetic cleanup keyword conflict validation failed");
-            var exact = plugin.QueryAsync(QueryFor("cleanup"), CancellationToken.None).GetAwaiter().GetResult();
-            var longer = plugin.QueryAsync(QueryFor("cleanup extra"), CancellationToken.None).GetAwaiter().GetResult();
-            if (exact.Count != 1 || exact[0].Score != int.MaxValue || longer.Count != 0 || list.Count != 3)
-                throw new InvalidOperationException("Synthetic cleanup query validation failed");
+            if (settings.ClearKeyword != "cleanup")
+                throw new InvalidOperationException("Obsolete cleanup keyword must not block the clear keyword");
+            var clearMenu = plugin.QueryAsync(QueryFor("cleanup"), CancellationToken.None).GetAwaiter().GetResult();
+            if (clearMenu.Count == 0 || clearMenu[^1].Score != 0 || clearMenu.Take(clearMenu.Count - 1).Any(result => result.Score <= 0))
+                throw new InvalidOperationException("Cleanup must follow existing clear actions");
+            settings.ClearKeyword = "purge";
+            var oldCommand = plugin.QueryAsync(QueryFor("cleanup"), CancellationToken.None).GetAwaiter().GetResult();
+            var customClear = plugin.QueryAsync(QueryFor("purge"), CancellationToken.None).GetAwaiter().GetResult();
+            if (oldCommand.Any(result => result.Score == 0) || customClear.Count == 0 || customClear[^1].Score != 0)
+                throw new InvalidOperationException("Custom clear menu or obsolete command handling failed");
             TestUnloadedSavedKeeper();
             TestManualActionRefresh();
             TestCapacityProtection(plugin);
@@ -109,18 +112,17 @@ internal static class DuplicatePluginIntegration
             SetField(plugin, "ScoreHelper", new ScoreHelper(10000));
             SetField(plugin, "Database", database);
             SetField(plugin, "RecordsList", list);
-            var results = plugin.QueryAsync(QueryFor("cleanup"), CancellationToken.None).GetAwaiter().GetResult();
-            var action = results.Single(result => result.Score == int.MaxValue);
-            if (results.Count(result => result.ContextData is ClipboardDataPair) != 2)
-                throw new InvalidOperationException("Synthetic cleanup query is missing records");
+            var results = plugin.QueryAsync(QueryFor("clear"), CancellationToken.None).GetAwaiter().GetResult();
+            var action = results.Last();
+            var originalActions = results.ToArray();
             var refreshed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
             plugin.ResultsUpdated += (_, args) =>
             {
-                if (args.Results.Contains(action) && args.Results.Count(result => result.ContextData is ClipboardDataPair) == 1 &&
-                    args.Results.All(result => result.ContextData is not ClipboardDataPair pair || pair.ClipboardData.HashId != "old-manual"))
+                if (args.Query.Search == "clear" && args.Results.SequenceEqual(originalActions) && list.Count == 1 &&
+                    action.SubTitle != null && !action.SubTitle.Contains("running", StringComparison.OrdinalIgnoreCase))
                     refreshed.TrySetResult();
             };
-            action.Action!(null!);
+            if (action.Action!(null!)) throw new InvalidOperationException("Cleanup must keep the launcher open");
             refreshed.Task.WaitAsync(TimeSpan.FromSeconds(30)).GetAwaiter().GetResult();
             var coordinator = (CleanupRunCoordinator)typeof(Plugin).GetField("cleanupCoordinator", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(plugin)!;
             coordinator.StopAsync().GetAwaiter().GetResult();

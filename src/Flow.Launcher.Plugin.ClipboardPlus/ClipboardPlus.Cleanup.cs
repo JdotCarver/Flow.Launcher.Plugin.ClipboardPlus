@@ -80,7 +80,7 @@ public partial class ClipboardPlus
             SubTitle = Localize.flowlauncher_plugin_clipboardplus_cleanup_action_subtitle(),
             IcoPath = PathHelper.ClearIconPath,
             Glyph = ResourceHelper.ClearGlyph,
-            Score = int.MaxValue,
+            Score = 0,
             AddSelectedCount = false,
             Action = context =>
             {
