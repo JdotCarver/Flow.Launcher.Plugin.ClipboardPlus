@@ -40,6 +40,7 @@ public partial class ClipboardPlus
     {
         Interlocked.Increment(ref windowsEvidenceGeneration);
         if (Settings is null) return;
+        _ = RefreshLoadedImagePreviewsAsync();
         if (Settings.AutomaticCleanup) ScheduleAutomaticCleanup();
         if (windowsSuppression.GetManualIds().Count > 0) cleanupCoordinator.RequestWindowsEvidence();
     }

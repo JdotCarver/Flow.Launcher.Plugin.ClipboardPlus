@@ -76,6 +76,23 @@ public partial class ClipboardPlus
         finally { RecordsLock.Release(); }
     }
 
+    private async Task RefreshLoadedImagePreviewsAsync()
+    {
+        List<PreviewPanel> previews;
+        await RecordsLock.WaitAsync();
+        try
+        {
+            previews = RecordsList.Where(pair => pair.ClipboardData.DataType == DataType.Image && pair.PreviewPanel.IsValueCreated)
+                .Select(pair => pair.PreviewPanel.Value).OfType<PreviewPanel>().ToList();
+        }
+        finally { RecordsLock.Release(); }
+        foreach (var preview in previews)
+        {
+            if (!preview.Dispatcher.HasShutdownStarted)
+                _ = preview.Dispatcher.InvokeAsync(() => _ = preview.ViewModel.RefreshDeduplicationExplanationAsync());
+        }
+    }
+
     public async Task<string> GetImageDeduplicationExplanationAsync(ClipboardData data)
     {
         await RecordsLock.WaitAsync();
@@ -212,6 +229,7 @@ public partial class ClipboardPlus
         }
         lastAutomaticCleanup = enabled;
         lastAutomaticCleanupThorough = thorough;
+        _ = RefreshLoadedImagePreviewsAsync();
     }
 
     private void ScheduleAutomaticCleanup()
@@ -394,6 +412,7 @@ public partial class ClipboardPlus
             await TrimVerifiedOverflowAsync(nodes, snapshots, capturedGeneration, reserved);
         }
         await UpdateImageRelationshipsAsync(thorough);
+        await RefreshLoadedImagePreviewsAsync();
         if (report.RecordsRemoved > 0 || report.WindowsItemsHidden > 0)
             await PublishCurrentResultsAsync();
         return report;
