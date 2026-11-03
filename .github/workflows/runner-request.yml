@@ -212,6 +212,11 @@ jobs:
               if ($diagnostic -match 'dedup stage disabled') { $stage = 'disabled' }
               if ($diagnostic -match 'dedup stage evidence') { $stage = 'evidence' }
               if ($diagnostic -match 'dedup stage optout') { $stage = 'optout' }
+              if ($diagnostic -match 'dedup optout stage first') { $stage = 'optout-first' }
+              if ($diagnostic -match 'dedup optout stage second') { $stage = 'optout-second' }
+              if ($diagnostic -match 'dedup optout stage files') { $stage = 'optout-files' }
+              if ($diagnostic -match 'dedup optout stage assertions') { $stage = 'optout-assertions' }
+              if ($diagnostic -match 'dedup optout stage saves') { $stage = 'optout-saves' }
               if ($diagnostic -match 'dedup stage cache') { $stage = 'cache' }
               if ($diagnostic -match 'dedup plugin synthetic record and cache integration checks passed') { $stage = 'contention' }
               if ($diagnostic -match 'dedup integrated') { $stage = 'images' }
@@ -299,6 +304,22 @@ jobs:
       - name: Synthetic stopped in cache integration
         if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'cache' }}
         run: echo Synthetic cache integration
+
+      - name: Synthetic optout stopped at first
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'optout-first' }}
+        run: echo Synthetic optout first stage
+      - name: Synthetic optout stopped at second
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'optout-second' }}
+        run: echo Synthetic optout second stage
+      - name: Synthetic optout stopped at files
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'optout-files' }}
+        run: echo Synthetic optout files stage
+      - name: Synthetic optout stopped at assertions
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'optout-assertions' }}
+        run: echo Synthetic optout assertions stage
+      - name: Synthetic optout stopped at saves
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'optout-saves' }}
+        run: echo Synthetic optout saves stage
 
       - name: Compare actual bulk method before and after
         if: success() || failure()
