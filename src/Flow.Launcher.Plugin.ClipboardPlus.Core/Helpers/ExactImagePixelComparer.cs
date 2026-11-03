@@ -1,6 +1,7 @@
 // ExactImagePixelComparer.cs
 using System;
 using System.Windows.Media;
+using System.Security.Cryptography;
 using System.Windows.Media.Imaging;
 
 namespace Flow.Launcher.Plugin.ClipboardPlus.Core.Helpers;
@@ -10,6 +11,22 @@ public static class ExactImagePixelComparer
 {
     // Bound memory consumed by a single comparison; an oversized image is unknown, not equal.
     private const int MaximumBytes = 64 * 1024 * 1024;
+
+    public static string? Fingerprint(BitmapSource? image)
+    {
+        if (image is null || !image.IsFrozen ||
+            (image.Format != PixelFormats.Bgra32 && image.Format != PixelFormats.Bgr32 && image.Format != PixelFormats.Bgr24)) return null;
+        try
+        {
+            var stride = checked(image.PixelWidth * image.Format.BitsPerPixel / 8);
+            var size = checked(stride * image.PixelHeight);
+            if (size <= 0 || size > MaximumBytes) return null;
+            var pixels = new byte[size];
+            image.CopyPixels(pixels, stride, 0);
+            return $"{image.PixelWidth}:{image.PixelHeight}:{image.Format}:{Convert.ToHexString(SHA256.HashData(pixels))}";
+        }
+        catch (Exception) { return null; }
+    }
 
     public static ClipboardContentComparison Compare(BitmapSource? left, BitmapSource? right)
     {

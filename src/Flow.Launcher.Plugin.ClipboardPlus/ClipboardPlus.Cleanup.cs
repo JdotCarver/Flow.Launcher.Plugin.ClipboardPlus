@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Windows.Media.Imaging;
 
 namespace Flow.Launcher.Plugin.ClipboardPlus;
 
@@ -14,6 +15,91 @@ public partial class ClipboardPlus
     private bool lastAutomaticCleanupThorough;
 
     public ManualCleanupRequest RequestManualCleanup(IProgress<CleanupReport>? progress = null) => cleanupCoordinator.RequestManual(progress);
+
+    private sealed record ImageRelationship(LinkedListNode<ClipboardDataPair> Target, ClipboardCleanupSnapshot TargetSnapshot,
+        LinkedListNode<ClipboardDataPair> Other, ClipboardCleanupSnapshot OtherSnapshot, string Reason);
+    private List<ImageRelationship> imageRelationships = [];
+    private bool imageRelationshipAutomatic;
+    private bool imageRelationshipThorough;
+
+    private async Task UpdateImageRelationshipsAsync(bool thorough)
+    {
+        LinkedListNode<ClipboardDataPair>[] nodes;
+        ClipboardCleanupSnapshot[] snapshots;
+        await RecordsLock.WaitAsync();
+        try
+        {
+            var items = new List<LinkedListNode<ClipboardDataPair>>();
+            for (var node = RecordsList.First; node is not null; node = node.Next)
+                if (node.Value.ClipboardData.DataType == DataType.Image) items.Add(node);
+            nodes = items.ToArray();
+            snapshots = nodes.Select(node => new ClipboardCleanupSnapshot(node.Value.ClipboardData)).ToArray();
+        }
+        finally { RecordsLock.Release(); }
+        var results = new List<ImageRelationship>();
+        if (thorough)
+        {
+            var groups = snapshots.Select((snapshot, index) => (Index: index,
+                    Fingerprint: ExactImagePixelComparer.Fingerprint(snapshot.Original.Data as BitmapSource)))
+                .Where(item => item.Fingerprint is not null).GroupBy(item => item.Fingerprint);
+            foreach (var group in groups)
+            {
+                var indexes = group.Select(item => item.Index).ToArray();
+                for (var a = 0; a < indexes.Length; a++)
+                {
+                    // Bound work for very large equal-image groups; no unverified claim is emitted.
+                    for (var b = a + 1; b < indexes.Length && b <= a + 64; b++)
+                    {
+                        var left = snapshots[indexes[a]].Original;
+                        var right = snapshots[indexes[b]].Original;
+                        if (ExactImagePixelComparer.Compare(left.Data as BitmapSource, right.Data as BitmapSource) != ClipboardContentComparison.Equal) continue;
+                        var representation = ClipboardContentComparer.Compare(left, right, true);
+                        string? reason = representation == ClipboardContentComparison.Different ? "representation" :
+                            representation == ClipboardContentComparison.Equal && (left.Pinned || right.Pinned) ? "pin" :
+                            representation == ClipboardContentComparison.Equal && left.Saved != right.Saved &&
+                                !left.FromWindowsClipboardHistory() && !right.FromWindowsClipboardHistory() ? "persistence" : null;
+                        if (reason is null) continue;
+                        results.Add(new(nodes[indexes[a]], snapshots[indexes[a]], nodes[indexes[b]], snapshots[indexes[b]], reason));
+                        results.Add(new(nodes[indexes[b]], snapshots[indexes[b]], nodes[indexes[a]], snapshots[indexes[a]], reason));
+                    }
+                }
+            }
+        }
+        await RecordsLock.WaitAsync();
+        try
+        {
+            imageRelationships = results.Where(item => item.Target.List == RecordsList && item.Other.List == RecordsList &&
+                item.TargetSnapshot.Matches(item.Target.Value.ClipboardData) && item.OtherSnapshot.Matches(item.Other.Value.ClipboardData)).ToList();
+            imageRelationshipAutomatic = Settings.AutomaticCleanup;
+            imageRelationshipThorough = Settings.AutomaticCleanupThorough;
+        }
+        finally { RecordsLock.Release(); }
+    }
+
+    public async Task<string> GetImageDeduplicationExplanationAsync(ClipboardData data)
+    {
+        await RecordsLock.WaitAsync();
+        try
+        {
+            if (Settings.AutomaticCleanup != imageRelationshipAutomatic || Settings.AutomaticCleanupThorough != imageRelationshipThorough) return string.Empty;
+            var matches = imageRelationships.Where(item => item.Target.List == RecordsList && item.Other.List == RecordsList &&
+                item.Target.Value.ClipboardData.HashId == data.HashId && item.TargetSnapshot.Matches(data) &&
+                item.TargetSnapshot.Matches(item.Target.Value.ClipboardData) && item.OtherSnapshot.Matches(item.Other.Value.ClipboardData)).ToArray();
+            if (matches.Length == 0) return string.Empty;
+            var first = matches[0];
+            var reason = first.Reason switch
+            {
+                "pin" => Localize.flowlauncher_plugin_clipboardplus_dedup_reason_pin(),
+                "persistence" => Localize.flowlauncher_plugin_clipboardplus_dedup_reason_persistence(),
+                _ => Localize.flowlauncher_plugin_clipboardplus_dedup_reason_representation()
+            };
+            var date = first.Other.Value.ClipboardData.CreateTime.ToString(CultureInfo);
+            var result = Localize.flowlauncher_plugin_clipboardplus_dedup_relationship(date, reason);
+            if (matches.Length > 1) result += " " + Localize.flowlauncher_plugin_clipboardplus_dedup_more();
+            return result;
+        }
+        finally { RecordsLock.Release(); }
+    }
 
     private long cleanupQueryGeneration;
     private sealed record CleanupResultView(List<Result> Results, Query Query, CancellationToken Token, long Generation);
@@ -307,6 +393,7 @@ public partial class ClipboardPlus
             var reserved = HistoryOverflowPolicy.CountUncertain(snapshots, thorough, failedLoadedCandidates);
             await TrimVerifiedOverflowAsync(nodes, snapshots, capturedGeneration, reserved);
         }
+        await UpdateImageRelationshipsAsync(thorough);
         if (report.RecordsRemoved > 0 || report.WindowsItemsHidden > 0)
             await PublishCurrentResultsAsync();
         return report;

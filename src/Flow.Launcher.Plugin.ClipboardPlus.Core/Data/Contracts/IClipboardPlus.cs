@@ -23,6 +23,8 @@ public interface IClipboardPlus
 
     public Task RunRetentionExpiryAsync() => Task.CompletedTask;
 
+    public Task<string> GetImageDeduplicationExplanationAsync(ClipboardData data) => Task.FromResult(string.Empty);
+
     public void EnableWindowsClipboardHelper(bool load);
 
     public void DisableWindowsClipboardHelper(bool remove);

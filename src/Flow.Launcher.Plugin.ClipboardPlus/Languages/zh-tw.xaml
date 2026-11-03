@@ -28,6 +28,12 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_yesterday">昨天 {0}</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_weekday">{0} {1}</system:String>
 
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_relationship">去重：與 {0} 的另一項像素相同；{1}。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_reason_representation">儲存的影像資料不同</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_reason_pin">釘選項目受到保護</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_reason_persistence">已儲存和暫存記錄分別保留</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_more">還有其他相符項目。</system:String>
+
     <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_keyword">清理關鍵字</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_automatic">自動合併重複項目</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_thorough">使用徹底的自動驗證</system:String>

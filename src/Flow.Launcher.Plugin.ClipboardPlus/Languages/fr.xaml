@@ -28,6 +28,12 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_yesterday">Hier à {0}</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_weekday">{0} à {1}</system:String>
 
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_relationship">Déduplication : mêmes pixels qu’une autre entrée du {0} ; {1}.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_reason_representation">les données d’image enregistrées diffèrent</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_reason_pin">une épingle est protégée</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_reason_persistence">les entrées enregistrées et temporaires sont conservées séparément</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_more">D’autres correspondances existent.</system:String>
+
     <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_keyword">Mot-clé de nettoyage</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_automatic">Regrouper automatiquement les doublons</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_thorough">Vérification automatique approfondie</system:String>

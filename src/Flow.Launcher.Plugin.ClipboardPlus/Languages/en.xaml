@@ -28,6 +28,12 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_yesterday">Yesterday at {0}</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_weekday">{0} at {1}</system:String>
 
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_relationship">Deduplication: same pixels as another item from {0}; {1}.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_reason_representation">stored image data differs</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_reason_pin">a pin is protected</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_reason_persistence">saved and temporary records are kept separately</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_more">Additional matches exist.</system:String>
+
     <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_keyword">Cleanup keyword</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_automatic">Automatically consolidate duplicates</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_thorough">Use thorough automatic verification</system:String>

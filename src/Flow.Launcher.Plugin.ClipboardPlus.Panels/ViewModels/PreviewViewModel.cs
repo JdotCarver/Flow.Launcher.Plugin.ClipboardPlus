@@ -53,7 +53,22 @@ public class PreviewViewModel : BaseModel
             default:
                 break;
         }
-        Context.LogDebug(ClassName, $"Preview {ClipboardData.DataType} content: {ClipboardData.HashId}");
+        if (ClipboardData.DataType == DataType.Image) _ = RefreshDeduplicationExplanationAsync();
+        Context.LogDebug(ClassName, $"Preview {ClipboardData.DataType}");
+    }
+
+    private string deduplicationExplanation = string.Empty;
+    public string DeduplicationExplanation
+    {
+        get => deduplicationExplanation;
+        private set { deduplicationExplanation = value; OnPropertyChanged(); OnPropertyChanged(nameof(DeduplicationExplanationVisibility)); }
+    }
+
+    public Visibility DeduplicationExplanationVisibility => string.IsNullOrEmpty(DeduplicationExplanation) ? Visibility.Collapsed : Visibility.Visible;
+
+    public async System.Threading.Tasks.Task RefreshDeduplicationExplanationAsync()
+    {
+        DeduplicationExplanation = await ClipboardPlus.GetImageDeduplicationExplanationAsync(ClipboardData);
     }
 
     #region Dependency Properties
