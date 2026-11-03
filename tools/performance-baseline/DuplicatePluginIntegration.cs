@@ -60,7 +60,6 @@ internal static class DuplicatePluginIntegration
                 throw new InvalidOperationException("Synthetic displayed results were not refreshed");
             if (database.GetAllRecordsAsync(false).GetAwaiter().GetResult().Any(record => record.HashId == "unloaded-saved"))
                 throw new InvalidOperationException("Synthetic unloaded saved duplicate survived cleanup");
-            Console.WriteLine("dedup stage before menu");
             var settings = new SettingsViewModel(plugin);
             settings.ClearKeyword = "cleanup";
             if (settings.ClearKeyword != "cleanup")
@@ -82,23 +81,14 @@ internal static class DuplicatePluginIntegration
             var legacy = System.Text.Json.JsonSerializer.Deserialize<Settings>("{\"CleanupKeyword\":\"obsolete\",\"ClearKeyword\":\"purge\",\"MaxRecords\":1234}");
             if (legacy is null || legacy.ClearKeyword != "purge" || legacy.MaxRecords != 1234)
                 throw new InvalidOperationException("Legacy settings lost unrelated preferences");
-            Console.WriteLine("dedup stage after menu");
             TestUnloadedSavedKeeper();
             TestManualActionRefresh();
-            Console.WriteLine("dedup stage after manual");
             TestPinnedCaptureLimit();
-            Console.WriteLine("dedup stage after pins");
-            Console.WriteLine("dedup stage capacity");
             TestCapacityProtection(plugin);
-            Console.WriteLine("dedup stage bounded");
             TestBoundedWindowsAndSkippedOverflow(plugin);
-            Console.WriteLine("dedup stage disabled");
             TestDisabledEvidenceRefresh(plugin);
-            Console.WriteLine("dedup stage evidence");
             TestManualImageEvidenceRetention();
-            Console.WriteLine("dedup stage optout");
             TestOptOutImageCache(plugin);
-            Console.WriteLine("dedup stage cache");
             TestSyntheticCacheScan(plugin, database);
             Console.WriteLine("dedup plugin synthetic record and cache integration checks passed");
         }
@@ -369,39 +359,15 @@ internal static class DuplicatePluginIntegration
             image.Freeze();
             var capture = typeof(Plugin).GetMethod("GetClipboardDataItem", BindingFlags.Instance | BindingFlags.NonPublic)!;
             var savesBefore = Volatile.Read(ref SyntheticHost.SettingsSaveCalls);
-            ClipboardData Create(string id)
-            {
-                try
-                {
-                    return (ClipboardData)capture.Invoke(plugin,
-                        [image, DataType.Image, id, new DateTime(2026, 1, 1), SourceApplication.NULL, "", "", true, null])!;
-                }
-                catch (Exception error)
-                {
-                    var reason = error.GetBaseException() switch
-                    {
-                        NullReferenceException => "null",
-                        ArgumentException => "argument",
-                        ObjectDisposedException => "disposed",
-                        InvalidOperationException => "operation",
-                        UnauthorizedAccessException => "access",
-                        IOException => "io",
-                        _ => "other"
-                    };
-                    Console.WriteLine($"dedup optout failure {reason}");
-                    throw;
-                }
-            }
+            ClipboardData Create(string id) => (ClipboardData)capture.Invoke(plugin,
+                [image, DataType.Image, id, new DateTime(2026, 1, 1), SourceApplication.NULL, "", "", true, null])!;
             var timer = Stopwatch.StartNew();
-            Console.WriteLine("dedup optout stage first");
             var first = Create("synthetic-image-one");
             var firstMs = timer.Elapsed.TotalMilliseconds;
             timer.Restart();
-            Console.WriteLine("dedup optout stage second");
             var second = Create("synthetic-image-two");
             var secondMs = timer.Elapsed.TotalMilliseconds;
             timer.Restart();
-            Console.WriteLine("dedup optout stage files");
             var safeFile = FileUtils.SaveNewImageCache(first, root, "synthetic-safe-benchmark", out var measuredOwnership);
             var safeFileMs = timer.Elapsed.TotalMilliseconds;
             timer.Restart();
@@ -410,12 +376,10 @@ internal static class DuplicatePluginIntegration
             if (string.IsNullOrEmpty(legacy) || string.IsNullOrEmpty(safeFile) || measuredOwnership is null)
                 throw new InvalidOperationException("Synthetic cache benchmark failed");
             Console.WriteLine($"dedup optout full image capture first/repeat {firstMs:F2}/{secondMs:F2} ms; safe/legacy file write {safeFileMs:F2}/{legacyMs:F2} ms");
-            Console.WriteLine("dedup optout stage assertions");
             if (string.IsNullOrEmpty(first.CachedImagePath) || first.CachedImagePath == second.CachedImagePath ||
                 !File.Exists(first.CachedImagePath) || !File.Exists(second.CachedImagePath) ||
                 settings.OwnedCacheFiles.Count != 2 || settings.OwnedCacheFiles.Any(item => item.WindowsAssociated))
                 throw new InvalidOperationException("Opt-out synthetic capture did not preserve owned files");
-            Console.WriteLine("dedup optout stage saves");
             if (!SpinWait.SpinUntil(() => Volatile.Read(ref SyntheticHost.SettingsSaveCalls) >= savesBefore + 2, TimeSpan.FromSeconds(10)))
                 throw new InvalidOperationException("Synthetic provenance saves did not complete");
         }

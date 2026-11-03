@@ -169,7 +169,6 @@ jobs:
           }
 
       - name: Synthetic performance baseline
-        id: synthetic-baseline
         if: success() || failure()
         shell: pwsh
         run: |
@@ -189,46 +188,6 @@ jobs:
               $_ -match '^(text create and display|image hashing only|image construct and serialize|two forced collections and finalizer wait|SQLite disk bulk insert and read|SQLite reopen and materialize|10000 live synthetic text records|plugin query|plugin synthetic text add|plugin repeated query managed heap delta|plugin capture lock wait during query|dedup planner|dedup database|dedup plugin|dedup integrated|dedup optout|dedup saved images|SQLite transaction experiment|image experiment|query experiment|image pin)[A-Za-z0-9 ,.;/():=+\-]*$'
             } | ForEach-Object { Write-Host $_ }
             if ($exitCode -ne 0) {
-              # Publish only fixed coarse categories as step outputs; never
-              # publish arbitrary exception messages or local paths.
-              $diagnostic = Get-Content -Raw "$env:RUNNER_TEMP\clipboardplus-benchmark.log"
-              $category = 'other'
-              if ($diagnostic -match 'Capacity trimming') { $category = 'capacity' }
-              elseif ($diagnostic -match 'clear menu|clear actions|obsolete command|Legacy settings|cleanup keyword') { $category = 'menu' }
-              elseif ($diagnostic -match 'TimeoutException') { $category = 'timeout' }
-              elseif ($diagnostic -match 'DuplicatePluginIntegration') { $category = 'integration' }
-              elseif ($diagnostic -match 'error CS[0-9]+') { $category = 'compilation' }
-              "category=$category" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
-              $stage = 'startup'
-              if ($diagnostic -match 'plugin query') { $stage = 'query' }
-              if ($diagnostic -match 'plugin synthetic text add') { $stage = 'planner' }
-              if ($diagnostic -match 'dedup database') { $stage = 'integration' }
-              if ($diagnostic -match 'dedup stage before menu') { $stage = 'menucheck' }
-              if ($diagnostic -match 'dedup stage after menu') { $stage = 'manualcheck' }
-              if ($diagnostic -match 'dedup stage after manual') { $stage = 'pincheck' }
-              if ($diagnostic -match 'dedup stage after pins') { $stage = 'remaining' }
-              if ($diagnostic -match 'dedup stage capacity') { $stage = 'capacity' }
-              if ($diagnostic -match 'dedup stage bounded') { $stage = 'bounded' }
-              if ($diagnostic -match 'dedup stage disabled') { $stage = 'disabled' }
-              if ($diagnostic -match 'dedup stage evidence') { $stage = 'evidence' }
-              if ($diagnostic -match 'dedup stage optout') { $stage = 'optout' }
-              if ($diagnostic -match 'dedup optout stage first') { $stage = 'optout-first' }
-              if ($diagnostic -match 'dedup optout stage second') { $stage = 'optout-second' }
-              if ($diagnostic -match 'dedup optout stage files') { $stage = 'optout-files' }
-              if ($diagnostic -match 'dedup optout stage assertions') { $stage = 'optout-assertions' }
-              if ($diagnostic -match 'dedup optout stage saves') { $stage = 'optout-saves' }
-              if ($diagnostic -match 'dedup optout failure null') { $stage = 'failure-null' }
-              if ($diagnostic -match 'dedup optout failure argument') { $stage = 'failure-argument' }
-              if ($diagnostic -match 'dedup optout failure disposed') { $stage = 'failure-disposed' }
-              if ($diagnostic -match 'dedup optout failure operation') { $stage = 'failure-operation' }
-              if ($diagnostic -match 'dedup optout failure access') { $stage = 'failure-access' }
-              if ($diagnostic -match 'dedup optout failure io') { $stage = 'failure-io' }
-              if ($diagnostic -match 'dedup optout failure other') { $stage = 'failure-other' }
-              if ($diagnostic -match 'dedup stage cache') { $stage = 'cache' }
-              if ($diagnostic -match 'dedup plugin synthetic record and cache integration checks passed') { $stage = 'contention' }
-              if ($diagnostic -match 'dedup integrated') { $stage = 'images' }
-              if ($diagnostic -match 'dedup saved images') { $stage = 'later' }
-              "stage=$stage" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
               $codes = @(Get-Content "$env:RUNNER_TEMP\clipboardplus-benchmark.log" | Select-String -Pattern 'error (CS[0-9]+)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
               if ($codes.Count -gt 0) { Write-Host ("Compiler error codes: " + ($codes -join ', ')) }
               throw "Baseline failed (details suppressed for privacy)"
@@ -238,117 +197,6 @@ jobs:
             Remove-Item "$env:RUNNER_TEMP\clipboardplus-benchmark.log" -ErrorAction SilentlyContinue
             subst "${drive}:" /d
           }
-
-      # These fixed step names expose only a coarse synthetic failure category.
-      - name: Synthetic diagnostic - capacity
-        if: ${{ always() && steps.synthetic-baseline.outputs.category == 'capacity' }}
-        run: echo Synthetic capacity check failed
-      - name: Synthetic diagnostic - menu
-        if: ${{ always() && steps.synthetic-baseline.outputs.category == 'menu' }}
-        run: echo Synthetic menu check failed
-      - name: Synthetic diagnostic - timeout
-        if: ${{ always() && steps.synthetic-baseline.outputs.category == 'timeout' }}
-        run: echo Synthetic check timed out
-      - name: Synthetic diagnostic - integration
-        if: ${{ always() && steps.synthetic-baseline.outputs.category == 'integration' }}
-        run: echo Synthetic integration check failed
-      - name: Synthetic diagnostic - compilation
-        if: ${{ always() && steps.synthetic-baseline.outputs.category == 'compilation' }}
-        run: echo Synthetic benchmark compilation failed
-      - name: Synthetic diagnostic - other
-        if: ${{ always() && steps.synthetic-baseline.outputs.category == 'other' }}
-        run: echo Synthetic benchmark failed without a recognized category
-
-      - name: Synthetic stopped at startup
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'startup' }}
-        run: echo Synthetic startup stage
-      - name: Synthetic stopped at query
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'query' }}
-        run: echo Synthetic query stage
-      - name: Synthetic stopped at planner
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'planner' }}
-        run: echo Synthetic planner stage
-      - name: Synthetic stopped at integration
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'integration' }}
-        run: echo Synthetic integration stage
-      - name: Synthetic stopped in menu check
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'menucheck' }}
-        run: echo Synthetic menu check
-      - name: Synthetic stopped in manual check
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'manualcheck' }}
-        run: echo Synthetic manual check
-      - name: Synthetic stopped in pin check
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'pincheck' }}
-        run: echo Synthetic pin check
-      - name: Synthetic stopped in remaining integration checks
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'remaining' }}
-        run: echo Synthetic remaining integration checks
-      - name: Synthetic stopped at contention
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'contention' }}
-        run: echo Synthetic contention stage
-      - name: Synthetic stopped at images
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'images' }}
-        run: echo Synthetic image stage
-      - name: Synthetic stopped at later checks
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'later' }}
-        run: echo Synthetic later stage
-
-      - name: Synthetic stopped in capacity integration
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'capacity' }}
-        run: echo Synthetic capacity integration
-      - name: Synthetic stopped in bounded integration
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'bounded' }}
-        run: echo Synthetic bounded integration
-      - name: Synthetic stopped in disabled integration
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'disabled' }}
-        run: echo Synthetic disabled integration
-      - name: Synthetic stopped in evidence integration
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'evidence' }}
-        run: echo Synthetic evidence integration
-      - name: Synthetic stopped in optout integration
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'optout' }}
-        run: echo Synthetic optout integration
-      - name: Synthetic stopped in cache integration
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'cache' }}
-        run: echo Synthetic cache integration
-
-      - name: Synthetic optout stopped at first
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'optout-first' }}
-        run: echo Synthetic optout first stage
-      - name: Synthetic optout stopped at second
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'optout-second' }}
-        run: echo Synthetic optout second stage
-      - name: Synthetic optout stopped at files
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'optout-files' }}
-        run: echo Synthetic optout files stage
-      - name: Synthetic optout stopped at assertions
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'optout-assertions' }}
-        run: echo Synthetic optout assertions stage
-      - name: Synthetic optout stopped at saves
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'optout-saves' }}
-        run: echo Synthetic optout saves stage
-
-      - name: Synthetic optout failure null
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'failure-null' }}
-        run: echo Synthetic optout null failure
-      - name: Synthetic optout failure argument
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'failure-argument' }}
-        run: echo Synthetic optout argument failure
-      - name: Synthetic optout failure disposed
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'failure-disposed' }}
-        run: echo Synthetic optout disposed failure
-      - name: Synthetic optout failure operation
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'failure-operation' }}
-        run: echo Synthetic optout operation failure
-      - name: Synthetic optout failure access
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'failure-access' }}
-        run: echo Synthetic optout access failure
-      - name: Synthetic optout failure io
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'failure-io' }}
-        run: echo Synthetic optout io failure
-      - name: Synthetic optout failure other
-        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'failure-other' }}
-        run: echo Synthetic optout other failure
 
       - name: Compare actual bulk method before and after
         if: success() || failure()
