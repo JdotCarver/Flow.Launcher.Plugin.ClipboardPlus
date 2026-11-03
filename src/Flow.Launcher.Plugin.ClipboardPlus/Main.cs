@@ -1482,9 +1482,13 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
             await RecordsLock.WaitAsync();
             try
             {
+                // An in-memory record can have changed since its database write.
+                // Never delete a saved row if the loaded copy is pinned or not provably empty.
+                var excluded = RecordsList.Where(pair => pair.ClipboardData.Saved && !IsVerifiedEmptyText(pair.ClipboardData))
+                    .Select(pair => pair.ClipboardData.HashId).ToArray();
                 var deleted = UseWindowsClipboardHistoryOnly
                     ? new HashSet<string>(StringComparer.Ordinal)
-                    : new HashSet<string>(await Database.DeleteVerifiedEmptyTextAsync(), StringComparer.Ordinal);
+                    : new HashSet<string>(await Database.DeleteVerifiedEmptyTextAsync(excluded), StringComparer.Ordinal);
                 var node = RecordsList.First;
                 while (node is not null)
                 {

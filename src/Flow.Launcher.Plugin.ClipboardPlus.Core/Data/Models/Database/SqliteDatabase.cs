@@ -797,17 +797,20 @@ public class SqliteDatabase : IAsyncDisposable
     }
 
     /// <summary>Delete only unpinned text whose stored fields are conclusively empty.</summary>
-    public async Task<List<string>> DeleteVerifiedEmptyTextAsync()
+    public async Task<List<string>> DeleteVerifiedEmptyTextAsync(IEnumerable<string>? excludedIds = null)
     {
         var removed = new List<string>();
+        var excluded = excludedIds?.Distinct(StringComparer.Ordinal).ToArray() ?? [];
         await ProcessTaskQueueAsync(async () =>
         {
             using var transaction = Connection.BeginTransaction();
-            const string predicate = "r.pinned = 0 AND a.data_b64 = '' AND (r.data_type = 0 OR (r.data_type = 4 AND a.plain_text_b64 = ''))";
+            var predicate = "r.pinned = 0 AND a.data_b64 = '' AND (r.data_type = 0 OR (r.data_type = 4 AND a.plain_text_b64 = ''))";
+            if (excluded.Length > 0) predicate += " AND r.hash_id NOT IN @Excluded";
+            var parameters = new { Excluded = excluded };
             removed.AddRange(await Connection.QueryAsync<string>(
                 "SELECT r.hash_id FROM record r JOIN asset a ON r.hash_id = a.hash_id WHERE " + predicate,
-                transaction: transaction));
-            await Connection.ExecuteAsync("DELETE FROM record WHERE id IN (SELECT r.id FROM record r JOIN asset a ON r.hash_id = a.hash_id WHERE " + predicate + ")", transaction: transaction);
+                parameters, transaction));
+            await Connection.ExecuteAsync("DELETE FROM record WHERE id IN (SELECT r.id FROM record r JOIN asset a ON r.hash_id = a.hash_id WHERE " + predicate + ")", parameters, transaction);
             transaction.Commit();
         });
         return removed;
