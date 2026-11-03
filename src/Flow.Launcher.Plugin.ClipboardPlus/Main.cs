@@ -1202,14 +1202,25 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
         // remove last record if needed
         if (!Settings.AutomaticCleanup && RecordsList.Count >= Settings.MaxRecords)
         {
-            RecordsList.Last?.Value.Dispose();
-            RecordsList.RemoveLast();
+            RemoveOldestUnpinnedRecord();
         }
 
         if (Settings.AutomaticCleanup) EnforceCaptureOverflowLimit();
         ScheduleAutomaticCleanup();
         // collect garbage
         GarbageCollect();
+    }
+
+    // Called under RecordsLock. A safety pin must not be discarded merely
+    // because automatic duplicate cleanup is disabled or the list is full.
+    private bool RemoveOldestUnpinnedRecord()
+    {
+        var node = RecordsList.Last;
+        while (node is not null && node.Value.ClipboardData.Pinned) node = node.Previous;
+        if (node is null) return false;
+        RecordsList.Remove(node);
+        node.Value.Dispose();
+        return true;
     }
 
     private void AddClipboardDataItem(List<ClipboardData> clipboardDataList)
@@ -1246,8 +1257,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
         {
             if (RecordsList.Count >= Settings.MaxRecords)
             {
-                RecordsList.Last?.Value.Dispose();
-                RecordsList.RemoveLast();
+                if (!RemoveOldestUnpinnedRecord()) break;
             }
         }
 

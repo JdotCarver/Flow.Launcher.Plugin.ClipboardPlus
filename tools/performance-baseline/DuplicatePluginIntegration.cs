@@ -72,8 +72,18 @@ internal static class DuplicatePluginIntegration
             var customClear = plugin.QueryAsync(QueryFor("purge"), CancellationToken.None).GetAwaiter().GetResult();
             if (oldCommand.Any(result => result.Score == 0) || customClear.Count == 0 || customClear[^1].Score != 0)
                 throw new InvalidOperationException("Custom clear menu or obsolete command handling failed");
+            SetField(plugin, "UseWindowsClipboardHistoryOnly", true);
+            var windowsOnlyMenu = plugin.QueryAsync(QueryFor("purge"), CancellationToken.None).GetAwaiter().GetResult();
+            if (windowsOnlyMenu.Count == 0 || windowsOnlyMenu[^1].Score != 0 ||
+                windowsOnlyMenu.Take(windowsOnlyMenu.Count - 1).Any(result => result.Score <= 0))
+                throw new InvalidOperationException("Windows-only clear menu must end with cleanup");
+            SetField(plugin, "UseWindowsClipboardHistoryOnly", false);
+            var legacy = System.Text.Json.JsonSerializer.Deserialize<Settings>("{\"CleanupKeyword\":\"obsolete\",\"ClearKeyword\":\"purge\",\"MaxRecords\":1234}");
+            if (legacy is null || legacy.ClearKeyword != "purge" || legacy.MaxRecords != 1234)
+                throw new InvalidOperationException("Legacy settings lost unrelated preferences");
             TestUnloadedSavedKeeper();
             TestManualActionRefresh();
+            TestPinnedCaptureLimit();
             TestCapacityProtection(plugin);
             TestBoundedWindowsAndSkippedOverflow(plugin);
             TestDisabledEvidenceRefresh(plugin);
@@ -86,6 +96,23 @@ internal static class DuplicatePluginIntegration
         {
             database.DisposeAsync().AsTask().GetAwaiter().GetResult();
         }
+    }
+
+    private static void TestPinnedCaptureLimit()
+    {
+        var plugin = new Plugin();
+        ClipboardDataPair Pair(string id, bool pinned) => new()
+        {
+            ClipboardData = Record(id, 0, false, pinned),
+            PreviewPanel = new Lazy<UserControl>(() => throw new InvalidOperationException("Preview must stay lazy"))
+        };
+        var records = new LinkedList<ClipboardDataPair>([Pair("protected-new", true), Pair("removable", false), Pair("protected-old", true)]);
+        SetField(plugin, "RecordsList", records);
+        var trim = typeof(Plugin).GetMethod("RemoveOldestUnpinnedRecord", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        if (!(bool)trim.Invoke(plugin, null)! || records.Count != 2 || records.Any(pair => !pair.ClipboardData.Pinned))
+            throw new InvalidOperationException("Capacity trimming discarded a pinned record");
+        if ((bool)trim.Invoke(plugin, null)! || records.Count != 2)
+            throw new InvalidOperationException("Capacity trimming must preserve an all-pinned list");
     }
 
     private static void TestManualActionRefresh()
