@@ -18,6 +18,7 @@ $metadataUnreadable = 0
 $metadataMalformed = 0
 $metadataUnexpected = 0
 $listedPins = 0
+$seenIds = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
 $folderStatus = 'unavailable'
 
 try {
@@ -57,7 +58,16 @@ try {
                     $metadataUnexpected++
                     continue
                 }
-                $listedPins += @($items[0].Value.EnumerateObject()).Count
+                $valid = $true
+                foreach ($item in $items[0].Value.EnumerateObject()) {
+                    if ([string]::IsNullOrWhiteSpace($item.Name) -or
+                        $item.Value.ValueKind -ne [System.Text.Json.JsonValueKind]::Object -or
+                        -not $seenIds.Add($item.Name)) {
+                        $valid = $false
+                    }
+                    $listedPins++
+                }
+                if (-not $valid) { $metadataUnexpected++ }
             }
             finally { $document.Dispose() }
         }
