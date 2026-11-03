@@ -37,7 +37,7 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_windows_remember">重新載入後保留</system:String>
 
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_keyword">開啟清理選單的關鍵字。</system:String>
-    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_limit">清單中保留的最大記錄數。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_limit">清單中未釘選記錄的最大數量；釘選記錄不計入限制。從清單移除的已儲存記錄仍保留在資料庫中。</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_order">選擇剪貼簿記錄的排序方式。</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_relative">以相對時間顯示最近的時間戳。</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_actiontop">將啟動器操作放在記錄之前。</system:String>
@@ -68,7 +68,7 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_thorough">自動驗證更多重複候選項，可能使用更多資源。</system:String>
 
     <system:String x:Key="flowlauncher_plugin_clipboardplus_windows_pin_warning_title">Windows 釘選狀態</system:String>
-    <system:String x:Key="flowlauncher_plugin_clipboardplus_windows_pin_unknown">無法驗證 Windows 釘選狀態。為安全起見，匯入項目會視為已釘選，因此重複項目清理可能會略過它們。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_windows_pin_unknown">無法驗證 Windows 釘選狀態。為安全起見，匯入的項目將被釘選；在資料庫模式下，即使關閉保留也會儲存。重複項目清理可能略過它們。</system:String>
     <!--  General  -->
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_name">剪貼板+</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_description">輕鬆管理你的剪貼板歴史與 Windows 剪貼板歷史，支援文字、圖像和文件</system:String>

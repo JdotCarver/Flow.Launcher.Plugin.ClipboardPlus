@@ -16,7 +16,7 @@ public class RetentionExpiryTests
             await db.InitializeDatabaseAsync();
             ClipboardData Make(string id, bool pinned, DateTime age) => new("synthetic", DataType.PlainText, false)
             {
-                HashId = id, SenderApp = "synthetic", CreateTime = age, Pinned = pinned, Saved = true
+                HashId = id, SenderApp = "synthetic", InitScore = 0, CreateTime = age, Pinned = pinned, Saved = true
             };
             await db.AddOneRecordAsync(Make("pinned", true, DateTime.Now.AddDays(-3)), true);
             await db.AddOneRecordAsync(Make("old", false, DateTime.Now.AddDays(-3)), true);

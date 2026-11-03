@@ -37,7 +37,7 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_windows_remember">重新加载后保留</system:String>
 
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_keyword">打开清理菜单的关键词。</system:String>
-    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_limit">列表中保留的最大记录数。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_limit">列表中未固定记录的最大数量；固定记录不计入限制。从列表移除的已保存记录仍保留在数据库中。</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_order">选择剪贴板记录的排序方式。</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_relative">以相对时间显示最近的时间戳。</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_actiontop">将启动器操作放在记录之前。</system:String>
@@ -68,7 +68,7 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_thorough">自动验证更多重复候选项，可能使用更多资源。</system:String>
 
     <system:String x:Key="flowlauncher_plugin_clipboardplus_windows_pin_warning_title">Windows 固定状态</system:String>
-    <system:String x:Key="flowlauncher_plugin_clipboardplus_windows_pin_unknown">无法验证 Windows 固定状态。为安全起见，导入的项目将视为已固定，因此重复项清理可能会跳过它们。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_windows_pin_unknown">无法验证 Windows 固定状态。为安全起见，导入的项目将被固定；在数据库模式下，即使关闭保留也会保存。重复项清理可能跳过它们。</system:String>
     <!--  General  -->
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_name">剪切板+</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_description">轻松管理你的剪切板历史与Windows剪切板历史，支持文字、图像和文件</system:String>

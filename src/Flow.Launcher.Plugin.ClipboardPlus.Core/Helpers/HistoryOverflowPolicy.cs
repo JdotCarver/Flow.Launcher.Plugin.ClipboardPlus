@@ -23,7 +23,7 @@ public static class HistoryOverflowPolicy
     public static int CountUncertain(IReadOnlyList<ClipboardCleanupSnapshot> snapshots, bool thorough,
         IReadOnlySet<int> failedCandidates)
     {
-        var uncertain = new HashSet<int>(failedCandidates);
+        var uncertain = new HashSet<int>(failedCandidates.Where(index => index >= 0 && index < snapshots.Count && !snapshots[index].Original.Pinned));
         var entries = snapshots.Select((snapshot, index) => (Data: snapshot.Original, Index: index))
             .Where(item => !item.Data.Pinned).ToArray();
         // A missing hash cannot establish even a candidate group. Reserve for

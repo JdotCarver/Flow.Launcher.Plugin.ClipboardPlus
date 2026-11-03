@@ -37,7 +37,7 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_windows_remember">Remember across reloads</system:String>
 
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_keyword">Keyword that opens the clear menu.</system:String>
-    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_limit">Maximum number of records kept in the list.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_limit">Maximum unpinned records loaded in the list; pinned records are additional. Unloaded saved records remain in the database.</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_order">Choose how clipboard records are ordered.</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_relative">Display recent timestamps relative to the current time.</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_actiontop">Place launcher actions above clipboard records.</system:String>
@@ -68,7 +68,7 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_thorough">Verify more duplicate candidates automatically, potentially using more resources.</system:String>
 
     <system:String x:Key="flowlauncher_plugin_clipboardplus_windows_pin_warning_title">Windows pin status</system:String>
-    <system:String x:Key="flowlauncher_plugin_clipboardplus_windows_pin_unknown">Couldn't verify Windows pin status. Imported items are treated as pinned for safety, so duplicate cleanup may skip them.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_windows_pin_unknown">Could not verify Windows pin status. Imported items are treated as pinned for safety and saved in database mode even when Keep is off. Duplicate cleanup may skip them.</system:String>
     <!--  General  -->
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_name">Clipboard+</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_description">Easily manage your clipboard history and Windows Clipboard History with support for text, images, and files</system:String>
