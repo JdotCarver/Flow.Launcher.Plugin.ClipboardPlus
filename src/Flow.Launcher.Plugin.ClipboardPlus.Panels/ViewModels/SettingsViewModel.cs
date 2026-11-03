@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -134,6 +135,7 @@ public class SettingsViewModel : BaseModel
     {
         var oldSyncWindowsClipboardHistory = SyncWindowsClipboardHistory;
         var oldUseWindowsClipboardHistoryOnly = UseWindowsClipboardHistoryOnly;
+        var oldProtectPinsFromExpiry = ProtectPinsFromExpiry;
 
         Settings.ExcludedApps.Clear();
         Settings.RestoreToDefault();
@@ -162,11 +164,14 @@ public class SettingsViewModel : BaseModel
         base.OnPropertyChanged(nameof(CacheImages));
         base.OnPropertyChanged(nameof(CacheFormat));
         base.OnPropertyChanged(nameof(EncryptData));
+        base.OnPropertyChanged(nameof(ProtectPinsFromExpiry));
         base.OnPropertyChanged(nameof(KeepText));
         base.OnPropertyChanged(nameof(KeepImages));
         base.OnPropertyChanged(nameof(KeepFiles));
 
         ClipboardPlus.SaveSettingJsonStorage();
+        if (oldProtectPinsFromExpiry != ProtectPinsFromExpiry) _ = ApplyRetentionSettingAsync();
+        _ = ClipboardPlus.EnforceHistoryCapacityAsync();
 
         var showRestartWarning = false;
         if (oldSyncWindowsClipboardHistory)
@@ -655,6 +660,56 @@ public class SettingsViewModel : BaseModel
             }
             Settings.EncryptData = value;
             OnPropertyChanged();
+        }
+    }
+
+    #endregion
+
+    #region Pin expiry
+
+    private bool retentionBusy;
+    public bool RetentionSettingEnabled => !retentionBusy;
+    private string retentionError = string.Empty;
+    public string RetentionError
+    {
+        get => retentionError;
+        private set { retentionError = value; base.OnPropertyChanged(); }
+    }
+
+    public bool ProtectPinsFromExpiry
+    {
+        get => Settings.ProtectPinsFromExpiry;
+        set
+        {
+            if (retentionBusy || Settings.ProtectPinsFromExpiry == value) return;
+            if (!value && Context.ShowMsgBox(
+                Localize.flowlauncher_plugin_clipboardplus_pin_expiry_confirm(),
+                Localize.flowlauncher_plugin_clipboardplus_pin_expiry_caption(),
+                MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
+            {
+                base.OnPropertyChanged(nameof(ProtectPinsFromExpiry));
+                return;
+            }
+            Settings.ProtectPinsFromExpiry = value;
+            OnPropertyChanged();
+            _ = ApplyRetentionSettingAsync();
+        }
+    }
+
+    private async Task ApplyRetentionSettingAsync()
+    {
+        retentionBusy = true;
+        base.OnPropertyChanged(nameof(RetentionSettingEnabled));
+        RetentionError = string.Empty;
+        try { await ClipboardPlus.RunRetentionExpiryAsync(); }
+        catch (Exception)
+        {
+            RetentionError = Localize.flowlauncher_plugin_clipboardplus_pin_expiry_error();
+        }
+        finally
+        {
+            retentionBusy = false;
+            base.OnPropertyChanged(nameof(RetentionSettingEnabled));
         }
     }
 

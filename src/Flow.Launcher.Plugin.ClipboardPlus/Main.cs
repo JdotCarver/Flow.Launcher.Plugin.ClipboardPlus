@@ -1417,6 +1417,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
             RecordsLock.Release();
         }
         RequestWindowsEvidenceRefresh();
+        ScheduleAutomaticCleanup();
         Context?.ReQuery(false);
     }
 
@@ -1444,6 +1445,33 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
 
     #region List & Database & Windows History
 
+    public async Task RunRetentionExpiryAsync()
+    {
+        if (UseWindowsClipboardHistoryOnly) return;
+        await RecordsLock.WaitAsync();
+        try
+        {
+            var expired = await Database.ExpireRecordsAsync(Settings.KeepTimePairs.Select(pair =>
+                ((int)pair.Item1, pair.Item2.ToKeepTime())), Settings.ProtectPinsFromExpiry);
+            var ids = new HashSet<string>(expired, StringComparer.OrdinalIgnoreCase);
+            var node = RecordsList.First;
+            while (node is not null)
+            {
+                var next = node.Next;
+                if (node.Value.ClipboardData.Saved && ids.Contains(node.Value.ClipboardData.HashId))
+                {
+                    var pair = node.Value;
+                    RecordsList.Remove(node);
+                    pair.Dispose();
+                }
+                node = next;
+            }
+            ScoreHelper.Reset(RecordsList);
+        }
+        finally { RecordsLock.Release(); }
+        await PublishCurrentResultsAsync();
+    }
+
     public async Task InitRecordsFromDatabaseAndSystemAsync(bool database, bool system)
     {
         // manage database
@@ -1452,19 +1480,15 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
         {
             if (!UseWindowsClipboardHistoryOnly)
             {
-                // clear expired records
+                // Run one atomic pass before restoring database history.
                 try
                 {
-                    foreach (var pair in Settings.KeepTimePairs)
-                    {
-                        Context.LogDebug(ClassName, $"{pair.Item1}, {pair.Item2}, {pair.Item2.ToKeepTime()}");
-                        await Database.DeleteRecordsByKeepTimeAsync((int)pair.Item1, pair.Item2.ToKeepTime());
-                    }
-                    Context.LogDebug(ClassName, $"Cleared expired records successfully");
+                    await Database.ExpireRecordsAsync(Settings.KeepTimePairs.Select(pair =>
+                        ((int)pair.Item1, pair.Item2.ToKeepTime())), Settings.ProtectPinsFromExpiry);
                 }
                 catch (Exception e)
                 {
-                    Context.LogException(ClassName, $"Cleared expired records failed", e);
+                    Context.LogException(ClassName, "Clearing expired records failed", e);
                 }
 
                 // restore database records
@@ -1761,6 +1785,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
             RecordsLock.Release();
             GarbageCollect();
         }
+        ScheduleAutomaticCleanup();
     }
 
     private void ClearRecordsList()

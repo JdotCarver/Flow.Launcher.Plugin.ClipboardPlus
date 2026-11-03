@@ -5,6 +5,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:system="clr-namespace:System;assembly=mscorlib">
 
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_protect_pins_expiry">Protéger les éléments épinglés contre l’expiration</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_pin_expiry">Modifier cette option lance immédiatement le nettoyage et peut supprimer définitivement des entrées. Si elle est désactivée, les éléments épinglés, y compris les épingles de sécurité, suivent la durée de leur type.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_pin_expiry_confirm">Désactiver la protection ? Les éléments épinglés expirés peuvent être immédiatement supprimés définitivement.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_pin_expiry_caption">Confirmer le nettoyage</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_pin_expiry_error">Le nettoyage a échoué. Votre choix est enregistré ; le nettoyage sera réessayé à la prochaine initialisation de l’historique.</system:String>
+
     <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_time_setting">Afficher les dates relatives</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_just_now">À l’instant</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_minute">Il y a {0} minute</system:String>

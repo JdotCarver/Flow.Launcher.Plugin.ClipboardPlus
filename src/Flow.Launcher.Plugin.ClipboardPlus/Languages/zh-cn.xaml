@@ -5,6 +5,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:system="clr-namespace:System;assembly=mscorlib">
 
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_protect_pins_expiry">保护固定的记录不过期</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_pin_expiry">更改此设置会立即运行保留期清理，并可能永久删除记录。取消勾选后，固定记录（包括安全固定）遵循其类型的保留期。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_pin_expiry_confirm">关闭固定保护？过期的固定记录可能立即被永久删除。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_pin_expiry_caption">确认保留期清理</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_pin_expiry_error">无法完成清理。设置已保存；下次初始化历史记录时将重试清理。</system:String>
+
     <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_time_setting">显示相对时间</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_just_now">刚刚</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_minute">{0} 分钟前</system:String>

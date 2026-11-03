@@ -21,6 +21,8 @@ public interface IClipboardPlus
 
     public Task EnforceHistoryCapacityAsync() => Task.CompletedTask;
 
+    public Task RunRetentionExpiryAsync() => Task.CompletedTask;
+
     public void EnableWindowsClipboardHelper(bool load);
 
     public void DisableWindowsClipboardHelper(bool remove);

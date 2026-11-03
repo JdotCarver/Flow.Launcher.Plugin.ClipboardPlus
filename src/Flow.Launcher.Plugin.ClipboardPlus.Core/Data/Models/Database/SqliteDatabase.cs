@@ -796,6 +796,25 @@ public class SqliteDatabase : IAsyncDisposable
         return [.. results.Select(ClipboardData.FromRecord)];
     }
 
+    /// <summary>Atomically expire records across all types and return their identities for list refresh.</summary>
+    public async Task<List<string>> ExpireRecordsAsync(IEnumerable<(int DataType, int KeepTime)> durations, bool protectPins)
+    {
+        var removed = new List<string>();
+        await ProcessTaskQueueAsync(async () =>
+        {
+            using var transaction = Connection.BeginTransaction();
+            const string predicate = "strftime('%s', 'now') - strftime('%s', create_time) > @KeepTime*3600 AND data_type=@DataType AND (@ProtectPins=0 OR pinned=0)";
+            foreach (var duration in durations)
+            {
+                var args = new { duration.DataType, duration.KeepTime, ProtectPins = protectPins ? 1 : 0 };
+                removed.AddRange(await Connection.QueryAsync<string>("SELECT hash_id FROM record WHERE " + predicate, args, transaction));
+                await Connection.ExecuteAsync("DELETE FROM record WHERE " + predicate, args, transaction);
+            }
+            transaction.Commit();
+        });
+        return removed;
+    }
+
     public async Task DeleteRecordsByKeepTimeAsync(int dataType, int keepTime)
     {
         await ProcessTaskQueueAsync(async () =>

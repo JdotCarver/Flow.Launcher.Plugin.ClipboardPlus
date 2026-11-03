@@ -59,6 +59,7 @@
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
@@ -522,29 +523,39 @@
             SelectedValuePath="Value"
             Visibility="{Binding DatabasePanelVisibility, Mode=OneWay}" />
 
+        <!--  Pin retention  -->
+        <StackPanel Grid.Row="24" Grid.ColumnSpan="2" Visibility="{Binding DatabasePanelVisibility, Mode=OneWay}">
+            <CheckBox ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_pin_expiry}" ToolTipService.ShowOnDisabled="True"
+                Margin="{StaticResource SettingPanelItemTopBottomMargin}"
+                Content="{DynamicResource flowlauncher_plugin_clipboardplus_protect_pins_expiry}"
+                IsEnabled="{Binding RetentionSettingEnabled}"
+                IsChecked="{Binding ProtectPinsFromExpiry, Mode=TwoWay}" />
+            <TextBlock Text="{Binding RetentionError}" TextWrapping="Wrap" />
+        </StackPanel>
+
         <!--  Duplicate cleanup  -->
-        <CheckBox ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_automatic}" ToolTipService.ShowOnDisabled="True" Grid.Row="24" Grid.ColumnSpan="2"
+        <CheckBox ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_automatic}" ToolTipService.ShowOnDisabled="True" Grid.Row="25" Grid.ColumnSpan="2"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_automatic}"
             IsChecked="{Binding AutomaticCleanup, Mode=TwoWay}" />
-        <CheckBox ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_thorough}" ToolTipService.ShowOnDisabled="True" Grid.Row="25" Grid.ColumnSpan="2"
+        <CheckBox ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_thorough}" ToolTipService.ShowOnDisabled="True" Grid.Row="26" Grid.ColumnSpan="2"
             Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
             Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_thorough}"
             IsChecked="{Binding AutomaticCleanupThorough, Mode=TwoWay}"
             IsEnabled="{Binding AutomaticCleanup, Mode=OneWay}" />
-        <Button ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_cleanup}" ToolTipService.ShowOnDisabled="True" Grid.Row="26" Grid.ColumnSpan="2" HorizontalAlignment="Left"
+        <Button ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_cleanup}" ToolTipService.ShowOnDisabled="True" Grid.Row="27" Grid.ColumnSpan="2" HorizontalAlignment="Left"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_action}"
             Command="{Binding CleanupCommand}" />
-        <TextBlock Grid.Row="27" Grid.ColumnSpan="2" TextWrapping="Wrap"
+        <TextBlock Grid.Row="28" Grid.ColumnSpan="2" TextWrapping="Wrap"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             Text="{Binding CleanupFeedback, Mode=OneWay}" />
 
-        <TextBlock Grid.Row="28" Grid.Column="0"
+        <TextBlock Grid.Row="29" Grid.Column="0"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             VerticalAlignment="Center"
             Text="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_windows_lifetime}" />
-        <ComboBox ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_suppression}" ToolTipService.ShowOnDisabled="True" Grid.Row="28" Grid.Column="1"
+        <ComboBox ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_suppression}" ToolTipService.ShowOnDisabled="True" Grid.Row="29" Grid.Column="1"
             Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
             HorizontalAlignment="Left" SelectedIndex="{Binding WindowsSuppressionLifetimeIndex, Mode=TwoWay}">
             <ComboBoxItem Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_windows_session}" />
@@ -553,13 +564,13 @@
 
         <!--  Seperator  -->
         <Separator
-            Grid.Row="29"
+            Grid.Row="30"
             Grid.ColumnSpan="2"
             Style="{StaticResource SettingPanelSeparatorStyle}" />
 
         <!--  Excluded Apps  -->
         <TextBlock
-            Grid.Row="30"
+            Grid.Row="31"
             Grid.Column="0"
             Grid.ColumnSpan="2"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
@@ -567,7 +578,7 @@
             Text="{DynamicResource flowlauncher_plugin_clipboardplus_excluded_apps}" />
         <ListView
  ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_excluded}" ToolTipService.ShowOnDisabled="True"            x:Name="ProgramSourceView"
-            Grid.Row="31"
+            Grid.Row="32"
             Grid.ColumnSpan="2"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             AllowDrop="True"
@@ -588,7 +599,7 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <DockPanel Grid.Row="32" Grid.ColumnSpan="2">
+        <DockPanel Grid.Row="33" Grid.ColumnSpan="2">
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                 <Button
  ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_deleteapp}" ToolTipService.ShowOnDisabled="True"                    MinWidth="100"
@@ -605,13 +616,13 @@
 
         <!--  Seperator  -->
         <Separator
-            Grid.Row="33"
+            Grid.Row="34"
             Grid.ColumnSpan="2"
             Style="{StaticResource SettingPanelSeparatorStyle}" />
 
         <!--  Restore to Default  -->
         <Button
- ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_restore}" ToolTipService.ShowOnDisabled="True"            Grid.Row="34"
+ ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_restore}" ToolTipService.ShowOnDisabled="True"            Grid.Row="35"
             Grid.ColumnSpan="2"
             HorizontalAlignment="Left"
             Command="{Binding RestoreToDefaultCommand}"
