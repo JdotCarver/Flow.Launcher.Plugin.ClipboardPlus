@@ -105,15 +105,14 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
     private const int ScoreInterval13 = 13 * ScoreInterval;
     private const int ScoreInterval14 = 14 * ScoreInterval;
 
-    private const int TopActionScore1 = 2 * ClipboardData.MaximumScore + 4 * ScoreInterval;
-    private const int TopActionScore2 = 2 * ClipboardData.MaximumScore + 3 * ScoreInterval;
-    private const int TopActionScore3 = 2 * ClipboardData.MaximumScore + 2 * ScoreInterval;
-    private const int TopActionScore4 = 2 * ClipboardData.MaximumScore + 1 * ScoreInterval;
-
-    private const int BottomActionScore1 = 8000;
-    private const int BottomActionScore2 = 6000;
-    private const int BottomActionScore3 = 4000;
-    private const int BottomActionScore4 = 2000;
+    // Leave room for record ranks between the action groups, regardless of
+    // the original record scores (which may include zero or negative values).
+    private const int TopActionScore1 = int.MaxValue;
+    private const int TopActionScore3 = int.MaxValue - 1;
+    private const int TopActionScore4 = int.MaxValue - 2;
+    private const int BottomActionScore1 = 3;
+    private const int BottomActionScore3 = 2;
+    private const int BottomActionScore4 = 1;
 
     #endregion
 
@@ -509,6 +508,9 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
 
                     Context.LogDebug(ClassName, $"Search added {results.Count} records successfully");
                 }
+                if (string.IsNullOrWhiteSpace(querySearch))
+                    RankEmptyQueryRecords(results);
+
                 // Publish the view before releasing the history lock so a
                 // concurrent cleanup can never miss the just-built result list.
                 if (Interlocked.Read(ref cleanupQueryGeneration) == queryGeneration && !token.IsCancellationRequested)
@@ -1871,6 +1873,19 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
     #endregion
 
     #region Query Result
+
+    // Flow sorts results by score. Dense ranks preserve the record score order
+    // and ties while keeping every record between the top and bottom actions.
+    private static void RankEmptyQueryRecords(List<Result> results)
+    {
+        var records = results.Where(result => result.ContextData is ClipboardDataPair).ToArray();
+        var scores = records.Select(result => result.Score).Distinct().OrderBy(score => score).ToArray();
+        var ranks = new Dictionary<int, int>(scores.Length);
+        for (var index = 0; index < scores.Length; index++)
+            ranks[scores[index]] = index + 4;
+        foreach (var result in records)
+            result.Score = ranks[result.Score];
+    }
 
     private Result? GetResultFromClipboardData(ClipboardDataPair clipboardDataPair, string? querySearch)
     {

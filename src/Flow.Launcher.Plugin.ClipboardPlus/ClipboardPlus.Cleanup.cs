@@ -173,6 +173,7 @@ public partial class ClipboardPlus
                         var result = GetResultFromClipboardData(pair, search);
                         if (result is not null) live.Add(result);
                     }
+                    if (search is null) RankEmptyQueryRecords(live);
                 }
                 else
                 {
