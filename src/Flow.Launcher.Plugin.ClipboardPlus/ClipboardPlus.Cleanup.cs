@@ -318,14 +318,16 @@ public partial class ClipboardPlus
     {
         var removed = new List<ClipboardDataPair>();
         var limit = HistoryOverflowPolicy.Limit(Settings.MaxRecords, HistoryOverflowPolicy.MaximumOverflow);
+        var unpinnedCount = RecordsList.Count(pair => !pair.ClipboardData.Pinned);
         var node = RecordsList.Last;
-        while (RecordsList.Count > limit && node is not null)
+        while (unpinnedCount > limit && node is not null)
         {
             var previous = node.Previous;
             if (!node.Value.ClipboardData.Pinned)
             {
                 removed.Add(node.Value);
                 RecordsList.Remove(node);
+                unpinnedCount--;
             }
             node = previous;
         }
@@ -364,16 +366,19 @@ public partial class ClipboardPlus
                 if (nodes[i].List == RecordsList) captured[nodes[i].Value] = snapshots[i];
             // Changed or newly materialized records reserve their own slots;
             // they do not block unrelated capacity management indefinitely.
-            var stale = RecordsList.Count(pair => !captured.TryGetValue(pair, out var snapshot) || !snapshot.Matches(pair.ClipboardData));
+            var stale = RecordsList.Count(pair => !pair.ClipboardData.Pinned &&
+                (!captured.TryGetValue(pair, out var snapshot) || !snapshot.Matches(pair.ClipboardData)));
             var limit = HistoryOverflowPolicy.Limit(Settings.MaxRecords, reserved + stale);
+            var unpinnedCount = RecordsList.Count(pair => !pair.ClipboardData.Pinned);
             var node = RecordsList.Last;
-            while (RecordsList.Count > limit && node is not null)
+            while (unpinnedCount > limit && node is not null)
             {
                 var previous = node.Previous;
                 if (!node.Value.ClipboardData.Pinned)
                 {
                     removed.Add(node.Value);
                     RecordsList.Remove(node);
+                    unpinnedCount--;
                 }
                 node = previous;
             }

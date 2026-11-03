@@ -1200,10 +1200,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
         }
 
         // remove last record if needed
-        if (!Settings.AutomaticCleanup && RecordsList.Count >= Settings.MaxRecords)
-        {
-            RemoveOldestUnpinnedRecord();
-        }
+        if (!Settings.AutomaticCleanup) TrimUnpinnedCapacity(Settings.MaxRecords);
 
         if (Settings.AutomaticCleanup) EnforceCaptureOverflowLimit();
         ScheduleAutomaticCleanup();
@@ -1223,9 +1220,29 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
         return true;
     }
 
+    // Called under RecordsLock; capacity unloads records, never deletes database rows.
+    private void TrimUnpinnedCapacity(int limit)
+    {
+        var excess = RecordsList.Count(pair => !pair.ClipboardData.Pinned) - Math.Max(0, limit);
+        while (excess-- > 0 && RemoveOldestUnpinnedRecord()) { }
+    }
+
+    public async Task EnforceHistoryCapacityAsync()
+    {
+        await RecordsLock.WaitAsync();
+        try
+        {
+            if (Settings.AutomaticCleanup) EnforceCaptureOverflowLimit();
+            else TrimUnpinnedCapacity(Settings.MaxRecords);
+            ScoreHelper.Reset(RecordsList);
+        }
+        finally { RecordsLock.Release(); }
+        await PublishCurrentResultsAsync();
+        ScheduleAutomaticCleanup();
+    }
+
     private void AddClipboardDataItem(List<ClipboardData> clipboardDataList)
     {
-        var removeCount = RecordsList.Count + clipboardDataList.Count - Settings.MaxRecords;
         if (clipboardDataList.Count > 0) captureGeneration++;
         var trimmedOverflow = false;
 
@@ -1252,14 +1269,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
         }
 
         if (trimmedOverflow) NotifyCaptureOverflowTrimmed();
-        // remove last record if needed
-        for (int i = 0; !Settings.AutomaticCleanup && i < removeCount; i++)
-        {
-            if (RecordsList.Count >= Settings.MaxRecords)
-            {
-                if (!RemoveOldestUnpinnedRecord()) break;
-            }
-        }
+        if (!Settings.AutomaticCleanup) TrimUnpinnedCapacity(Settings.MaxRecords);
 
         ScheduleAutomaticCleanup();
         // collect garbage
@@ -1390,6 +1400,11 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
                 }
                 RecordsList.Remove(clipboardDataPair);
                 RecordsList.AddFirst(clipboardDataPair);
+                if (!e.Pinned)
+                {
+                    if (Settings.AutomaticCleanup) EnforceCaptureOverflowLimit();
+                    else TrimUnpinnedCapacity(Settings.MaxRecords);
+                }
                 Context.LogDebug(ClassName, "Updated record pin status");
             }
             else
@@ -1489,6 +1504,8 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
                     await InitRecordsFromSystemAsync(true);
                 }
             }
+            if (Settings.AutomaticCleanup) EnforceCaptureOverflowLimit();
+            else TrimUnpinnedCapacity(Settings.MaxRecords);
         }
         finally
         {
@@ -1731,6 +1748,11 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
             else
             {
                 _ = Database.PinOneRecordAsync(clipboardDataPair.ClipboardData);
+            }
+            if (!clipboardDataPair.ClipboardData.Pinned)
+            {
+                if (Settings.AutomaticCleanup) EnforceCaptureOverflowLimit();
+                else TrimUnpinnedCapacity(Settings.MaxRecords);
             }
             Context.LogDebug(ClassName, "Toggled record pin");
         }

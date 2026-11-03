@@ -19,6 +19,8 @@ public interface IClipboardPlus
 
     public Task InitRecordsFromDatabaseAndSystemAsync(bool database, bool system);
 
+    public Task EnforceHistoryCapacityAsync() => Task.CompletedTask;
+
     public void EnableWindowsClipboardHelper(bool load);
 
     public void DisableWindowsClipboardHelper(bool remove);

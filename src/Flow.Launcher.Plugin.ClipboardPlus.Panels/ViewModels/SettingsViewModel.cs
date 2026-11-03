@@ -297,6 +297,7 @@ public class SettingsViewModel : BaseModel
             }
             Settings.MaxRecords = value;
             OnPropertyChanged();
+            _ = ClipboardPlus.EnforceHistoryCapacityAsync();
         }
     }
 

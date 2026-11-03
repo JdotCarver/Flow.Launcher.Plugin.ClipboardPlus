@@ -84,6 +84,7 @@ internal static class DuplicatePluginIntegration
             TestUnloadedSavedKeeper();
             TestManualActionRefresh();
             TestPinnedCaptureLimit();
+            TestPinsDoNotConsumeCapacity(plugin);
             TestCapacityProtection(plugin);
             TestBoundedWindowsAndSkippedOverflow(plugin);
             TestDisabledEvidenceRefresh(plugin);
@@ -189,6 +190,24 @@ internal static class DuplicatePluginIntegration
         finally { database.DisposeAsync().AsTask().GetAwaiter().GetResult(); }
     }
 
+    private static void TestPinsDoNotConsumeCapacity(Plugin plugin)
+    {
+        SetField(plugin, "Settings", new Settings { AutomaticCleanup = false, MaxRecords = 2 });
+        var list = new LinkedList<ClipboardDataPair>();
+        SetField(plugin, "RecordsList", list);
+        var add = typeof(Plugin).GetMethod("AddClipboardDataItem", BindingFlags.Instance | BindingFlags.NonPublic,
+            null, [typeof(ClipboardData)], null)!;
+        for (var i = 0; i < 4; i++) add.Invoke(plugin, [Record($"pin-{i}", i, false, true)]);
+        add.Invoke(plugin, [Record("old-unpinned", 5, false)]);
+        add.Invoke(plugin, [Record("middle-unpinned", 6, false)]);
+        if (list.Count != 6) throw new InvalidOperationException("Pins consumed unpinned capacity");
+        add.Invoke(plugin, [Record("new-unpinned", 7, false)]);
+        if (list.Count != 6 || list.Any(pair => pair.ClipboardData.HashId == "old-unpinned") ||
+            !list.Any(pair => pair.ClipboardData.HashId == "new-unpinned") ||
+            list.Count(pair => pair.ClipboardData.Pinned) != 4)
+            throw new InvalidOperationException("Capture did not retain the newest unpinned records alongside pins");
+    }
+
     private static void TestCapacityProtection(Plugin plugin)
     {
         SetField(plugin, "Settings", new Settings { AutomaticCleanup = true, MaxRecords = 2 });
@@ -261,16 +280,16 @@ internal static class DuplicatePluginIntegration
         }
         add.Invoke(plugin, [Windows("pinned-windows", true)]);
         for (var i = 0; i < 60; i++) add.Invoke(plugin, [Windows($"windows-{i}")]);
-        if (list.Count != 2 + HistoryOverflowPolicy.MaximumOverflow || !list.Any(pair => pair.ClipboardData.HashId == "pinned-windows"))
+        if (list.Count != 3 + HistoryOverflowPolicy.MaximumOverflow || !list.Any(pair => pair.ClipboardData.HashId == "pinned-windows"))
             throw new InvalidOperationException("Synthetic Windows captures exceeded the bound or evicted a pinned record");
         var cleanup = typeof(Plugin).GetMethod("RunCleanupWorkAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
         ((Task<CleanupReport>)cleanup.Invoke(plugin, [CleanupWork.AutomaticBestEffort])!).GetAwaiter().GetResult();
-        if (list.Count != 2 || !list.Any(pair => pair.ClipboardData.HashId == "pinned-windows"))
+        if (list.Count != 3 || !list.Any(pair => pair.ClipboardData.HashId == "pinned-windows"))
             throw new InvalidOperationException("Windows-origin records blocked ordinary capacity trimming");
         var addBatch = typeof(Plugin).GetMethod("AddClipboardDataItem", BindingFlags.Instance | BindingFlags.NonPublic,
             null, [typeof(List<ClipboardData>)], null)!;
         addBatch.Invoke(plugin, [Enumerable.Range(0, 60).Select(i => Windows($"batch-{i}")).ToList()]);
-        if (list.Count != 2 + HistoryOverflowPolicy.MaximumOverflow || !list.Any(pair => pair.ClipboardData.HashId == "pinned-windows"))
+        if (list.Count != 3 + HistoryOverflowPolicy.MaximumOverflow || !list.Any(pair => pair.ClipboardData.HashId == "pinned-windows"))
             throw new InvalidOperationException("Synthetic batch exceeded the bound or evicted a pinned record");
 
         SetField(plugin, "UseWindowsClipboardHistoryOnly", false);
