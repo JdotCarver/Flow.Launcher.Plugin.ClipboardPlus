@@ -107,10 +107,8 @@ internal static class DuplicatePluginIntegration
         try
         {
             database.InitializeDatabaseAsync().GetAwaiter().GetResult();
-            var old = Record("expired-unpinned", 1, true);
-            var pin = Record("expired-pin", 2, true, true);
-            old.CreateTime = DateTime.Now.AddDays(-5);
-            pin.CreateTime = DateTime.Now.AddDays(-5);
+            var old = Record("expired-unpinned", 1, true, age: DateTime.Now.AddDays(-5));
+            var pin = Record("expired-pin", 2, true, true, DateTime.Now.AddDays(-5));
             database.AddRecordsAsync([old, pin], true).GetAwaiter().GetResult();
             var list = new LinkedList<ClipboardDataPair>(new[] { old, pin }.Select(record => new ClipboardDataPair
             {
@@ -584,10 +582,10 @@ internal static class DuplicatePluginIntegration
         return query;
     }
 
-    private static ClipboardData Record(string id, int minute, bool saved, bool pinned = false) => new("synthetic", DataType.PlainText, false)
+    private static ClipboardData Record(string id, int minute, bool saved, bool pinned = false, DateTime? age = null) => new("synthetic", DataType.PlainText, false)
     {
         HashId = id, SenderApp = "synthetic", InitScore = minute,
-        CreateTime = new DateTime(2026, 1, 1).AddMinutes(minute), Pinned = pinned, Saved = saved,
+        CreateTime = age ?? new DateTime(2026, 1, 1).AddMinutes(minute), Pinned = pinned, Saved = saved,
         EncryptKeyMd5 = StringUtils.EncryptKeyMd5
     };
 
