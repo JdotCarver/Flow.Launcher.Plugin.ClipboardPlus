@@ -1375,6 +1375,18 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
                 if (clipboardDataPair.ClipboardData.Pinned != e.Pinned)
                 {
                     clipboardDataPair.TogglePinned();
+                    if (!UseWindowsClipboardHistoryOnly)
+                    {
+                        if (clipboardDataPair.ClipboardData.Saved)
+                            _ = Database.PinOneRecordAsync(clipboardDataPair.ClipboardData);
+                        else if (e.Pinned)
+                        {
+                            var pinnedData = clipboardDataPair.ClipboardData;
+                            pinnedData.Saved = true;
+                            clipboardDataPair.ClipboardData = pinnedData;
+                            _ = Database.AddOneRecordAsync(pinnedData, true);
+                        }
+                    }
                 }
                 RecordsList.Remove(clipboardDataPair);
                 RecordsList.AddFirst(clipboardDataPair);
