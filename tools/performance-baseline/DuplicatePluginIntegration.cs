@@ -84,6 +84,7 @@ internal static class DuplicatePluginIntegration
                 throw new InvalidOperationException("Legacy settings lost unrelated preferences");
             TestUnloadedSavedKeeper();
             TestManualActionRefresh();
+            TestTwoImportedWindowsImageDuplicates();
             TestImageRelationshipExplanations();
             TestRetentionPassRefreshesLoadedRecords();
             TestPinnedCaptureLimit();
@@ -99,6 +100,40 @@ internal static class DuplicatePluginIntegration
         finally
         {
             database.DisposeAsync().AsTask().GetAwaiter().GetResult();
+        }
+    }
+
+    private static void TestTwoImportedWindowsImageDuplicates()
+    {
+        foreach (var work in new[] { CleanupWork.ManualThorough, CleanupWork.AutomaticThorough })
+        {
+            var plugin = new Plugin();
+            SetField(plugin, "Settings", new Settings { AutomaticCleanup = true, AutomaticCleanupThorough = true });
+            SetField(plugin, "UseWindowsClipboardHistoryOnly", true);
+            var helper = typeof(Plugin).GetField("WindowsClipboardHelper", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(plugin)!;
+            typeof(WindowsClipboardHelper).GetField("pinStateTrusted", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(helper, true);
+            ClipboardData Image(string id)
+            {
+                var bitmap = BitmapSource.Create(1, 1, 96, 96, PixelFormats.Bgra32, null, new byte[] { 7, 8, 9, 255 }, 4);
+                bitmap.Freeze();
+                object item = new ClipboardData(bitmap, DataType.Image, false)
+                {
+                    HashId = id, SenderApp = "synthetic", InitScore = 0, CreateTime = new DateTime(2026, 1, 1), Pinned = false, Saved = false
+                };
+                typeof(ClipboardData).GetProperty("WindowsHistoryOrigin", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(item, true);
+                return (ClipboardData)item;
+            }
+            var imported = new List<ClipboardData> { Image("windows-one"), Image("windows-two") };
+            if (WindowsImportPinPolicy.ProtectUnverified(imported, true, false))
+                throw new InvalidOperationException("Trusted synthetic import was protected unexpectedly");
+            var list = new LinkedList<ClipboardDataPair>(imported.Select(data => new ClipboardDataPair {
+                ClipboardData = data, PreviewPanel = new Lazy<UserControl>(() => throw new InvalidOperationException("Preview must stay lazy")) }));
+            SetField(plugin, "RecordsList", list);
+            var refresh = typeof(Plugin).GetMethod("RefreshWindowsEvidenceAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            ((Task<CleanupReport>)refresh.Invoke(plugin, [work, true, 0L])!).GetAwaiter().GetResult();
+            var hidden = typeof(Plugin).GetMethod("IsWindowsSuppressed", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            if (list.Count != 2 || list.Count(pair => (bool)hidden.Invoke(plugin, [pair])!) != 1)
+                throw new InvalidOperationException("Synthetic Windows image duplicates did not retain exactly one visible image");
         }
     }
 
