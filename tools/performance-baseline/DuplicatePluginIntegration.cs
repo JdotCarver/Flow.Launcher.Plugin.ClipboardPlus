@@ -84,6 +84,7 @@ internal static class DuplicatePluginIntegration
                 throw new InvalidOperationException("Legacy settings lost unrelated preferences");
             TestUnloadedSavedKeeper();
             TestManualActionRefresh();
+            TestImageRelationshipExplanations();
             TestRetentionPassRefreshesLoadedRecords();
             TestPinnedCaptureLimit();
             TestPinsDoNotConsumeCapacity(plugin);
@@ -99,6 +100,36 @@ internal static class DuplicatePluginIntegration
         {
             database.DisposeAsync().AsTask().GetAwaiter().GetResult();
         }
+    }
+
+    private static void TestImageRelationshipExplanations()
+    {
+        var plugin = new Plugin();
+        SetField(plugin, "Settings", new Settings { AutomaticCleanup = true, AutomaticCleanupThorough = true });
+        SetField(plugin, "CultureInfo", CultureInfo.GetCultureInfo("en-US"));
+        ClipboardData Make(string id, double dpi) {
+            var image = BitmapSource.Create(1, 1, dpi, dpi, PixelFormats.Bgra32, null, new byte[] { 5, 6, 7, 255 }, 4);
+            image.Freeze();
+            return new ClipboardData(image, DataType.Image, false)
+            {
+                HashId = id, SenderApp = "synthetic", InitScore = 0, CreateTime = new DateTime(2026, 1, 1), Pinned = false, Saved = false
+            };
+        }
+        var first = Make("first-image", 96);
+        var second = Make("second-image", 144);
+        if (ClipboardContentComparer.Compare(first, second, true) != ClipboardContentComparison.Different)
+            throw new InvalidOperationException("Synthetic image representations did not differ");
+        ClipboardDataPair Pair(ClipboardData data) => new() { ClipboardData = data,
+            PreviewPanel = new Lazy<UserControl>(() => throw new InvalidOperationException("Preview must stay lazy")) };
+        var list = new LinkedList<ClipboardDataPair>([Pair(first), Pair(second)]);
+        SetField(plugin, "RecordsList", list);
+        var update = typeof(Plugin).GetMethod("UpdateImageRelationshipsAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        ((Task)update.Invoke(plugin, [true])!).GetAwaiter().GetResult();
+        if (string.IsNullOrEmpty(((IClipboardPlus)plugin).GetImageDeduplicationExplanationAsync(first).GetAwaiter().GetResult()))
+            throw new InvalidOperationException("Verified synthetic relationship was not explained");
+        list.RemoveLast();
+        if (!string.IsNullOrEmpty(((IClipboardPlus)plugin).GetImageDeduplicationExplanationAsync(first).GetAwaiter().GetResult()))
+            throw new InvalidOperationException("Stale synthetic image relationship was not discarded");
     }
 
     private static void TestRetentionPassRefreshesLoadedRecords()
