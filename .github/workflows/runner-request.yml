@@ -207,6 +207,12 @@ jobs:
               if ($diagnostic -match 'dedup stage after menu') { $stage = 'manualcheck' }
               if ($diagnostic -match 'dedup stage after manual') { $stage = 'pincheck' }
               if ($diagnostic -match 'dedup stage after pins') { $stage = 'remaining' }
+              if ($diagnostic -match 'dedup stage capacity') { $stage = 'capacity' }
+              if ($diagnostic -match 'dedup stage bounded') { $stage = 'bounded' }
+              if ($diagnostic -match 'dedup stage disabled') { $stage = 'disabled' }
+              if ($diagnostic -match 'dedup stage evidence') { $stage = 'evidence' }
+              if ($diagnostic -match 'dedup stage optout') { $stage = 'optout' }
+              if ($diagnostic -match 'dedup stage cache') { $stage = 'cache' }
               if ($diagnostic -match 'dedup plugin synthetic record and cache integration checks passed') { $stage = 'contention' }
               if ($diagnostic -match 'dedup integrated') { $stage = 'images' }
               if ($diagnostic -match 'dedup saved images') { $stage = 'later' }
@@ -274,6 +280,25 @@ jobs:
       - name: Synthetic stopped at later checks
         if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'later' }}
         run: echo Synthetic later stage
+
+      - name: Synthetic stopped in capacity integration
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'capacity' }}
+        run: echo Synthetic capacity integration
+      - name: Synthetic stopped in bounded integration
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'bounded' }}
+        run: echo Synthetic bounded integration
+      - name: Synthetic stopped in disabled integration
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'disabled' }}
+        run: echo Synthetic disabled integration
+      - name: Synthetic stopped in evidence integration
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'evidence' }}
+        run: echo Synthetic evidence integration
+      - name: Synthetic stopped in optout integration
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'optout' }}
+        run: echo Synthetic optout integration
+      - name: Synthetic stopped in cache integration
+        if: ${{ always() && steps.synthetic-baseline.outputs.stage == 'cache' }}
+        run: echo Synthetic cache integration
 
       - name: Compare actual bulk method before and after
         if: success() || failure()

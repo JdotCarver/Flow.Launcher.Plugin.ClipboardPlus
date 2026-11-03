@@ -88,11 +88,17 @@ internal static class DuplicatePluginIntegration
             Console.WriteLine("dedup stage after manual");
             TestPinnedCaptureLimit();
             Console.WriteLine("dedup stage after pins");
+            Console.WriteLine("dedup stage capacity");
             TestCapacityProtection(plugin);
+            Console.WriteLine("dedup stage bounded");
             TestBoundedWindowsAndSkippedOverflow(plugin);
+            Console.WriteLine("dedup stage disabled");
             TestDisabledEvidenceRefresh(plugin);
+            Console.WriteLine("dedup stage evidence");
             TestManualImageEvidenceRetention();
+            Console.WriteLine("dedup stage optout");
             TestOptOutImageCache(plugin);
+            Console.WriteLine("dedup stage cache");
             TestSyntheticCacheScan(plugin, database);
             Console.WriteLine("dedup plugin synthetic record and cache integration checks passed");
         }
