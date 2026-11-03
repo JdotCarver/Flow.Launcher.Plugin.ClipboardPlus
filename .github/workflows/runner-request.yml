@@ -185,12 +185,16 @@ jobs:
           $source = 'unavailable'
           try {
             # Do not read configuration, replacement rules, or arbitrary files.
-            $base = 'W:\STREAM\SOFTWARE\Portable - WhisperWriter'
-            if (Test-Path -LiteralPath 'W:\') { 'drive=true' | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8 }
-            if (Test-Path -LiteralPath $base) { 'base=true' | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8 }
-            $candidate = @(Get-ChildItem -LiteralPath $base -Filter 'input_simulation.py' -File -Recurse -ErrorAction Stop | Select-Object -First 1)
+            $drive = 'W:\'
+            if (Test-Path -LiteralPath $drive) { 'drive=true' | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8 }
+            $base = @(Get-ChildItem -LiteralPath $drive -Directory -Depth 3 -ErrorAction SilentlyContinue |
+              Where-Object { $_.Name -like '*WhisperWriter*' } | Select-Object -First 1)
+            if ($base.Count -ne 1) { throw 'Source unavailable' }
+            'base=true' | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+            $candidate = @(Get-ChildItem -LiteralPath $base[0].FullName -Filter 'input_simulation.py' -File -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1)
             if ($candidate.Count -ne 1) { throw 'Source unavailable' }
             $code = [System.IO.File]::ReadAllText($candidate[0].FullName)
+            & $env:PYTHON tools/diagnostics/inspect_whisper_writer.py $candidate[0].FullName 2>$null
             $source = 'available'
             $checks = @{
               clipboard = 'SetClipboardText|SetClipboardData|pyperclip|clipboard\.copy'
@@ -378,6 +382,46 @@ jobs:
         if: ${{ always() && steps.local-signals.outputs.paste == 'true' }}
         shell: pwsh
         run: Write-Host 'Source signal present'
+      - name: WhisperWriter structural signal paste_function
+        if: ${{ always() && steps.local-signals.outputs.ast_paste_function == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source structure signal present'
+      - name: WhisperWriter structural signal paste_sequence_call
+        if: ${{ always() && steps.local-signals.outputs.ast_paste_sequence_call == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source structure signal present'
+      - name: WhisperWriter structural signal paste_sequence_guard
+        if: ${{ always() && steps.local-signals.outputs.ast_paste_sequence_guard == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source structure signal present'
+      - name: WhisperWriter structural signal paste_enumerates_formats
+        if: ${{ always() && steps.local-signals.outputs.ast_paste_enumerates_formats == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source structure signal present'
+      - name: WhisperWriter structural signal paste_restores_formats
+        if: ${{ always() && steps.local-signals.outputs.ast_paste_restores_formats == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source structure signal present'
+      - name: WhisperWriter structural signal paste_writes_text
+        if: ${{ always() && steps.local-signals.outputs.ast_paste_writes_text == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source structure signal present'
+      - name: WhisperWriter structural signal paste_empties_clipboard
+        if: ${{ always() && steps.local-signals.outputs.ast_paste_empties_clipboard == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source structure signal present'
+      - name: WhisperWriter structural signal paste_waits
+        if: ${{ always() && steps.local-signals.outputs.ast_paste_waits == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source structure signal present'
+      - name: WhisperWriter structural signal paste_100ms_constant
+        if: ${{ always() && steps.local-signals.outputs.ast_paste_100ms_constant == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source structure signal present'
+      - name: WhisperWriter structural signal source_inspection_failed
+        if: ${{ always() && steps.local-signals.outputs.ast_source_inspection_failed == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source structure signal present'
       - name: WhisperWriter source unavailable
         if: ${{ always() && steps.local-signals.outputs.source == 'unavailable' }}
         shell: pwsh
