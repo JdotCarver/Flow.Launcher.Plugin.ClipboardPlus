@@ -7,9 +7,11 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Reflection;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Flow.Launcher.Plugin;
 using Flow.Launcher.Plugin.ClipboardPlus.Panels.ViewModels;
+using Flow.Launcher.Plugin.ClipboardPlus.Panels.Views;
 using Flow.Launcher.Plugin.ClipboardPlus.Core.Data.Enums;
 using Flow.Launcher.Plugin.ClipboardPlus.Core.Data.Contracts;
 using Flow.Launcher.Plugin.ClipboardPlus.Core.Data.Models;
@@ -100,6 +102,7 @@ internal static class DuplicatePluginIntegration
             TestTwoImportedWindowsImageDuplicates();
             TestImageRelationshipExplanations();
             TestExistingPreviewAcrossPinChanges();
+            TestManualPinRefreshesOpenPreviews();
             TestRetentionPassRefreshesLoadedRecords();
             TestPinnedCaptureLimit();
             TestPinsDoNotConsumeCapacity(plugin);
@@ -230,6 +233,52 @@ internal static class DuplicatePluginIntegration
         VerifyAndRefresh();
         if (!string.IsNullOrEmpty(preview.DeduplicationExplanation))
             throw new InvalidOperationException("A replaced record reused an old preview explanation");
+    }
+
+    private static void TestManualPinRefreshesOpenPreviews()
+    {
+        var database = new SqliteDatabase("synthetic-preview-pin", new ClipboardPlus(), SqliteCacheMode.Private, SqliteOpenMode.Memory);
+        try
+        {
+            database.InitializeDatabaseAsync().GetAwaiter().GetResult();
+            var plugin = new Plugin();
+            SetField(plugin, "Settings", new Settings { AutomaticCleanup = false, MaxRecords = 100 });
+            SetField(plugin, "CultureInfo", CultureInfo.GetCultureInfo("en-US"));
+            SetField(plugin, "Context", new PluginInitContext(null, Ioc.Default.GetRequiredService<IPublicAPI>()));
+            SetField(plugin, "Database", database);
+            SetField(plugin, "ScoreHelper", new ScoreHelper(10000));
+            var image = BitmapSource.Create(1, 1, 96, 96, PixelFormats.Bgra32, null, new byte[] { 5, 6, 7, 255 }, 4);
+            image.Freeze();
+            ClipboardData Make(string id, bool pinned) => new(image, DataType.Image, false)
+            {
+                HashId = id, SenderApp = "synthetic", InitScore = 0, CreateTime = new DateTime(2026, 1, 1), Pinned = pinned, Saved = true
+            };
+            var firstData = Make("manual-pin-first", true);
+            var secondData = Make("manual-pin-second", false);
+            database.AddRecordsAsync([firstData, secondData], true).GetAwaiter().GetResult();
+            var makePair = typeof(Plugin).GetMethod("CreateClipboardDataPair", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            var first = (ClipboardDataPair)makePair.Invoke(plugin, [firstData])!;
+            var second = (ClipboardDataPair)makePair.Invoke(plugin, [secondData])!;
+            var list = new LinkedList<ClipboardDataPair>([first, second]);
+            SetField(plugin, "RecordsList", list);
+            var update = typeof(Plugin).GetMethod("UpdateImageRelationshipsAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            ((Task)update.Invoke(plugin, [true])!).GetAwaiter().GetResult();
+            var firstPreview = (PreviewPanel)first.PreviewPanel.Value;
+            var secondPreview = (PreviewPanel)second.PreviewPanel.Value;
+            if (string.IsNullOrEmpty(firstPreview.ViewModel.DeduplicationExplanation) ||
+                string.IsNullOrEmpty(secondPreview.ViewModel.DeduplicationExplanation))
+                throw new InvalidOperationException("Open synthetic previews lack their verified pin explanation");
+            var pin = typeof(Plugin).GetMethod("PinRecordAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            ((Task)pin.Invoke(plugin, [first, false])!).GetAwaiter().GetResult();
+            // The production path queues refreshes to the preview dispatcher.
+            var frame = new DispatcherFrame();
+            Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() => frame.Continue = false));
+            Dispatcher.PushFrame(frame);
+            if (first.ClipboardData.Pinned || !string.IsNullOrEmpty(firstPreview.ViewModel.DeduplicationExplanation) ||
+                !string.IsNullOrEmpty(secondPreview.ViewModel.DeduplicationExplanation))
+                throw new InvalidOperationException("Manual unpin left an old explanation on an open synthetic preview");
+        }
+        finally { database.DisposeAsync().AsTask().GetAwaiter().GetResult(); }
     }
 
     private static void TestRetentionPassRefreshesLoadedRecords()

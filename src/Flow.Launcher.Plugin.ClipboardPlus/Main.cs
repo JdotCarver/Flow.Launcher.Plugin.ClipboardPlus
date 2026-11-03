@@ -1825,10 +1825,12 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
 
     private async Task PinRecordAsync(ClipboardDataPair clipboardDataPair, bool requery)
     {
+        var isImage = false;
         await RecordsLock.WaitAsync();
         try
         {
             clipboardDataPair.TogglePinned();
+            isImage = clipboardDataPair.ClipboardData.DataType == DataType.Image;
             RecordsList.Remove(clipboardDataPair);
             RecordsList.AddFirst(clipboardDataPair);
             if (!clipboardDataPair.ClipboardData.Saved)
@@ -1852,6 +1854,9 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
             RecordsLock.Release();
             GarbageCollect();
         }
+        // Every open image preview may refer to this record. Refresh them even
+        // when automatic cleanup is disabled so invalidated proofs disappear.
+        if (isImage) await RefreshLoadedImagePreviewsAsync();
         ScheduleAutomaticCleanup();
     }
 
