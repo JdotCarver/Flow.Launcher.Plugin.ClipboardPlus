@@ -105,15 +105,14 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
     private const int ScoreInterval13 = 13 * ScoreInterval;
     private const int ScoreInterval14 = 14 * ScoreInterval;
 
-    private const int TopActionScore1 = 2 * ClipboardData.MaximumScore + 4 * ScoreInterval;
-    private const int TopActionScore2 = 2 * ClipboardData.MaximumScore + 3 * ScoreInterval;
-    private const int TopActionScore3 = 2 * ClipboardData.MaximumScore + 2 * ScoreInterval;
-    private const int TopActionScore4 = 2 * ClipboardData.MaximumScore + 1 * ScoreInterval;
-
-    private const int BottomActionScore1 = 8000;
-    private const int BottomActionScore2 = 6000;
-    private const int BottomActionScore3 = 4000;
-    private const int BottomActionScore4 = 2000;
+    // Leave room for record ranks between the action groups, regardless of
+    // the original record scores (which may include zero or negative values).
+    private const int TopActionScore1 = int.MaxValue;
+    private const int TopActionScore3 = int.MaxValue - 1;
+    private const int TopActionScore4 = int.MaxValue - 2;
+    private const int BottomActionScore1 = 3;
+    private const int BottomActionScore3 = 2;
+    private const int BottomActionScore4 = 1;
 
     #endregion
 
@@ -335,6 +334,10 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
                             AddSelectedCount = false,
                             Action = (c) =>
                             {
+                                if (Context.ShowMsgBox(Localize.flowlauncher_plugin_clipboardplus_invalid_confirm(),
+                                    Localize.flowlauncher_plugin_clipboardplus_invalid_confirm_title(),
+                                    MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
+                                    return false;
                                 _ = Task.Run(async () =>
                                 {
                                     var number = await DeleteInvalidRecordsFromListDatabaseAsync();
@@ -355,15 +358,11 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
                     ]
                 );
             }
+            results.Add(CreateCleanupAction(results, query, token, queryGeneration));
         }
         else
         {
             var querySearch = query.Search;
-            if (CleanupKeywordValidator.Validate(Settings.CleanupKeyword, Settings.ClearKeyword) == CleanupKeywordValidation.Valid &&
-                CleanupKeywordValidator.IsExactQuery(querySearch, Settings.CleanupKeyword))
-            {
-                results.Add(CreateCleanupAction(results, query, token, queryGeneration));
-            }
             if (string.IsNullOrWhiteSpace(querySearch))
             {
                 // clean action
@@ -507,8 +506,11 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
                         }
                     }
 
-                    Context.LogDebug(ClassName, $"Searched {querySearch} and added {results.Count} records successfully");
+                    Context.LogDebug(ClassName, $"Search added {results.Count} records successfully");
                 }
+                if (string.IsNullOrWhiteSpace(querySearch))
+                    RankEmptyQueryRecords(results);
+
                 // Publish the view before releasing the history lock so a
                 // concurrent cleanup can never miss the just-built result list.
                 if (Interlocked.Read(ref cleanupQueryGeneration) == queryGeneration && !token.IsCancellationRequested)
@@ -595,6 +597,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
         }
 
         RefreshAutomaticCleanup();
+        _ = Task.Run(RunStartupEmptyTextCleanupAsync);
 
         // init excluded apps
         if (ClipboardMonitor != null && Settings.ExcludedApps != null && Settings.ExcludedApps.Count > 0)
@@ -1174,6 +1177,17 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
 
     private long captureGeneration;
 
+    private ClipboardDataPair CreateClipboardDataPair(ClipboardData data)
+    {
+        ClipboardDataPair? pair = null;
+        pair = new ClipboardDataPair
+        {
+            ClipboardData = data,
+            PreviewPanel = new Lazy<UserControl>(() => new PreviewPanel(this, data, pair!))
+        };
+        return pair;
+    }
+
     private void AddClipboardDataItem(ClipboardData clipboardData) => AddClipboardDataItem(clipboardData, null);
 
     private void AddClipboardDataItem(ClipboardData clipboardData, string? encodedImage)
@@ -1181,11 +1195,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
         // Called under RecordsLock. An in-flight cleanup must not trim a newer capture.
         captureGeneration++;
         // add to list and database if no repeat
-        RecordsList.AddFirst(new ClipboardDataPair()
-        {
-            ClipboardData = clipboardData,
-            PreviewPanel = new Lazy<UserControl>(() => new PreviewPanel(this, clipboardData))
-        });
+        RecordsList.AddFirst(CreateClipboardDataPair(clipboardData));
 
         // update score
         ScoreHelper.Add();
@@ -1196,19 +1206,15 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
             _ = encodedImage is null
                 ? Database.AddOneRecordAsync(clipboardData, true)
                 : Database.AddOneRecordWithEncodedImageAsync(clipboardData, encodedImage);
-            Context.LogDebug(ClassName, $"Record {clipboardData.HashId} added to list and database");
+            Context.LogDebug(ClassName, "Record added to list and database");
         }
         else
         {
-            Context.LogDebug(ClassName, $"Record {clipboardData.HashId} added to list");
+            Context.LogDebug(ClassName, "Record added to list");
         }
 
         // remove last record if needed
-        if (!Settings.AutomaticCleanup && RecordsList.Count >= Settings.MaxRecords)
-        {
-            RecordsList.Last?.Value.Dispose();
-            RecordsList.RemoveLast();
-        }
+        if (!Settings.AutomaticCleanup) TrimUnpinnedCapacity(Settings.MaxRecords);
 
         if (Settings.AutomaticCleanup) EnforceCaptureOverflowLimit();
         ScheduleAutomaticCleanup();
@@ -1216,44 +1222,84 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
         GarbageCollect();
     }
 
+    // Called under RecordsLock. A safety pin must not be discarded merely
+    // because automatic duplicate cleanup is disabled or the list is full.
+    private bool RemoveOldestUnpinnedRecord()
+    {
+        LinkedListNode<ClipboardDataPair>? oldest = null;
+        for (var candidate = RecordsList.Last; candidate is not null; candidate = candidate.Previous)
+            if (!candidate.Value.ClipboardData.Pinned &&
+                (oldest is null || candidate.Value.ClipboardData.CreateTime < oldest.Value.ClipboardData.CreateTime))
+                oldest = candidate;
+        var node = oldest;
+        if (node is null) return false;
+        RecordsList.Remove(node);
+        node.Value.Dispose();
+        return true;
+    }
+
+    // Database restoration and pin events can reorder the list independently of age.
+    // Start at the tail so equal timestamps retain the existing oldest-first tie-break.
+    private IEnumerable<LinkedListNode<ClipboardDataPair>> OldestUnpinnedNodes()
+    {
+        var nodes = new List<LinkedListNode<ClipboardDataPair>>();
+        for (var node = RecordsList.Last; node is not null; node = node.Previous)
+            if (!node.Value.ClipboardData.Pinned) nodes.Add(node);
+        return nodes.OrderBy(node => node.Value.ClipboardData.CreateTime);
+    }
+
+    // Called under RecordsLock; capacity unloads records, never deletes database rows.
+    private void TrimUnpinnedCapacity(int limit)
+    {
+        var excess = RecordsList.Count(pair => !pair.ClipboardData.Pinned) - Math.Max(0, limit);
+        if (excess <= 0) return;
+        if (excess == 1) { RemoveOldestUnpinnedRecord(); return; }
+        foreach (var node in OldestUnpinnedNodes().Take(excess))
+        {
+            RecordsList.Remove(node);
+            node.Value.Dispose();
+        }
+    }
+
+    public async Task EnforceHistoryCapacityAsync()
+    {
+        await RecordsLock.WaitAsync();
+        try
+        {
+            if (Settings.AutomaticCleanup) EnforceCaptureOverflowLimit();
+            else TrimUnpinnedCapacity(Settings.MaxRecords);
+            ScoreHelper.Reset(RecordsList);
+        }
+        finally { RecordsLock.Release(); }
+        await PublishCurrentResultsAsync();
+        ScheduleAutomaticCleanup();
+    }
+
     private void AddClipboardDataItem(List<ClipboardData> clipboardDataList)
     {
-        var removeCount = RecordsList.Count + clipboardDataList.Count - Settings.MaxRecords;
         if (clipboardDataList.Count > 0) captureGeneration++;
         var trimmedOverflow = false;
 
         foreach (var clipboardData in clipboardDataList)
         {
             // add to list and database if no repeat
-            RecordsList.AddFirst(new ClipboardDataPair()
-            {
-                ClipboardData = clipboardData,
-                PreviewPanel = new Lazy<UserControl>(() => new PreviewPanel(this, clipboardData))
-            });
+            RecordsList.AddFirst(CreateClipboardDataPair(clipboardData));
 
             // save to database if needed
             if (clipboardData.Saved)
             {
                 _ = Database.AddOneRecordAsync(clipboardData, true);  // no need to wait
-                Context.LogDebug(ClassName, $"Record {clipboardData.HashId} added to list and database");
+                Context.LogDebug(ClassName, "Record added to list and database");
             }
             else
             {
-                Context.LogDebug(ClassName, $"Record {clipboardData.HashId} added to list");
+                Context.LogDebug(ClassName, "Record added to list");
             }
             if (Settings.AutomaticCleanup) trimmedOverflow |= EnforceCaptureOverflowLimit(false);
         }
 
         if (trimmedOverflow) NotifyCaptureOverflowTrimmed();
-        // remove last record if needed
-        for (int i = 0; !Settings.AutomaticCleanup && i < removeCount; i++)
-        {
-            if (RecordsList.Count >= Settings.MaxRecords)
-            {
-                RecordsList.Last?.Value.Dispose();
-                RecordsList.RemoveLast();
-            }
-        }
+        if (!Settings.AutomaticCleanup) TrimUnpinnedCapacity(Settings.MaxRecords);
 
         ScheduleAutomaticCleanup();
         // collect garbage
@@ -1369,14 +1415,31 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
                 if (clipboardDataPair.ClipboardData.Pinned != e.Pinned)
                 {
                     clipboardDataPair.TogglePinned();
+                    if (!UseWindowsClipboardHistoryOnly)
+                    {
+                        if (clipboardDataPair.ClipboardData.Saved)
+                            _ = Database.PinOneRecordAsync(clipboardDataPair.ClipboardData);
+                        else if (e.Pinned)
+                        {
+                            var pinnedData = clipboardDataPair.ClipboardData;
+                            pinnedData.Saved = true;
+                            clipboardDataPair.ClipboardData = pinnedData;
+                            _ = Database.AddOneRecordAsync(pinnedData, true);
+                        }
+                    }
                 }
                 RecordsList.Remove(clipboardDataPair);
                 RecordsList.AddFirst(clipboardDataPair);
-                Context.LogDebug(ClassName, $"Updated pin status for record: {e.HashId}, pinned: {e.Pinned}");
+                if (!e.Pinned)
+                {
+                    if (Settings.AutomaticCleanup) EnforceCaptureOverflowLimit();
+                    else TrimUnpinnedCapacity(Settings.MaxRecords);
+                }
+                Context.LogDebug(ClassName, "Updated record pin status");
             }
             else
             {
-                Context.LogDebug(ClassName, $"Unable to find the record for update: {e.HashId}");
+                Context.LogDebug(ClassName, "Unable to find record for pin update");
             }
         }
         finally
@@ -1384,6 +1447,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
             RecordsLock.Release();
         }
         RequestWindowsEvidenceRefresh();
+        ScheduleAutomaticCleanup();
         Context?.ReQuery(false);
     }
 
@@ -1411,6 +1475,76 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
 
     #region List & Database & Windows History
 
+    private static bool IsVerifiedEmptyText(ClipboardData data) => !data.Pinned &&
+        data.Data is string { Length: 0 } &&
+        (data.DataType == DataType.PlainText ||
+         (data.DataType == DataType.RichText && data.PlainText is string { Length: 0 }));
+
+    private async Task RunStartupEmptyTextCleanupAsync()
+    {
+        try
+        {
+            await RecordsLock.WaitAsync();
+            try
+            {
+                // An in-memory record can have changed since its database write.
+                // Never delete a saved row if the loaded copy is pinned or not provably empty.
+                var excluded = RecordsList.Where(pair => pair.ClipboardData.Saved && !IsVerifiedEmptyText(pair.ClipboardData))
+                    .Select(pair => pair.ClipboardData.HashId).ToArray();
+                var deleted = UseWindowsClipboardHistoryOnly
+                    ? new HashSet<string>(StringComparer.Ordinal)
+                    : new HashSet<string>(await Database.DeleteVerifiedEmptyTextAsync(excluded), StringComparer.Ordinal);
+                var node = RecordsList.First;
+                while (node is not null)
+                {
+                    var next = node.Next;
+                    var data = node.Value.ClipboardData;
+                    if (IsVerifiedEmptyText(data) && (!data.Saved || deleted.Contains(data.HashId)))
+                    {
+                        var pair = node.Value;
+                        RecordsList.Remove(node);
+                        pair.Dispose();
+                    }
+                    node = next;
+                }
+                ScoreHelper.Reset(RecordsList);
+            }
+            finally { RecordsLock.Release(); }
+            await PublishCurrentResultsAsync();
+        }
+        catch (Exception)
+        {
+            // Uncertainty or failure is never a reason to delete a record.
+        }
+    }
+
+    public async Task RunRetentionExpiryAsync()
+    {
+        if (UseWindowsClipboardHistoryOnly) return;
+        await RecordsLock.WaitAsync();
+        try
+        {
+            var expired = await Database.ExpireRecordsAsync(Settings.KeepTimePairs.Select(pair =>
+                ((int)pair.Item1, pair.Item2.ToKeepTime())), Settings.ProtectPinsFromExpiry);
+            var ids = new HashSet<string>(expired, StringComparer.OrdinalIgnoreCase);
+            var node = RecordsList.First;
+            while (node is not null)
+            {
+                var next = node.Next;
+                if (node.Value.ClipboardData.Saved && ids.Contains(node.Value.ClipboardData.HashId))
+                {
+                    var pair = node.Value;
+                    RecordsList.Remove(node);
+                    pair.Dispose();
+                }
+                node = next;
+            }
+            ScoreHelper.Reset(RecordsList);
+        }
+        finally { RecordsLock.Release(); }
+        await PublishCurrentResultsAsync();
+    }
+
     public async Task InitRecordsFromDatabaseAndSystemAsync(bool database, bool system)
     {
         // manage database
@@ -1419,30 +1553,23 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
         {
             if (!UseWindowsClipboardHistoryOnly)
             {
-                // clear expired records
+                // Run one atomic pass before restoring database history.
                 try
                 {
-                    foreach (var pair in Settings.KeepTimePairs)
-                    {
-                        Context.LogDebug(ClassName, $"{pair.Item1}, {pair.Item2}, {pair.Item2.ToKeepTime()}");
-                        await Database.DeleteRecordsByKeepTimeAsync((int)pair.Item1, pair.Item2.ToKeepTime());
-                    }
-                    Context.LogDebug(ClassName, $"Cleared expired records successfully");
+                    await Database.ExpireRecordsAsync(Settings.KeepTimePairs.Select(pair =>
+                        ((int)pair.Item1, pair.Item2.ToKeepTime())), Settings.ProtectPinsFromExpiry);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    Context.LogException(ClassName, $"Cleared expired records failed", e);
+                    // Do not log database paths or record details from an exception.
+                    Context.LogDebug(ClassName, "Clearing expired records failed");
                 }
 
                 // restore database records
                 var records = await Database.GetAllRecordsAsync(true);
                 if (records.Count != 0)
                 {
-                    databaseDataPairs = records.Select(record => new ClipboardDataPair()
-                    {
-                        ClipboardData = record,
-                        PreviewPanel = new Lazy<UserControl>(() => new PreviewPanel(this, record))
-                    });
+                    databaseDataPairs = records.Select(CreateClipboardDataPair);
                 }
             }
         }
@@ -1471,6 +1598,8 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
                     await InitRecordsFromSystemAsync(true);
                 }
             }
+            if (Settings.AutomaticCleanup) EnforceCaptureOverflowLimit();
+            else TrimUnpinnedCapacity(Settings.MaxRecords);
         }
         finally
         {
@@ -1488,21 +1617,25 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
     private async Task InitRecordsFromSystemAsync(bool check)
     {
         // get history items
-        List<ClipboardData>? historyItems;
+        (List<ClipboardData>? Items, bool PinStateTrusted) history;
         if (check)
         {
             var latestDateTime = RecordsList.Count != 0 ? RecordsList.Max(p => p.ClipboardData.CreateTime) : DateTime.MinValue;
-            historyItems = await WindowsClipboardHelper.GetLaterHistoryItemsAsync(latestDateTime);
+            history = await WindowsClipboardHelper.GetLaterHistoryItemsWithPinStateAsync(latestDateTime);
         }
         else
         {
-            historyItems = await WindowsClipboardHelper.GetHistoryItemsAsync();
+            history = await WindowsClipboardHelper.GetHistoryItemsWithPinStateAsync();
         }
 
         // add history items
-        if (historyItems != null && historyItems.Count != 0)
+        if (history.Items is { Count: > 0 } historyItems)
         {
+            var protectedImport = WindowsImportPinPolicy.ProtectUnverified(historyItems, history.PinStateTrusted, !UseWindowsClipboardHistoryOnly);
             AddClipboardDataItem(historyItems);
+            if (protectedImport)
+                Context.ShowMsg(Localize.flowlauncher_plugin_clipboardplus_windows_pin_warning_title(),
+                    Localize.flowlauncher_plugin_clipboardplus_windows_pin_unknown());
         }
         RequestWindowsEvidenceRefresh();
     }
@@ -1630,7 +1763,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
                     ReQuery();
                 }
                 _ = Database.AddOneRecordAsync(clipboardData, true);
-                Context.LogDebug(ClassName, $"Save record to database: {clipboardDataPair.ClipboardData.HashId}");
+                Context.LogDebug(ClassName, "Saved record to database");
             }
         }
         finally
@@ -1655,7 +1788,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
             {
                 ReQuery();
             }
-            Context.LogDebug(ClassName, $"Remove record from list: {clipboardDataPair.ClipboardData.HashId}");
+            Context.LogDebug(ClassName, "Removed record from list");
         }
         finally
         {
@@ -1681,7 +1814,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
                 ReQuery();
             }
             _ = Database.DeleteOneRecordAsync(clipboardData);
-            Context.LogDebug(ClassName, $"Remove record from list and database: {clipboardDataPair.ClipboardData.HashId}");
+            Context.LogDebug(ClassName, "Removed record from list and database");
         }
         finally
         {
@@ -1692,16 +1825,14 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
 
     private async Task PinRecordAsync(ClipboardDataPair clipboardDataPair, bool requery)
     {
+        var isImage = false;
         await RecordsLock.WaitAsync();
         try
         {
             clipboardDataPair.TogglePinned();
+            isImage = clipboardDataPair.ClipboardData.DataType == DataType.Image;
             RecordsList.Remove(clipboardDataPair);
             RecordsList.AddFirst(clipboardDataPair);
-            if (requery)
-            {
-                ReQuery();
-            }
             if (!clipboardDataPair.ClipboardData.Saved)
             {
                 _ = Database.AddOneRecordAsync(clipboardDataPair.ClipboardData, true);
@@ -1710,13 +1841,23 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
             {
                 _ = Database.PinOneRecordAsync(clipboardDataPair.ClipboardData);
             }
-            Context.LogDebug(ClassName, $"Pin one record: {clipboardDataPair.ClipboardData.HashId}");
+            if (!clipboardDataPair.ClipboardData.Pinned)
+            {
+                if (Settings.AutomaticCleanup) EnforceCaptureOverflowLimit();
+                else TrimUnpinnedCapacity(Settings.MaxRecords);
+            }
+            if (requery) ReQuery();
+            Context.LogDebug(ClassName, "Toggled record pin");
         }
         finally
         {
             RecordsLock.Release();
             GarbageCollect();
         }
+        // Every open image preview may refer to this record. Refresh them even
+        // when automatic cleanup is disabled so invalidated proofs disappear.
+        if (isImage) await RefreshLoadedImagePreviewsAsync();
+        ScheduleAutomaticCleanup();
     }
 
     private void ClearRecordsList()
@@ -1736,6 +1877,19 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
     #endregion
 
     #region Query Result
+
+    // Flow sorts results by score. Dense ranks preserve the record score order
+    // and ties while keeping every record between the top and bottom actions.
+    private static void RankEmptyQueryRecords(List<Result> results)
+    {
+        var records = results.Where(result => result.ContextData is ClipboardDataPair).ToArray();
+        var scores = records.Select(result => result.Score).Distinct().OrderBy(score => score).ToArray();
+        var ranks = new Dictionary<int, int>(scores.Length);
+        for (var index = 0; index < scores.Length; index++)
+            ranks[scores[index]] = index + 4;
+        foreach (var result in records)
+            result.Score = ranks[result.Score];
+    }
 
     private Result? GetResultFromClipboardData(ClipboardDataPair clipboardDataPair, string? querySearch)
     {

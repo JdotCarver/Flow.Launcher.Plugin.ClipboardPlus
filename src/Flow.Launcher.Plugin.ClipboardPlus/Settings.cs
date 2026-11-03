@@ -55,6 +55,8 @@ public class Settings : ISettings
 
     public string EncryptKey { get; set; } = StringUtils.GenerateEncryptKey();
 
+    public bool ProtectPinsFromExpiry { get; set; } = true;
+
     public bool KeepText { get; set; } = false;
 
     public KeepTime TextKeepTime { get; set; } = 0;

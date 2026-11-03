@@ -34,6 +34,37 @@ public class DuplicateCleanupEngineTests
     }
 
     [Fact]
+    public async Task IdenticalEmojiAtTheSameTimeKeepsEveryPinnedRecord()
+    {
+        var ids = new[]
+        {
+            "{11111111-1111-4111-8111-111111111111}",
+            "{22222222-2222-4222-8222-222222222222}",
+            "{33333333-3333-4333-8333-333333333333}",
+            "{44444444-4444-4444-8444-444444444444}"
+        };
+        var records = ids.Select(id => new ClipboardData("😀", DataType.PlainText, false)
+        {
+            HashId = id, SenderApp = "synthetic", InitScore = 0,
+            CreateTime = new DateTime(2026, 1, 1), Pinned = false, Saved = false
+        }).ToArray();
+        records[2].Pinned = true;
+        records[3].Pinned = true;
+        var snapshots = records.Select(data => new ClipboardCleanupSnapshot(data)).ToArray();
+        var removed = new List<int>();
+
+        var report = await DuplicateCleanupEngine.RunAsync(snapshots, true, (keeper, duplicate) =>
+        {
+            Assert.Equal(0, keeper);
+            removed.Add(duplicate);
+            return Task.FromResult(DuplicateRemovalResult.Removed);
+        });
+
+        Assert.Equal(new[] { 1 }, removed);
+        Assert.Equal(new CleanupReport(1, 0, 0, 0, 0), report);
+    }
+
+    [Fact]
     public async Task OwnerCanRejectAChangedRecordWithoutRemovingIt()
     {
         var records = new[] { Text("keeper", 2), Text("duplicate", 1) };

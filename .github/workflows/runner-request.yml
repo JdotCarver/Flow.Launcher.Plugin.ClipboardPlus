@@ -337,7 +337,9 @@ jobs:
     needs:
       - select-runner
       - workload
-    if: always()
+    # This session must not write to a different branch. Job status remains
+    # available through the Actions API without publishing exported logs.
+    if: ${{ always() && github.ref != 'refs/heads/arena/a3420224-flow-launcher-plugin-clipboard' }}
     runs-on: ubuntu-24.04
     permissions:
       # `contents: write` pushes the actions-logs branch. `actions: read` is

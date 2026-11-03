@@ -214,6 +214,9 @@
                     TextWrapping="Wrap"
                     Visibility="{Binding CountVisibility, Mode=OneTime}" />
             </Grid>
+            <TextBlock Margin="5,10,13,0" TextWrapping="Wrap"
+                Text="{Binding DeduplicationExplanation, Mode=OneWay}"
+                Visibility="{Binding DeduplicationExplanationVisibility, Mode=OneWay}" />
         </StackPanel>
     </Grid>
 </UserControl>

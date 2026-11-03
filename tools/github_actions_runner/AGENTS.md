@@ -71,6 +71,12 @@ The scripts are the interface; do not improvise a second dispatch/log mechanism.
    `"runner_environment": "self-hosted"`; do not claim local validation from a
    queued run or from the cloud planner/exporter jobs.
 
+If a session's branch restrictions prohibit the exporter's separate branch,
+disable that export for the session and set `RUNNER_SKIP_LOG_EXPORT=1` when
+requesting the run. The script then reports the Actions conclusion rather than
+attempting to fetch logs; inspect individual job/step conclusions through
+`gh run view --json jobs`. Never put sensitive diagnostic output in public logs.
+
 A local request requires an already available runner with the configured
 self-hosted labels. If no matching runner is online, GitHub queues the job
 instead of failing immediately. Report that state; do not change labels or add

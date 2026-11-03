@@ -5,6 +5,22 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:system="clr-namespace:System;assembly=mscorlib">
 
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_group_general">General</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_group_windows">Windows history</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_group_copying">Copying</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_group_storage">Storage and retention</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_group_duplicates">Duplicate cleanup</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_group_excluded">Excluded apps</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_verification_label">Automatic deduplication algorithm</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_verification_best">Best effort</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_verification_thorough">Thorough verification</system:String>
+
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_protect_pins_expiry">Protect pins from expiring</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_pin_expiry">Changing this setting immediately runs retention cleanup, which can permanently delete expired unpinned records. When unchecked, expired pins can also be deleted; when checked, pins are protected.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_pin_expiry_confirm">Are you sure you wish to turn off pin protection? Any expired pins will be deleted immediately.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_pin_expiry_caption">Just checking</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_pin_expiry_error">Cleanup could not be completed. Your setting was saved; cleanup will be retried when history is next initialized.</system:String>
+
     <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_time_setting">Show relative timestamps</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_just_now">Just now</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_minute">{0} minute ago</system:String>
@@ -12,6 +28,13 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_today">Today at {0}</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_yesterday">Yesterday at {0}</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_relative_weekday">{0} at {1}</system:String>
+
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_relationship">Deduplication: same pixels as another item from {0}; {1}.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_reason_representation">stored image data differs</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_reason_windows">Windows pin status could not be verified</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_reason_pin">a pin is protected</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_reason_persistence">saved and temporary records are kept separately</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_more">Additional matches exist.</system:String>
 
     <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_keyword">Cleanup keyword</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_automatic">Automatically consolidate duplicates</system:String>
@@ -30,6 +53,39 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_windows_session">Session only</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_cleanup_windows_remember">Remember across reloads</system:String>
 
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_keyword">Keyword that opens the clear menu.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_limit">Maximum unpinned records loaded in the list; pinned records are additional. Unloaded saved records remain in the database.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_order">Choose how clipboard records are ordered.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_relative">Display recent timestamps relative to the current time.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_actiontop">Place launcher actions above clipboard records.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_notification">Show optional notifications for supported operations.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_sync">Import Windows clipboard history into the plugin.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_windowsonly">Use Windows clipboard history instead of the plugin database.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_windowssettings">Open Windows clipboard settings.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_click">Choose the default action when selecting a record.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_rich">Choose the default format for copying rich text.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_image">Choose the default format for copying images.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_files">Choose the default format for copying files.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_cache">Save captured images to the cache folder.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_opencache">Open the image cache folder.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_clearcache">Clear the image cache folder.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_format">Edit or insert parts of the cached image filename format.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_encryption">Encrypt supported stored data. Images are not encrypted.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_import">Import records from a JSON file.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_export">Export records to a JSON file.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_keep">Save this type of record in the plugin database.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_retention">Choose how long saved records of this type are kept.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_excluded">Foreground applications excluded from clipboard monitoring; Windows history imports are separate.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_addapp">Add an application to the exclusion list.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_deleteapp">Remove selected applications from the exclusion list.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_automatic">Consolidate verified duplicates automatically; pinned records are protected.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_cleanup">Run duplicate cleanup now; Windows history is not deleted.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_suppression">Choose whether hidden Windows duplicates remain suppressed after reload. Windows history is not deleted.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_restore">Restore settings to their defaults.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_tip_thorough">Verify more duplicate candidates automatically, potentially using more resources. Manual cleanup always uses thorough verification.</system:String>
+
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_windows_pin_warning_title">Windows pin status</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_windows_pin_unknown">Could not verify Windows pin status. Imported items are treated as pinned for safety and saved in database mode even when Keep is off. Duplicate cleanup may skip them.</system:String>
     <!--  General  -->
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_name">Clipboard+</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_plugin_description">Easily manage your clipboard history and Windows Clipboard History with support for text, images, and files</system:String>
@@ -71,6 +127,8 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_unpin_title">Clear unpinned records</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_unpin_subtitle">Clear unpinned records in both list and database</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_unpin_msg_subtitle">Clear {0} unpinned records in both list and database!</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_invalid_confirm">Clear invalid records? Pinned records and entries for temporarily unavailable files may be permanently deleted.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_invalid_confirm_title">Confirm invalid-record cleanup</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_invalid_title">Clear invalid records</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_invalid_subtitle">Clear empty text, unexisting files and empty records in both list and database</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_invalid_msg_subtitle">Clear {0} invalid records in both list and database!</system:String>

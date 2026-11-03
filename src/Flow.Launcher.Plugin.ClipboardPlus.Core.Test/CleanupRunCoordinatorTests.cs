@@ -7,6 +7,28 @@ namespace Flow.Launcher.Plugin.ClipboardPlus.Core.Test;
 public class CleanupRunCoordinatorTests
 {
     [Fact]
+    public async Task ManualProgressAndCompletionPreserveSkipsAndErrors()
+    {
+        var update = new CleanupReport(1, 2, 3, 4, 5);
+        var updates = new List<CleanupReport>();
+        CleanupRunCoordinator? coordinator = null;
+        coordinator = new CleanupRunCoordinator(work =>
+        {
+            coordinator!.ReportProgress(update);
+            return Task.FromResult(update);
+        });
+        var request = coordinator.RequestManual(new SynchronousProgress(updates.Add));
+        Assert.Equal(update, await request.Completion);
+        Assert.Equal(new[] { update }, updates);
+        await coordinator.StopAsync();
+    }
+
+    private sealed class SynchronousProgress(Action<CleanupReport> report) : IProgress<CleanupReport>
+    {
+        public void Report(CleanupReport value) => report(value);
+    }
+
+    [Fact]
     public async Task EvidenceRefreshesCoalesceAndNeverOverlapManualWork()
     {
         var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);

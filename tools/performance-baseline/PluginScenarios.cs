@@ -34,6 +34,8 @@ internal static class PluginScenarios
         SetField(plugin, "CultureInfo", CultureInfo.GetCultureInfo("en-US"));
         SetField(plugin, "ScoreHelper", new ScoreHelper(10000));
 
+        TestActionBookends(plugin);
+
         foreach (int size in new[] { 100, 333, 334, 1000, 10000 })
         {
             var list = new LinkedList<ClipboardDataPair>();
@@ -78,6 +80,62 @@ internal static class PluginScenarios
             if (record.IsNull()) throw new InvalidOperationException("Synthetic capture rejected");
             add.Invoke(plugin, [record]);
         });
+    }
+
+    private static void TestActionBookends(Plugin plugin)
+    {
+        // Includes the first imported score, negative scores, ties and a pin.
+        var data = new[]
+        {
+            SyntheticRecord(0) with { InitScore = 1 },
+            SyntheticRecord(1) with { InitScore = -10000 },
+            SyntheticRecord(2) with { InitScore = 10001 },
+            SyntheticRecord(3) with { InitScore = 10001 },
+            SyntheticRecord(4) with { InitScore = 20001, Pinned = true }
+        };
+        SetField(plugin, "RecordsList", new LinkedList<ClipboardDataPair>(data.Select(record => new ClipboardDataPair
+        {
+            ClipboardData = record,
+            PreviewPanel = new Lazy<UserControl>(() => throw new InvalidOperationException("Preview must remain lazy"))
+        })));
+        var refresh = typeof(Plugin).GetMethod("PublishCurrentResultsAsync", BindingFlags.Instance | BindingFlags.NonPublic)
+            ?? throw new InvalidOperationException("Refresh test seam missing");
+        foreach (var order in Enum.GetValues<RecordOrder>())
+        foreach (var actionTop in new[] { false, true })
+        {
+            var settings = new Settings { ActionTop = actionTop, RecordOrder = order };
+            SetField(plugin, "Settings", settings);
+            List<Result>? refreshed = null;
+            void Capture(object? sender, ResultUpdatedEventArgs args) => refreshed = args.Results;
+            plugin.ResultsUpdated += Capture;
+            try
+            {
+                var results = plugin.QueryAsync(CreateQuery(""), CancellationToken.None).GetAwaiter().GetResult();
+                AssertBookends(results, order, actionTop);
+                ((Task)refresh.Invoke(plugin, null)!).GetAwaiter().GetResult();
+                if (refreshed is null) throw new InvalidOperationException("Synthetic live refresh missing");
+                AssertBookends(refreshed, order, actionTop);
+            }
+            finally { plugin.ResultsUpdated -= Capture; }
+        }
+        SetField(plugin, "Settings", new Settings { MaxRecords = 20000 });
+    }
+
+    private static void AssertBookends(List<Result> results, RecordOrder order, bool actionTop)
+    {
+        var actions = results.Where(result => result.ContextData is not ClipboardDataPair).ToArray();
+        var records = results.Where(result => result.ContextData is ClipboardDataPair).ToArray();
+        if (actions.Length != 2 || records.Length != 5 ||
+            actions.Any(action => records.Any(record => actionTop ? action.Score <= record.Score : action.Score >= record.Score)))
+            throw new InvalidOperationException("Actions did not bookend synthetic records");
+        foreach (var left in records)
+        foreach (var right in records)
+        {
+            var leftData = ((ClipboardDataPair)left.ContextData).ClipboardData;
+            var rightData = ((ClipboardDataPair)right.ContextData).ClipboardData;
+            if (Math.Sign(left.Score.CompareTo(right.Score)) != Math.Sign(leftData.GetScore(order).CompareTo(rightData.GetScore(order))))
+                throw new InvalidOperationException("Record ordering or ties changed");
+        }
     }
 
     private static void MeasureQueryRetention(Plugin plugin)
@@ -173,6 +231,7 @@ public class SyntheticHost : DispatchProxy
 {
     public static Action? BeforeFirstMatch;
     public static int SettingsSaveCalls;
+    public static int ConfirmationCalls;
     public static Flow.Launcher.Infrastructure.StringMatcher Matcher = null!;
 
     protected override object? Invoke(MethodInfo? method, object?[]? args)
@@ -181,6 +240,7 @@ public class SyntheticHost : DispatchProxy
         if (method.Name.StartsWith("Log", StringComparison.Ordinal) || method.Name == "ReQuery") return null;
         if (method.Name == "SaveSettingJsonStorage") { Interlocked.Increment(ref SettingsSaveCalls); return null; }
         if (method.Name == "GetTranslation") return "synthetic";
+        if (method.Name == "ShowMsgBox") { Interlocked.Increment(ref ConfirmationCalls); return System.Windows.MessageBoxResult.No; }
         if (method.Name == "FuzzySearch")
         {
             Interlocked.Exchange(ref BeforeFirstMatch, null)?.Invoke();

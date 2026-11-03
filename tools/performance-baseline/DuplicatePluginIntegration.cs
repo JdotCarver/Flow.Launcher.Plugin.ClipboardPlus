@@ -7,10 +7,13 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Reflection;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Flow.Launcher.Plugin;
 using Flow.Launcher.Plugin.ClipboardPlus.Panels.ViewModels;
+using Flow.Launcher.Plugin.ClipboardPlus.Panels.Views;
 using Flow.Launcher.Plugin.ClipboardPlus.Core.Data.Enums;
+using Flow.Launcher.Plugin.ClipboardPlus.Core.Data.Contracts;
 using Flow.Launcher.Plugin.ClipboardPlus.Core.Data.Models;
 using Flow.Launcher.Plugin.ClipboardPlus.Core.Helpers;
 using Flow.Launcher.Plugin.ClipboardPlus.Core.Test;
@@ -61,16 +64,48 @@ internal static class DuplicatePluginIntegration
             if (database.GetAllRecordsAsync(false).GetAwaiter().GetResult().Any(record => record.HashId == "unloaded-saved"))
                 throw new InvalidOperationException("Synthetic unloaded saved duplicate survived cleanup");
             var settings = new SettingsViewModel(plugin);
+            if (settings.AutomaticCleanupVerificationIndex != 0)
+                throw new InvalidOperationException("Synthetic default verification mode was not preserved");
+            settings.AutomaticCleanupVerificationIndex = 1;
+            if (!((IClipboardPlus)plugin).Settings.AutomaticCleanupThorough)
+                throw new InvalidOperationException("Synthetic thorough dropdown did not preserve the stored boolean");
+            settings.AutomaticCleanupVerificationIndex = 0;
+            if (((IClipboardPlus)plugin).Settings.AutomaticCleanupThorough)
+                throw new InvalidOperationException("Synthetic best-effort dropdown did not preserve the stored boolean");
             settings.ClearKeyword = "cleanup";
-            settings.CleanupKeyword = "clear";
-            if (settings.ClearKeyword != "clear" || settings.CleanupKeyword != "cleanup" || string.IsNullOrEmpty(settings.CleanupFeedback))
-                throw new InvalidOperationException("Synthetic cleanup keyword conflict validation failed");
-            var exact = plugin.QueryAsync(QueryFor("cleanup"), CancellationToken.None).GetAwaiter().GetResult();
-            var longer = plugin.QueryAsync(QueryFor("cleanup extra"), CancellationToken.None).GetAwaiter().GetResult();
-            if (exact.Count != 1 || exact[0].Score != int.MaxValue || longer.Count != 0 || list.Count != 3)
-                throw new InvalidOperationException("Synthetic cleanup query validation failed");
+            if (settings.ClearKeyword != "cleanup")
+                throw new InvalidOperationException("Obsolete cleanup keyword must not block the clear keyword");
+            var clearMenu = plugin.QueryAsync(QueryFor("cleanup"), CancellationToken.None).GetAwaiter().GetResult();
+            if (clearMenu.Count == 0 || clearMenu[^1].Score != 0 || clearMenu.Take(clearMenu.Count - 1).Any(result => result.Score <= 0))
+                throw new InvalidOperationException("Cleanup must follow existing clear actions");
+            var invalidAction = clearMenu.First(result => result.Score == 10000);
+            var beforeConfirmation = SyntheticHost.ConfirmationCalls;
+            var beforeCancelCount = list.Count;
+            if (invalidAction.Action(null!) || SyntheticHost.ConfirmationCalls != beforeConfirmation + 1 || list.Count != beforeCancelCount)
+                throw new InvalidOperationException("Cancelling invalid-record cleanup changed synthetic history");
+            settings.ClearKeyword = "purge";
+            var oldCommand = plugin.QueryAsync(QueryFor("cleanup"), CancellationToken.None).GetAwaiter().GetResult();
+            var customClear = plugin.QueryAsync(QueryFor("purge"), CancellationToken.None).GetAwaiter().GetResult();
+            if (oldCommand.Any(result => result.Score == 0) || customClear.Count == 0 || customClear[^1].Score != 0)
+                throw new InvalidOperationException("Custom clear menu or obsolete command handling failed");
+            SetField(plugin, "UseWindowsClipboardHistoryOnly", true);
+            var windowsOnlyMenu = plugin.QueryAsync(QueryFor("purge"), CancellationToken.None).GetAwaiter().GetResult();
+            if (windowsOnlyMenu.Count == 0 || windowsOnlyMenu[^1].Score != 0 ||
+                windowsOnlyMenu.Take(windowsOnlyMenu.Count - 1).Any(result => result.Score <= 0))
+                throw new InvalidOperationException("Windows-only clear menu must end with cleanup");
+            SetField(plugin, "UseWindowsClipboardHistoryOnly", false);
+            var legacy = System.Text.Json.JsonSerializer.Deserialize<Settings>("{\"CleanupKeyword\":\"obsolete\",\"ClearKeyword\":\"purge\",\"MaxRecords\":1234}");
+            if (legacy is null || legacy.ClearKeyword != "purge" || legacy.MaxRecords != 1234 || !legacy.ProtectPinsFromExpiry)
+                throw new InvalidOperationException("Legacy settings lost unrelated preferences");
             TestUnloadedSavedKeeper();
             TestManualActionRefresh();
+            TestTwoImportedWindowsImageDuplicates();
+            TestImageRelationshipExplanations();
+            TestExistingPreviewAcrossPinChanges();
+            TestManualPinRefreshesOpenPreviews();
+            TestRetentionPassRefreshesLoadedRecords();
+            TestPinnedCaptureLimit();
+            TestPinsDoNotConsumeCapacity(plugin);
             TestCapacityProtection(plugin);
             TestBoundedWindowsAndSkippedOverflow(plugin);
             TestDisabledEvidenceRefresh(plugin);
@@ -83,6 +118,231 @@ internal static class DuplicatePluginIntegration
         {
             database.DisposeAsync().AsTask().GetAwaiter().GetResult();
         }
+    }
+
+    private static void TestTwoImportedWindowsImageDuplicates()
+    {
+        foreach (var work in new[] { CleanupWork.ManualThorough, CleanupWork.AutomaticThorough })
+        {
+            var plugin = new Plugin();
+            SetField(plugin, "Settings", new Settings { AutomaticCleanup = true, AutomaticCleanupThorough = true });
+            SetField(plugin, "UseWindowsClipboardHistoryOnly", true);
+            var helper = typeof(Plugin).GetField("WindowsClipboardHelper", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(plugin)!;
+            typeof(WindowsClipboardHelper).GetField("pinStateTrusted", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(helper, true);
+            ClipboardData Image(string id)
+            {
+                var bitmap = BitmapSource.Create(1, 1, 96, 96, PixelFormats.Bgra32, null, new byte[] { 7, 8, 9, 255 }, 4);
+                bitmap.Freeze();
+                object item = new ClipboardData(bitmap, DataType.Image, false)
+                {
+                    HashId = id, SenderApp = "synthetic", InitScore = 0, CreateTime = new DateTime(2026, 1, 1), Pinned = false, Saved = false
+                };
+                typeof(ClipboardData).GetProperty("WindowsHistoryOrigin", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(item, true);
+                return (ClipboardData)item;
+            }
+            var imported = new List<ClipboardData> { Image("windows-one"), Image("windows-two") };
+            if (WindowsImportPinPolicy.ProtectUnverified(imported, true, false))
+                throw new InvalidOperationException("Trusted synthetic import was protected unexpectedly");
+            var list = new LinkedList<ClipboardDataPair>(imported.Select(data => new ClipboardDataPair {
+                ClipboardData = data, PreviewPanel = new Lazy<UserControl>(() => throw new InvalidOperationException("Preview must stay lazy")) }));
+            SetField(plugin, "RecordsList", list);
+            var refresh = typeof(Plugin).GetMethod("RefreshWindowsEvidenceAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            ((Task<CleanupReport>)refresh.Invoke(plugin, [work, true, 0L])!).GetAwaiter().GetResult();
+            var hidden = typeof(Plugin).GetMethod("IsWindowsSuppressed", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            if (list.Count != 2 || list.Count(pair => (bool)hidden.Invoke(plugin, [pair])!) != 1)
+                throw new InvalidOperationException("Synthetic Windows image duplicates did not retain exactly one visible image");
+        }
+    }
+
+    private static void TestImageRelationshipExplanations()
+    {
+        var plugin = new Plugin();
+        SetField(plugin, "Settings", new Settings { AutomaticCleanup = true, AutomaticCleanupThorough = true });
+        SetField(plugin, "CultureInfo", CultureInfo.GetCultureInfo("en-US"));
+        ClipboardData Make(string id, double dpi) {
+            var image = BitmapSource.Create(1, 1, dpi, dpi, PixelFormats.Bgra32, null, new byte[] { 5, 6, 7, 255 }, 4);
+            image.Freeze();
+            return new ClipboardData(image, DataType.Image, false)
+            {
+                HashId = id, SenderApp = "synthetic", InitScore = 0, CreateTime = new DateTime(2026, 1, 1), Pinned = false, Saved = false
+            };
+        }
+        var first = Make("first-image", 96);
+        var second = Make("second-image", 144);
+        if (ClipboardContentComparer.Compare(first, second, true) != ClipboardContentComparison.Different)
+            throw new InvalidOperationException("Synthetic image representations did not differ");
+        ClipboardDataPair Pair(ClipboardData data) => new() { ClipboardData = data,
+            PreviewPanel = new Lazy<UserControl>(() => throw new InvalidOperationException("Preview must stay lazy")) };
+        var list = new LinkedList<ClipboardDataPair>([Pair(first), Pair(second)]);
+        SetField(plugin, "RecordsList", list);
+        var update = typeof(Plugin).GetMethod("UpdateImageRelationshipsAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        ((Task)update.Invoke(plugin, [true])!).GetAwaiter().GetResult();
+        if (string.IsNullOrEmpty(((IClipboardPlus)plugin).GetImageDeduplicationExplanationAsync(first).GetAwaiter().GetResult()))
+            throw new InvalidOperationException("Verified synthetic relationship was not explained");
+        ((Task)update.Invoke(plugin, [false])!).GetAwaiter().GetResult();
+        if (string.IsNullOrEmpty(((IClipboardPlus)plugin).GetImageDeduplicationExplanationAsync(first).GetAwaiter().GetResult()))
+            throw new InvalidOperationException("Best-effort cleanup lost a verified synthetic relationship");
+        list.RemoveLast();
+        if (!string.IsNullOrEmpty(((IClipboardPlus)plugin).GetImageDeduplicationExplanationAsync(first).GetAwaiter().GetResult()))
+            throw new InvalidOperationException("Stale synthetic image relationship was not discarded");
+    }
+
+    private static void TestExistingPreviewAcrossPinChanges()
+    {
+        var plugin = new Plugin();
+        SetField(plugin, "Settings", new Settings { AutomaticCleanup = true, AutomaticCleanupThorough = true });
+        SetField(plugin, "CultureInfo", CultureInfo.GetCultureInfo("en-US"));
+        var image = BitmapSource.Create(1, 1, 96, 96, PixelFormats.Bgra32, null, new byte[] { 5, 6, 7, 255 }, 4);
+        image.Freeze();
+        ClipboardData Make(string id) => new(image, DataType.Image, false)
+        {
+            HashId = id, SenderApp = "synthetic", InitScore = 0, CreateTime = new DateTime(2026, 1, 1), Pinned = false, Saved = false
+        };
+        ClipboardDataPair Pair(ClipboardData data) => new()
+        {
+            ClipboardData = data, PreviewPanel = new Lazy<UserControl>(() => throw new InvalidOperationException("Preview must stay lazy"))
+        };
+        var first = Pair(Make("preview-first"));
+        var second = Pair(Make("preview-second"));
+        var list = new LinkedList<ClipboardDataPair>([first, second]);
+        SetField(plugin, "RecordsList", list);
+        var preview = new PreviewViewModel(plugin, first.ClipboardData, first);
+        var update = typeof(Plugin).GetMethod("UpdateImageRelationshipsAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        void VerifyAndRefresh() {
+            ((Task)update.Invoke(plugin, [true])!).GetAwaiter().GetResult();
+            preview.RefreshDeduplicationExplanationAsync().GetAwaiter().GetResult();
+        }
+        VerifyAndRefresh();
+        if (!string.IsNullOrEmpty(preview.DeduplicationExplanation))
+            throw new InvalidOperationException("Unpinned identical images have no verified retention reason");
+        first.TogglePinned();
+        VerifyAndRefresh();
+        if (string.IsNullOrEmpty(preview.DeduplicationExplanation))
+            throw new InvalidOperationException("Existing preview missed the verified pin explanation");
+        first.TogglePinned();
+        preview.RefreshDeduplicationExplanationAsync().GetAwaiter().GetResult();
+        if (!string.IsNullOrEmpty(preview.DeduplicationExplanation))
+            throw new InvalidOperationException("Existing preview retained a stale pin explanation");
+        VerifyAndRefresh();
+        if (!string.IsNullOrEmpty(preview.DeduplicationExplanation))
+            throw new InvalidOperationException("Unpinned preview retained an explanation");
+        first.TogglePinned();
+        VerifyAndRefresh();
+        list.Remove(first);
+        list.AddFirst(Pair(first.ClipboardData));
+        VerifyAndRefresh();
+        if (!string.IsNullOrEmpty(preview.DeduplicationExplanation))
+            throw new InvalidOperationException("A replaced record reused an old preview explanation");
+    }
+
+    private static void TestManualPinRefreshesOpenPreviews()
+    {
+        var database = new SqliteDatabase("synthetic-preview-pin", new ClipboardPlus(), SqliteCacheMode.Private, SqliteOpenMode.Memory);
+        try
+        {
+            database.InitializeDatabaseAsync().GetAwaiter().GetResult();
+            var plugin = new Plugin();
+            SetField(plugin, "Settings", new Settings { AutomaticCleanup = false, MaxRecords = 100 });
+            SetField(plugin, "CultureInfo", CultureInfo.GetCultureInfo("en-US"));
+            SetField(plugin, "Context", new PluginInitContext(null, Ioc.Default.GetRequiredService<IPublicAPI>()));
+            SetField(plugin, "Database", database);
+            SetField(plugin, "ScoreHelper", new ScoreHelper(10000));
+            var image = BitmapSource.Create(1, 1, 96, 96, PixelFormats.Bgra32, null, new byte[] { 5, 6, 7, 255 }, 4);
+            image.Freeze();
+            ClipboardData Make(string id, bool pinned) => new(image, DataType.Image, false)
+            {
+                HashId = id, SenderApp = "synthetic", InitScore = 0, CreateTime = new DateTime(2026, 1, 1), Pinned = pinned, Saved = true
+            };
+            var firstData = Make("manual-pin-first", true);
+            var secondData = Make("manual-pin-second", false);
+            database.AddRecordsAsync([firstData, secondData], true).GetAwaiter().GetResult();
+            var makePair = typeof(Plugin).GetMethod("CreateClipboardDataPair", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            var first = (ClipboardDataPair)makePair.Invoke(plugin, [firstData])!;
+            var second = (ClipboardDataPair)makePair.Invoke(plugin, [secondData])!;
+            var list = new LinkedList<ClipboardDataPair>([first, second]);
+            SetField(plugin, "RecordsList", list);
+            var update = typeof(Plugin).GetMethod("UpdateImageRelationshipsAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            ((Task)update.Invoke(plugin, [true])!).GetAwaiter().GetResult();
+            var firstPreview = (PreviewPanel)first.PreviewPanel.Value;
+            var secondPreview = (PreviewPanel)second.PreviewPanel.Value;
+            if (string.IsNullOrEmpty(firstPreview.ViewModel.DeduplicationExplanation) ||
+                string.IsNullOrEmpty(secondPreview.ViewModel.DeduplicationExplanation))
+                throw new InvalidOperationException("Open synthetic previews lack their verified pin explanation");
+            var pin = typeof(Plugin).GetMethod("PinRecordAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            ((Task)pin.Invoke(plugin, [first, false])!).GetAwaiter().GetResult();
+            // The production path queues refreshes to the preview dispatcher.
+            var frame = new DispatcherFrame();
+            Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() => frame.Continue = false));
+            Dispatcher.PushFrame(frame);
+            if (first.ClipboardData.Pinned || !string.IsNullOrEmpty(firstPreview.ViewModel.DeduplicationExplanation) ||
+                !string.IsNullOrEmpty(secondPreview.ViewModel.DeduplicationExplanation))
+                throw new InvalidOperationException("Manual unpin left an old explanation on an open synthetic preview");
+        }
+        finally { database.DisposeAsync().AsTask().GetAwaiter().GetResult(); }
+    }
+
+    private static void TestRetentionPassRefreshesLoadedRecords()
+    {
+        var database = new SqliteDatabase("synthetic-retention-pass", new ClipboardPlus(), SqliteCacheMode.Private, SqliteOpenMode.Memory);
+        try
+        {
+            database.InitializeDatabaseAsync().GetAwaiter().GetResult();
+            var old = Record("expired-unpinned", 1, true, age: DateTime.Now.AddDays(-5));
+            var pin = Record("expired-pin", 2, true, true, DateTime.Now.AddDays(-5));
+            database.AddRecordsAsync([old, pin], true).GetAwaiter().GetResult();
+            var list = new LinkedList<ClipboardDataPair>(new[] { old, pin }.Select(record => new ClipboardDataPair
+            {
+                ClipboardData = record,
+                PreviewPanel = new Lazy<UserControl>(() => throw new InvalidOperationException("Preview must stay lazy"))
+            }));
+            var settings = new Settings { TextKeepTime = KeepTime.Hour1, ProtectPinsFromExpiry = true };
+            var plugin = new Plugin();
+            SetField(plugin, "Settings", settings);
+            SetField(plugin, "Context", new PluginInitContext(null, Ioc.Default.GetRequiredService<IPublicAPI>()));
+            SetField(plugin, "Database", database);
+            SetField(plugin, "RecordsList", list);
+            SetField(plugin, "ScoreHelper", new ScoreHelper(10000));
+            ((IClipboardPlus)plugin).RunRetentionExpiryAsync().GetAwaiter().GetResult();
+            if (list.Count != 1 || !list.First!.Value.ClipboardData.Pinned ||
+                database.GetAllRecordsAsync(false).GetAwaiter().GetResult().Count != 1)
+                throw new InvalidOperationException("Protected expiry did not refresh synthetic history");
+            var confirmed = false;
+            var viewModel = new SettingsViewModel(plugin, () => confirmed);
+            viewModel.ProtectPinsFromExpiry = false;
+            if (!settings.ProtectPinsFromExpiry || list.Count != 1)
+                throw new InvalidOperationException("Cancelling synthetic confirmation did not protect the pin");
+            confirmed = true;
+            viewModel.ProtectPinsFromExpiry = false;
+            viewModel.RetentionCompletion.GetAwaiter().GetResult();
+            if (list.Count != 0 || database.GetAllRecordsAsync(false).GetAwaiter().GetResult().Count != 0)
+                throw new InvalidOperationException("Unprotected expiry did not refresh synthetic history");
+            viewModel.ProtectPinsFromExpiry = true;
+            viewModel.RetentionCompletion.GetAwaiter().GetResult();
+            if (!settings.ProtectPinsFromExpiry) throw new InvalidOperationException("Re-enabling synthetic pin protection failed");
+            database.CloseAsync().GetAwaiter().GetResult();
+            viewModel.ProtectPinsFromExpiry = false;
+            viewModel.RetentionCompletion.GetAwaiter().GetResult();
+            if (settings.ProtectPinsFromExpiry || string.IsNullOrEmpty(viewModel.RetentionError))
+                throw new InvalidOperationException("Synthetic expiry failure did not retain setting and show inline feedback");
+        }
+        finally { database.DisposeAsync().AsTask().GetAwaiter().GetResult(); }
+    }
+
+    private static void TestPinnedCaptureLimit()
+    {
+        var plugin = new Plugin();
+        ClipboardDataPair Pair(string id, bool pinned) => new()
+        {
+            ClipboardData = Record(id, 0, false, pinned),
+            PreviewPanel = new Lazy<UserControl>(() => throw new InvalidOperationException("Preview must stay lazy"))
+        };
+        var records = new LinkedList<ClipboardDataPair>([Pair("protected-new", true), Pair("removable", false), Pair("protected-old", true)]);
+        SetField(plugin, "RecordsList", records);
+        var trim = typeof(Plugin).GetMethod("RemoveOldestUnpinnedRecord", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        if (!(bool)trim.Invoke(plugin, null)! || records.Count != 2 || records.Any(pair => !pair.ClipboardData.Pinned))
+            throw new InvalidOperationException("Capacity trimming discarded a pinned record");
+        if ((bool)trim.Invoke(plugin, null)! || records.Count != 2)
+            throw new InvalidOperationException("Capacity trimming must preserve an all-pinned list");
     }
 
     private static void TestManualActionRefresh()
@@ -109,18 +369,17 @@ internal static class DuplicatePluginIntegration
             SetField(plugin, "ScoreHelper", new ScoreHelper(10000));
             SetField(plugin, "Database", database);
             SetField(plugin, "RecordsList", list);
-            var results = plugin.QueryAsync(QueryFor("cleanup"), CancellationToken.None).GetAwaiter().GetResult();
-            var action = results.Single(result => result.Score == int.MaxValue);
-            if (results.Count(result => result.ContextData is ClipboardDataPair) != 2)
-                throw new InvalidOperationException("Synthetic cleanup query is missing records");
+            var results = plugin.QueryAsync(QueryFor("clear"), CancellationToken.None).GetAwaiter().GetResult();
+            var action = results.Last();
+            var originalActions = results.ToArray();
             var refreshed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
             plugin.ResultsUpdated += (_, args) =>
             {
-                if (args.Results.Contains(action) && args.Results.Count(result => result.ContextData is ClipboardDataPair) == 1 &&
-                    args.Results.All(result => result.ContextData is not ClipboardDataPair pair || pair.ClipboardData.HashId != "old-manual"))
+                if (args.Query.Search == "clear" && args.Results.SequenceEqual(originalActions) && list.Count == 1 &&
+                    action.SubTitle != null && !action.SubTitle.Contains("running", StringComparison.OrdinalIgnoreCase))
                     refreshed.TrySetResult();
             };
-            action.Action!(null!);
+            if (action.Action!(null!)) throw new InvalidOperationException("Cleanup must keep the launcher open");
             refreshed.Task.WaitAsync(TimeSpan.FromSeconds(30)).GetAwaiter().GetResult();
             var coordinator = (CleanupRunCoordinator)typeof(Plugin).GetField("cleanupCoordinator", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(plugin)!;
             coordinator.StopAsync().GetAwaiter().GetResult();
@@ -158,6 +417,52 @@ internal static class DuplicatePluginIntegration
                 throw new InvalidOperationException("Synthetic unloaded saved keeper was not preserved");
         }
         finally { database.DisposeAsync().AsTask().GetAwaiter().GetResult(); }
+    }
+
+    private static void TestPinsDoNotConsumeCapacity(Plugin plugin)
+    {
+        SetField(plugin, "Settings", new Settings { AutomaticCleanup = false, MaxRecords = 2 });
+        var list = new LinkedList<ClipboardDataPair>();
+        SetField(plugin, "RecordsList", list);
+        var add = typeof(Plugin).GetMethod("AddClipboardDataItem", BindingFlags.Instance | BindingFlags.NonPublic,
+            null, [typeof(ClipboardData)], null)!;
+        for (var i = 0; i < 4; i++) add.Invoke(plugin, [Record($"pin-{i}", i, false, true)]);
+        add.Invoke(plugin, [Record("old-unpinned", 5, false)]);
+        add.Invoke(plugin, [Record("middle-unpinned", 6, false)]);
+        if (list.Count != 6) throw new InvalidOperationException("Pins consumed unpinned capacity");
+        add.Invoke(plugin, [Record("new-unpinned", 7, false)]);
+        if (list.Count != 6 || list.Any(pair => pair.ClipboardData.HashId == "old-unpinned") ||
+            !list.Any(pair => pair.ClipboardData.HashId == "new-unpinned") ||
+            list.Count(pair => pair.ClipboardData.Pinned) != 4)
+            throw new InvalidOperationException("Capture did not retain the newest unpinned records alongside pins");
+
+        // A database restore or a pin toggle can leave list order different from age order.
+        list.Clear();
+        add.Invoke(plugin, [Record("newest-first", 9, false)]);
+        add.Invoke(plugin, [Record("oldest-second", 1, false)]);
+        add.Invoke(plugin, [Record("middle-last", 5, false)]);
+        if (list.Any(pair => pair.ClipboardData.HashId == "oldest-second") ||
+            !list.Any(pair => pair.ClipboardData.HashId == "newest-first"))
+            throw new InvalidOperationException("Capacity eviction did not follow record age");
+
+        var limitSettings = new Settings { AutomaticCleanup = false, MaxRecords = 1 };
+        SetField(plugin, "Settings", limitSettings);
+        ((IClipboardPlus)plugin).EnforceHistoryCapacityAsync().GetAwaiter().GetResult();
+        if (list.Count != 1 || list.First!.Value.ClipboardData.HashId != "newest-first")
+            throw new InvalidOperationException("Lowering the limit did not immediately evict the oldest unpinned entry");
+
+        var savedPin = Record("saved-old-pin", 0, true, true);
+        ((IClipboardPlus)plugin).Database.AddOneRecordAsync(savedPin, true).GetAwaiter().GetResult();
+        var pair = new ClipboardDataPair { ClipboardData = savedPin,
+            PreviewPanel = new Lazy<UserControl>(() => throw new InvalidOperationException("Preview must stay lazy")) };
+        list.AddFirst(pair);
+        var pin = typeof(Plugin).GetMethod("PinRecordAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        ((Task)pin.Invoke(plugin, [pair, false])!).GetAwaiter().GetResult();
+        ((Task)typeof(SqliteDatabase).GetMethod("WaitTaskQueueAsync", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(((IClipboardPlus)plugin).Database, null)!).GetAwaiter().GetResult();
+        if (list.Count != 1 || list.First!.Value.ClipboardData.HashId != "newest-first" ||
+            !((IClipboardPlus)plugin).Database.GetAllRecordsAsync(false).GetAwaiter().GetResult().Any(record => record.HashId == "saved-old-pin" && !record.Pinned))
+            throw new InvalidOperationException("Unpinning did not enforce loaded capacity while preserving the saved record");
+        ((IClipboardPlus)plugin).Database.DeleteOneRecordAsync(savedPin).GetAwaiter().GetResult();
     }
 
     private static void TestCapacityProtection(Plugin plugin)
@@ -232,16 +537,16 @@ internal static class DuplicatePluginIntegration
         }
         add.Invoke(plugin, [Windows("pinned-windows", true)]);
         for (var i = 0; i < 60; i++) add.Invoke(plugin, [Windows($"windows-{i}")]);
-        if (list.Count != 2 + HistoryOverflowPolicy.MaximumOverflow || !list.Any(pair => pair.ClipboardData.HashId == "pinned-windows"))
+        if (list.Count != 3 + HistoryOverflowPolicy.MaximumOverflow || !list.Any(pair => pair.ClipboardData.HashId == "pinned-windows"))
             throw new InvalidOperationException("Synthetic Windows captures exceeded the bound or evicted a pinned record");
         var cleanup = typeof(Plugin).GetMethod("RunCleanupWorkAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
         ((Task<CleanupReport>)cleanup.Invoke(plugin, [CleanupWork.AutomaticBestEffort])!).GetAwaiter().GetResult();
-        if (list.Count != 2 || !list.Any(pair => pair.ClipboardData.HashId == "pinned-windows"))
+        if (list.Count != 3 || !list.Any(pair => pair.ClipboardData.HashId == "pinned-windows"))
             throw new InvalidOperationException("Windows-origin records blocked ordinary capacity trimming");
         var addBatch = typeof(Plugin).GetMethod("AddClipboardDataItem", BindingFlags.Instance | BindingFlags.NonPublic,
             null, [typeof(List<ClipboardData>)], null)!;
         addBatch.Invoke(plugin, [Enumerable.Range(0, 60).Select(i => Windows($"batch-{i}")).ToList()]);
-        if (list.Count != 2 + HistoryOverflowPolicy.MaximumOverflow || !list.Any(pair => pair.ClipboardData.HashId == "pinned-windows"))
+        if (list.Count != 3 + HistoryOverflowPolicy.MaximumOverflow || !list.Any(pair => pair.ClipboardData.HashId == "pinned-windows"))
             throw new InvalidOperationException("Synthetic batch exceeded the bound or evicted a pinned record");
 
         SetField(plugin, "UseWindowsClipboardHistoryOnly", false);
@@ -275,6 +580,9 @@ internal static class DuplicatePluginIntegration
     private static void TestManualImageEvidenceRetention()
     {
         var plugin = new Plugin();
+        var database = new SqliteDatabase("synthetic-pin-events", new ClipboardPlus(), SqliteCacheMode.Private, SqliteOpenMode.Memory);
+        database.InitializeDatabaseAsync().GetAwaiter().GetResult();
+        SetField(plugin, "Database", database);
         var settings = new Settings { AutomaticCleanup = true };
         SetField(plugin, "Settings", settings);
         SetField(plugin, "Context", new PluginInitContext(null, Ioc.Default.GetRequiredService<IPublicAPI>()));
@@ -295,8 +603,27 @@ internal static class DuplicatePluginIntegration
             PreviewPanel = new Lazy<UserControl>(() => throw new InvalidOperationException("Preview must stay lazy")) };
         SetField(plugin, "RecordsList", new LinkedList<ClipboardDataPair>([keeper, windows]));
         var pinEvent = typeof(Plugin).GetMethod("WindowsClipboardHelper_OnHistoryItemPinUpdated", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        pinEvent.Invoke(plugin, [null, ("synthetic-windows-image", true)]);
-        pinEvent.Invoke(plugin, [null, ("synthetic-windows-image", false)]);
+        void WaitForWrites() => ((Task)typeof(SqliteDatabase).GetMethod("WaitTaskQueueAsync", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(database, null)!).GetAwaiter().GetResult();
+        var tracker = (PinnedHistoryChangeTracker)typeof(WindowsClipboardHelper)
+            .GetField("pinChanges", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(helper)!;
+        tracker.Reset(["synthetic-windows-image"], true);
+        tracker.Invalidate(); // failed metadata read
+        tracker.EstablishBaselineIfMissing([], true); // successful trusted import, no retroactive change
+        if (windows.ClipboardData.Pinned) throw new InvalidOperationException("Recovery changed an existing synthetic pin");
+        var pinChanges = tracker.Observe(["synthetic-windows-image"], ["synthetic-windows-image"], true);
+        if (pinChanges.Count != 1) throw new InvalidOperationException("Trusted import swallowed a later synthetic pin event");
+        foreach (var change in pinChanges) pinEvent.Invoke(plugin, [null, change]);
+        WaitForWrites();
+        var savedPin = database.GetAllRecordsAsync(false).GetAwaiter().GetResult();
+        if (savedPin.Count != 1 || !savedPin[0].Pinned || !windows.ClipboardData.Saved)
+            throw new InvalidOperationException("Synthetic Windows pin was not persisted");
+        var unpinChanges = tracker.Observe(["synthetic-windows-image"], [], true);
+        if (unpinChanges.Count != 1) throw new InvalidOperationException("Synthetic unpin event was lost");
+        foreach (var change in unpinChanges) pinEvent.Invoke(plugin, [null, change]);
+        WaitForWrites();
+        var savedUnpin = database.GetAllRecordsAsync(false).GetAwaiter().GetResult();
+        if (savedUnpin.Count != 1 || savedUnpin[0].Pinned)
+            throw new InvalidOperationException("Synthetic Windows unpin was not persisted");
         if (windows.ClipboardData.Pinned || !windows.ClipboardData.FromWindowsClipboardHistory() ||
             DuplicateRecordPlanner.Plan([keeper.ClipboardData, windows.ClipboardData], true).Count != 0)
             throw new InvalidOperationException("Synthetic pin events lost Windows origin");
@@ -305,10 +632,18 @@ internal static class DuplicatePluginIntegration
         var hidden = typeof(Plugin).GetMethod("IsWindowsSuppressed", BindingFlags.Instance | BindingFlags.NonPublic)!;
         ((Task<CleanupReport>)refresh.Invoke(plugin, [CleanupWork.ManualThorough, true, generation])!).GetAwaiter().GetResult();
         if (!(bool)hidden.Invoke(plugin, [windows])!) throw new InvalidOperationException("Manual synthetic image was not suppressed");
+        typeof(WindowsClipboardHelper).GetField("pinStateTrusted", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(helper, false);
+        if ((bool)hidden.Invoke(plugin, [windows])!) throw new InvalidOperationException("Unverified pin state must fail open");
+        typeof(WindowsClipboardHelper).GetField("pinStateTrusted", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(helper, true);
+        var knownPins = typeof(WindowsClipboardHelper).GetField("knownPinnedItemIds", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        knownPins.SetValue(helper, new HashSet<string>(StringComparer.OrdinalIgnoreCase) { windows.ClipboardData.HashId });
+        if ((bool)hidden.Invoke(plugin, [windows])!) throw new InvalidOperationException("Verified Windows pin must not be suppressed on recovery");
+        knownPins.SetValue(helper, new HashSet<string>(StringComparer.OrdinalIgnoreCase));
         ((Task<CleanupReport>)refresh.Invoke(plugin, [CleanupWork.AutomaticBestEffort, false, generation])!).GetAwaiter().GetResult();
         if (!(bool)hidden.Invoke(plugin, [windows])!) throw new InvalidOperationException("Best effort discarded valid manual image evidence");
         windows.TogglePinned();
         if ((bool)hidden.Invoke(plugin, [windows])!) throw new InvalidOperationException("Pinned synthetic Windows item was hidden");
+        database.DisposeAsync().AsTask().GetAwaiter().GetResult();
     }
 
     private static void TestOptOutImageCache(Plugin plugin)
@@ -446,10 +781,10 @@ internal static class DuplicatePluginIntegration
         return query;
     }
 
-    private static ClipboardData Record(string id, int minute, bool saved, bool pinned = false) => new("synthetic", DataType.PlainText, false)
+    private static ClipboardData Record(string id, int minute, bool saved, bool pinned = false, DateTime? age = null) => new("synthetic", DataType.PlainText, false)
     {
         HashId = id, SenderApp = "synthetic", InitScore = minute,
-        CreateTime = new DateTime(2026, 1, 1).AddMinutes(minute), Pinned = pinned, Saved = saved,
+        CreateTime = age ?? new DateTime(2026, 1, 1).AddMinutes(minute), Pinned = pinned, Saved = saved,
         EncryptKeyMd5 = StringUtils.EncryptKeyMd5
     };
 

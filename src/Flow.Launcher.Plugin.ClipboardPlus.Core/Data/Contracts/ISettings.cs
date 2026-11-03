@@ -103,6 +103,9 @@ public interface ISettings
     /// </summary>
     public string EncryptKey { get; set; }
 
+    /// <summary>Whether time-based expiry excludes pinned records.</summary>
+    public bool ProtectPinsFromExpiry { get; set; }
+
     /// <summary>
     /// Whether to keep text records
     /// </summary>

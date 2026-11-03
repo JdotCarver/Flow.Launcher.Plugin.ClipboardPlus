@@ -91,15 +91,31 @@ public class WindowsClipboardHelper : IDisposable
     #region Pinned Items Helper
 
     private volatile bool pinStateTrusted;
+    private volatile HashSet<string> knownPinnedItemIds = new(StringComparer.OrdinalIgnoreCase);
+    private readonly PinnedHistoryChangeTracker pinChanges = new();
 
     /// <summary>False means pin state could not be verified and suppression must fail open.</summary>
     public bool IsPinStateTrusted => pinStateTrusted;
 
-    private HashSet<string> GetPinnedClipboardItemIds()
+    /// <summary>Suppression is safe only while the latest verified snapshot excludes the item.</summary>
+    public bool IsKnownUnpinned(string id)
+    {
+        var snapshot = knownPinnedItemIds;
+        return !string.IsNullOrWhiteSpace(id) && pinStateTrusted && !snapshot.Contains(id) &&
+            ReferenceEquals(snapshot, knownPinnedItemIds) && pinStateTrusted;
+    }
+
+    private HashSet<string> GetPinnedClipboardItemIds(out bool trusted)
     {
         var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "Microsoft", "Windows", "Clipboard", "Pinned");
-        pinStateTrusted = PinnedHistorySnapshotReader.TryRead(folder, out var ids);
+        trusted = PinnedHistorySnapshotReader.TryRead(folder, out var ids);
+        // Publish a new, never-mutated set while trust is down. Readers must
+        // not combine an old snapshot with a later successful verification.
+        pinStateTrusted = false;
+        knownPinnedItemIds = new HashSet<string>(ids, StringComparer.OrdinalIgnoreCase);
+        pinStateTrusted = trusted;
+        if (!trusted) pinChanges.Invalidate();
         return ids;
     }
 
@@ -123,7 +139,8 @@ public class WindowsClipboardHelper : IDisposable
     {
         if (IsClipboardHistorySupported())
         {
-            _previousPinnedItemIds = GetPinnedClipboardItemIds();
+            _previousPinnedItemIds = GetPinnedClipboardItemIds(out var trusted);
+            pinChanges.Reset(_previousPinnedItemIds, trusted);
             Clipboard_HistoryChanged(this, null!);
             Clipboard.HistoryChanged += Clipboard_HistoryChanged;
             Clipboard.HistoryEnabledChanged += Clipboard_HistoryEnabledChanged;
@@ -137,6 +154,7 @@ public class WindowsClipboardHelper : IDisposable
             _clipboardHistoryItems.Clear();
             _clipboardHistoryItemsIds.Clear();
             _previousPinnedItemIds.Clear();
+            pinChanges.Invalidate();
             Clipboard.HistoryChanged -= Clipboard_HistoryChanged;
             Clipboard.HistoryEnabledChanged -= Clipboard_HistoryEnabledChanged;
         }
@@ -218,65 +236,37 @@ public class WindowsClipboardHelper : IDisposable
                     .ToArray();
                 if (removedItems.Length == 0) return;
                 OnHistoryItemRemoved?.Invoke(this, removedItems);
-                _context.LogDebug(ClassName, $"Clipboard_HistoryChanged: Removed items: {string.Join(", ", removedItems)}");
+                _context.LogDebug(ClassName, $"Clipboard_HistoryChanged: Removed {removedItems.Length} items");
             }
 
             async Task AddItemAsync(IReadOnlyList<ClipboardHistoryItem> items)
             {
                 var newItem = items.FirstOrDefault(x => !_clipboardHistoryItemsIds.Contains(GetHashId(x)));
                 if (newItem == null) return;
-                _previousPinnedItemIds = GetPinnedClipboardItemIds();
-                var addedItem = await GetClipboardData(newItem, _previousPinnedItemIds);
+                _previousPinnedItemIds = GetPinnedClipboardItemIds(out var trusted);
+                pinChanges.Reset(_previousPinnedItemIds, trusted);
+                var addedItem = await GetClipboardData(newItem, _previousPinnedItemIds, trusted);
                 if (!addedItem.IsNull())
                 {
                     OnHistoryItemAdded?.Invoke(this, addedItem);
-                    _context.LogDebug(ClassName, $"Clipboard_HistoryChanged: Added item: {GetHashId(newItem)}");
+                    _context.LogDebug(ClassName, "Clipboard_HistoryChanged: Added item");
                 }
                 else
                 {
-                    _context.LogDebug(ClassName, $"Clipboard_HistoryChanged: Failed to get clipboard data for added item: {GetHashId(newItem)}");
+                    _context.LogDebug(ClassName, "Clipboard_HistoryChanged: Failed to get clipboard data for added item");
                 }
             }
 
             async Task<bool> UpdatedPinnedItemsAsync(IReadOnlyList<ClipboardHistoryItem> items)
             {
-                // Get current pinned item IDs from Windows clipboard metadata
-                var previouslyTrusted = pinStateTrusted;
-                var currentPinnedIds = GetPinnedClipboardItemIds();
-                if (!pinStateTrusted) return false;
-
-                // Find items whose pin status changed
-                var itemsWithChangedPinStatus = new List<(ClipboardHistoryItem Item, bool IsPinned)>();
-                
-                foreach (var item in items)
-                {
-                    var itemId = GetHashId(item);
-                    var isPinnedNow = currentPinnedIds.Contains(itemId);
-                    var wasPinnedBefore = _previousPinnedItemIds.Contains(itemId);
-                    
-                    // Check if pin status changed
-                    if (!previouslyTrusted || isPinnedNow != wasPinnedBefore)
-                    {
-                        itemsWithChangedPinStatus.Add((item, isPinnedNow));
-                    }
-                }
-                
-                // Update the previous pinned state
+                var currentPinnedIds = GetPinnedClipboardItemIds(out var trusted);
+                var changes = pinChanges.Observe(items.Select(GetHashId), currentPinnedIds, trusted);
                 _previousPinnedItemIds = currentPinnedIds;
-                
-                // If we found items with changed pin status, invoke the event
-                if (itemsWithChangedPinStatus.Count > 0)
+                foreach (var (id, pinned) in changes)
                 {
-                    foreach (var (historyItem, pinned) in itemsWithChangedPinStatus)
-                    {
-                        // Sometimes getting clipboard data may fail, so we use HashId & Pinned instead
-                        OnHistoryItemPinUpdated?.Invoke(this, (GetHashId(historyItem), pinned));
-                        _context.LogDebug(ClassName, $"Clipboard_HistoryChanged: Pin status updated for item: {GetHashId(historyItem)}");
-                    }
-                    return true;
+                    OnHistoryItemPinUpdated?.Invoke(this, (id, pinned));
                 }
-                
-                return false;
+                return changes.Count > 0;
             }
         });
     }
@@ -286,11 +276,12 @@ public class WindowsClipboardHelper : IDisposable
         if (IsHistoryEnabled())
         {
             // Update previous pinned IDs under the history item lock
-            var currentPinnedIds = GetPinnedClipboardItemIds();
+            var currentPinnedIds = GetPinnedClipboardItemIds(out var trusted);
             await _historyItemLock.WaitAsync();
             try
             {
                 _previousPinnedItemIds = currentPinnedIds;
+                pinChanges.Reset(currentPinnedIds, trusted);
             }
             finally
             {
@@ -309,6 +300,7 @@ public class WindowsClipboardHelper : IDisposable
                 _clipboardHistoryItems.Clear();
                 _clipboardHistoryItemsIds.Clear();
                 _previousPinnedItemIds.Clear();
+                pinChanges.Invalidate();
             }
             finally
             {
@@ -322,7 +314,13 @@ public class WindowsClipboardHelper : IDisposable
 
     #region History Items
 
-    public async Task<List<ClipboardData>?> GetHistoryItemsAsync()
+    public async Task<List<ClipboardData>?> GetHistoryItemsAsync() =>
+        (await GetHistoryItemsWithPinStateAsync()).Items;
+
+    public async Task<List<ClipboardData>?> GetLaterHistoryItemsAsync(DateTime dateTime) =>
+        (await GetLaterHistoryItemsWithPinStateAsync(dateTime)).Items;
+
+    public async Task<(List<ClipboardData>? Items, bool PinStateTrusted)> GetHistoryItemsWithPinStateAsync()
     {
         if (IsClipboardHistorySupported())
         {
@@ -336,17 +334,18 @@ public class WindowsClipboardHelper : IDisposable
 
                 // get the clipboard data
                 var clipboardDataItems = new List<ClipboardData>();
-                var currentPinnedIds = GetPinnedClipboardItemIds();
+                var currentPinnedIds = GetPinnedClipboardItemIds(out var trusted);
+                pinChanges.EstablishBaselineIfMissing(currentPinnedIds, trusted);
                 foreach (var item in laterSortedItems)
                 {
-                    var clipboardData = await GetClipboardData(item, currentPinnedIds);
+                    var clipboardData = await GetClipboardData(item, currentPinnedIds, trusted);
                     if (!clipboardData.IsNull())
                     {
                         clipboardDataItems.Add(clipboardData);
                         _clipboardPlus.ScoreHelper.Add();
                     }
                 }
-                return clipboardDataItems;
+                return (clipboardDataItems, trusted);
             }
             finally
             {
@@ -354,10 +353,10 @@ public class WindowsClipboardHelper : IDisposable
             }
         }
 
-        return null;
+        return (null, false);
     }
 
-    public async Task<List<ClipboardData>?> GetLaterHistoryItemsAsync(DateTime dateTime)
+    public async Task<(List<ClipboardData>? Items, bool PinStateTrusted)> GetLaterHistoryItemsWithPinStateAsync(DateTime dateTime)
     {
         if (IsClipboardHistorySupported())
         {
@@ -372,17 +371,18 @@ public class WindowsClipboardHelper : IDisposable
 
                 // get the clipboard data
                 var clipboardDataItems = new List<ClipboardData>();
-                var currentPinnedIds = GetPinnedClipboardItemIds();
+                var currentPinnedIds = GetPinnedClipboardItemIds(out var trusted);
+                pinChanges.EstablishBaselineIfMissing(currentPinnedIds, trusted);
                 foreach (var item in laterSortedItems)
                 {
-                    var clipboardData = await GetClipboardData(item, currentPinnedIds);
+                    var clipboardData = await GetClipboardData(item, currentPinnedIds, trusted);
                     if (!clipboardData.IsNull())
                     {
                         clipboardDataItems.Add(clipboardData);
                         _clipboardPlus.ScoreHelper.Add();
                     }
                 }
-                return clipboardDataItems;
+                return (clipboardDataItems, trusted);
             }
             finally
             {
@@ -390,10 +390,10 @@ public class WindowsClipboardHelper : IDisposable
             }
         }
 
-        return null;
+        return (null, false);
     }
 
-    private async Task<ClipboardData> GetClipboardData(ClipboardHistoryItem item, HashSet<string> currentPinnedIds)
+    private async Task<ClipboardData> GetClipboardData(ClipboardHistoryItem item, HashSet<string> currentPinnedIds, bool trusted)
     {
         // If the clipboard is empty, return.
         var dataObj = item.Content;
@@ -406,7 +406,7 @@ public class WindowsClipboardHelper : IDisposable
         var hashId = GetHashId(item);
         var createTime = item.Timestamp.DateTime;
         // Unknown pin state is treated as pinned, so it cannot be hidden.
-        var pinned = !pinStateTrusted || currentPinnedIds.Contains(hashId);
+        var pinned = !trusted || currentPinnedIds.Contains(hashId);
 
         // Determines whether a file/files have been cut/copied.
         if (_clipboardPlus.ObservableDataFormats.Images && ClipboardHandleWin.IsDataImage(dataObj))
@@ -531,11 +531,13 @@ public class WindowsClipboardHelper : IDisposable
         return ClipboardData.NULL;
     }
 
+    public static string NormalizeHistoryId(string id) => id.ToLowerInvariant();
+
     // item.Id with numbers and capital letters, while StringUtils.GetGuid() with numbers and lowercase letters
     // Therefore, we need to convert the item.Id to lowercase.
     private static string GetHashId(ClipboardHistoryItem item)
     {
-        return item.Id.ToLower();
+        return NormalizeHistoryId(item.Id);
     }
 
     #endregion

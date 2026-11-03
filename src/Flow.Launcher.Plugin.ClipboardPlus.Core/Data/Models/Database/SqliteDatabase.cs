@@ -796,6 +796,62 @@ public class SqliteDatabase : IAsyncDisposable
         return [.. results.Select(ClipboardData.FromRecord)];
     }
 
+    /// <summary>Delete only unpinned text whose stored fields are conclusively empty.</summary>
+    public async Task<List<string>> DeleteVerifiedEmptyTextAsync(IEnumerable<string>? excludedIds = null)
+    {
+        var removed = new List<string>();
+        var excluded = excludedIds?.Distinct(StringComparer.Ordinal).ToArray() ?? [];
+        await ProcessTaskQueueAsync(async () =>
+        {
+            using var transaction = Connection.BeginTransaction();
+            // An empty payload alone is not proof: a conflicting stored hash or
+            // text field may indicate a damaged or incomplete asset.
+            var predicate = "r.pinned = 0 AND r.encrypt_data IN (0, 1) AND r.data_md5_b64 = @EmptyHash " +
+                "AND r.plain_text = '' AND a.data_b64 = '' AND " +
+                "((r.data_type = 0 AND (a.plain_text_b64 IS NULL OR a.plain_text_b64 = '')) " +
+                "OR (r.data_type = 4 AND a.plain_text_b64 = ''))";
+            if (excluded.Length > 0) predicate += " AND r.hash_id NOT IN @Excluded";
+            var parameters = new { Excluded = excluded, EmptyHash = StringUtils.GetMd5(string.Empty) };
+            removed.AddRange(await Connection.QueryAsync<string>(
+                "SELECT r.hash_id FROM record r JOIN asset a ON r.hash_id = a.hash_id WHERE " + predicate,
+                parameters, transaction));
+            await Connection.ExecuteAsync("DELETE FROM record WHERE id IN (SELECT r.id FROM record r JOIN asset a ON r.hash_id = a.hash_id WHERE " + predicate + ")", parameters, transaction);
+            await DeleteUnreferencedAssetsAsync(removed, transaction);
+            transaction.Commit();
+        });
+        return removed;
+    }
+
+    /// <summary>Atomically expire records across all types and return their identities for list refresh.</summary>
+    public async Task<List<string>> ExpireRecordsAsync(IEnumerable<(int DataType, int KeepTime)> durations, bool protectPins)
+    {
+        var removed = new List<string>();
+        await ProcessTaskQueueAsync(async () =>
+        {
+            using var transaction = Connection.BeginTransaction();
+            const string predicate = "strftime('%s', 'now') - strftime('%s', create_time) > @KeepTime*3600 AND data_type=@DataType AND (@ProtectPins=0 OR pinned=0)";
+            foreach (var duration in durations)
+            {
+                var args = new { duration.DataType, duration.KeepTime, ProtectPins = protectPins ? 1 : 0 };
+                // A single statement both chooses and reports the rows it deletes;
+                // a clock boundary cannot make the reported set diverge.
+                removed.AddRange(await Connection.QueryAsync<string>(
+                    "DELETE FROM record WHERE " + predicate + " RETURNING hash_id", args, transaction));
+            }
+            await DeleteUnreferencedAssetsAsync(removed, transaction);
+            transaction.Commit();
+        });
+        return removed;
+    }
+
+    private async Task DeleteUnreferencedAssetsAsync(IEnumerable<string> removed, IDbTransaction transaction)
+    {
+        foreach (var hashId in removed)
+            await Connection.ExecuteAsync(
+                "DELETE FROM asset WHERE hash_id = @HashId AND NOT EXISTS (SELECT 1 FROM record WHERE hash_id = @HashId)",
+                new { HashId = hashId }, transaction);
+    }
+
     public async Task DeleteRecordsByKeepTimeAsync(int dataType, int keepTime)
     {
         await ProcessTaskQueueAsync(async () =>

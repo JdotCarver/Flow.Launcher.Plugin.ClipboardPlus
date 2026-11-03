@@ -132,6 +132,18 @@ if [ "$CONCLUSION" = "cancelled" ]; then
     gh run list --repo "$REPOSITORY" --workflow runner-request.yml --branch "$BRANCH" --limit 3
     exit 3
 fi
+# Some sessions must not publish the exporter branch. In that case, callers
+# can explicitly rely on GitHub's job metadata without fetching exported logs.
+if [[ "${RUNNER_SKIP_LOG_EXPORT:-0}" == "1" ]]; then
+    printf '\nRun URL: %s\n' "$RUN_URL"
+    if [ "$CONCLUSION" != "success" ]; then
+        echo "The run did not pass; inspect job status in GitHub Actions." >&2
+        exit 1
+    fi
+    echo "Run passed; exported log retrieval was explicitly skipped."
+    exit 0
+fi
+
 if ! bash "$SCRIPT_DIRECTORY/fetch_logs.sh" "$RUN_ID"; then
     echo "The run completed, but its logs were not exported. Inspect Export logs: ${RUN_URL}" >&2
     exit 1

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -15,14 +16,16 @@ public class SettingsViewModel : BaseModel
     private static string ClassName => nameof(SettingsViewModel);
 
     private readonly IClipboardPlus ClipboardPlus;
+    private readonly Func<bool>? confirmPinExpiry;
 
     private PluginInitContext? Context => ClipboardPlus.Context;
 
     private ISettings Settings => ClipboardPlus.Settings;
 
-    public SettingsViewModel(IClipboardPlus clipboardPlus)
+    public SettingsViewModel(IClipboardPlus clipboardPlus, Func<bool>? confirmPinExpiry = null)
     {
         ClipboardPlus = clipboardPlus;
+        this.confirmPinExpiry = confirmPinExpiry;
         _cacheFormatPreview = StringUtils.FormatImageName(Settings.CacheFormat, DateTime.Now);
         if (string.IsNullOrWhiteSpace(ClearKeyword))
         {
@@ -134,6 +137,7 @@ public class SettingsViewModel : BaseModel
     {
         var oldSyncWindowsClipboardHistory = SyncWindowsClipboardHistory;
         var oldUseWindowsClipboardHistoryOnly = UseWindowsClipboardHistoryOnly;
+        var oldProtectPinsFromExpiry = ProtectPinsFromExpiry;
 
         Settings.ExcludedApps.Clear();
         Settings.RestoreToDefault();
@@ -146,9 +150,9 @@ public class SettingsViewModel : BaseModel
         RestoreKeepTimes();
 
         base.OnPropertyChanged(nameof(ClearKeyword));
-        base.OnPropertyChanged(nameof(CleanupKeyword));
         base.OnPropertyChanged(nameof(AutomaticCleanup));
         base.OnPropertyChanged(nameof(AutomaticCleanupThorough));
+        base.OnPropertyChanged(nameof(AutomaticCleanupVerificationIndex));
         base.OnPropertyChanged(nameof(WindowsSuppressionLifetimeIndex));
         base.OnPropertyChanged(nameof(MaxRecords));
         base.OnPropertyChanged(nameof(ActionTop));
@@ -163,11 +167,14 @@ public class SettingsViewModel : BaseModel
         base.OnPropertyChanged(nameof(CacheImages));
         base.OnPropertyChanged(nameof(CacheFormat));
         base.OnPropertyChanged(nameof(EncryptData));
+        base.OnPropertyChanged(nameof(ProtectPinsFromExpiry));
         base.OnPropertyChanged(nameof(KeepText));
         base.OnPropertyChanged(nameof(KeepImages));
         base.OnPropertyChanged(nameof(KeepFiles));
 
         ClipboardPlus.SaveSettingJsonStorage();
+        if (oldProtectPinsFromExpiry != ProtectPinsFromExpiry) _ = ApplyRetentionSettingAsync();
+        _ = ClipboardPlus.EnforceHistoryCapacityAsync();
 
         var showRestartWarning = false;
         if (oldSyncWindowsClipboardHistory)
@@ -215,36 +222,12 @@ public class SettingsViewModel : BaseModel
                 ShowClearKeywordEmptyError();
                 return;
             }
-            if (CleanupKeywordValidator.Validate(Settings.CleanupKeyword, value) == CleanupKeywordValidation.ConflictsWithClear)
-            {
-                CleanupFeedback = Localize.flowlauncher_plugin_clipboardplus_cleanup_keyword_invalid();
-                base.OnPropertyChanged(nameof(ClearKeyword));
-                return;
-            }
             Settings.ClearKeyword = value;
             OnPropertyChanged();
         }
     }
 
     #endregion
-
-    public string CleanupKeyword
-    {
-        get => Settings.CleanupKeyword;
-        set
-        {
-            if (value == Settings.CleanupKeyword) return;
-            if (CleanupKeywordValidator.Validate(value, Settings.ClearKeyword) != CleanupKeywordValidation.Valid)
-            {
-                CleanupFeedback = Localize.flowlauncher_plugin_clipboardplus_cleanup_keyword_invalid();
-                base.OnPropertyChanged(nameof(CleanupKeyword));
-                return;
-            }
-            Settings.CleanupKeyword = value;
-            CleanupFeedback = string.Empty;
-            OnPropertyChanged();
-        }
-    }
 
     public bool AutomaticCleanup
     {
@@ -256,6 +239,17 @@ public class SettingsViewModel : BaseModel
     {
         get => Settings.AutomaticCleanupThorough;
         set { if (Settings.AutomaticCleanupThorough != value) { Settings.AutomaticCleanupThorough = value; OnPropertyChanged(); } }
+    }
+
+    public int AutomaticCleanupVerificationIndex
+    {
+        get => Settings.AutomaticCleanupThorough ? 1 : 0;
+        set
+        {
+            if (value is < 0 or > 1 || Settings.AutomaticCleanupThorough == (value == 1)) return;
+            Settings.AutomaticCleanupThorough = value == 1;
+            OnPropertyChanged();
+        }
     }
 
     public int WindowsSuppressionLifetimeIndex
@@ -322,6 +316,7 @@ public class SettingsViewModel : BaseModel
             }
             Settings.MaxRecords = value;
             OnPropertyChanged();
+            _ = ClipboardPlus.EnforceHistoryCapacityAsync();
         }
     }
 
@@ -679,6 +674,61 @@ public class SettingsViewModel : BaseModel
             }
             Settings.EncryptData = value;
             OnPropertyChanged();
+        }
+    }
+
+    #endregion
+
+    #region Pin expiry
+
+    private bool retentionBusy;
+    public bool RetentionSettingEnabled => !retentionBusy;
+    private string retentionError = string.Empty;
+    public string RetentionError
+    {
+        get => retentionError;
+        private set { retentionError = value; base.OnPropertyChanged(); }
+    }
+
+    public bool ProtectPinsFromExpiry
+    {
+        get => Settings.ProtectPinsFromExpiry;
+        set
+        {
+            if (retentionBusy || Settings.ProtectPinsFromExpiry == value) return;
+            if (!value && !(confirmPinExpiry?.Invoke() ?? (Context.ShowMsgBox(
+                Localize.flowlauncher_plugin_clipboardplus_pin_expiry_confirm(),
+                Localize.flowlauncher_plugin_clipboardplus_pin_expiry_caption(),
+                MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)))
+            {
+                // WPF may suppress a source notification during the binding's
+                // target-to-source update. Refresh again after that update ends.
+                base.OnPropertyChanged(nameof(ProtectPinsFromExpiry));
+                Application.Current?.Dispatcher.BeginInvoke(new Action(() => base.OnPropertyChanged(nameof(ProtectPinsFromExpiry))));
+                return;
+            }
+            Settings.ProtectPinsFromExpiry = value;
+            OnPropertyChanged();
+            RetentionCompletion = ApplyRetentionSettingAsync();
+        }
+    }
+
+    public Task RetentionCompletion { get; private set; } = Task.CompletedTask;
+
+    private async Task ApplyRetentionSettingAsync()
+    {
+        retentionBusy = true;
+        base.OnPropertyChanged(nameof(RetentionSettingEnabled));
+        RetentionError = string.Empty;
+        try { await ClipboardPlus.RunRetentionExpiryAsync(); }
+        catch (Exception)
+        {
+            RetentionError = Localize.flowlauncher_plugin_clipboardplus_pin_expiry_error();
+        }
+        finally
+        {
+            retentionBusy = false;
+            base.OnPropertyChanged(nameof(RetentionSettingEnabled));
         }
     }
 

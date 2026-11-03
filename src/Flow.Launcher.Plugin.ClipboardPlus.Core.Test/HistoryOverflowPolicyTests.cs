@@ -38,4 +38,12 @@ public class HistoryOverflowPolicyTests
         Assert.Equal(27, HistoryOverflowPolicy.Limit(2, 1000));
         Assert.Equal(int.MaxValue, HistoryOverflowPolicy.Limit(int.MaxValue, 25));
     }
+    [Fact]
+    public void FailedPinnedCandidatesDoNotReserveUnpinnedSlots()
+    {
+        var pinned = Record("synthetic", DataType.PlainText, "pin");
+        pinned.Pinned = true;
+        var snapshots = new[] { new ClipboardCleanupSnapshot(pinned) };
+        Assert.Equal(0, HistoryOverflowPolicy.CountUncertain(snapshots, false, new HashSet<int> { 0 }));
+    }
 }

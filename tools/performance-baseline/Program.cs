@@ -18,6 +18,11 @@ internal static class Program
     [STAThread]
     private static void Main(string[] args)
     {
+        if (args.Length == 1 && args[0] == "--local-pin-probe")
+        {
+            LocalPinProbe.RunAsync().GetAwaiter().GetResult();
+            return;
+        }
         if (args.Length == 1 && args[0] == "--image-pin-only")
         {
             ImagePinBenchmark.Run();

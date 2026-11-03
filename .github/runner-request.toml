@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "6e367f6a-d0d0-4b75-8a31-85895302370d"
+request_id = "f6b40b98-2c76-447a-a03c-638b985f66f7"
 target = "local-windows"
-job_name = "Merged Feature Validation"
+job_name = "Expiry Boundary And Pin Preview Validation"

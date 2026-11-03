@@ -15,11 +15,17 @@ public class PreviewViewModel : BaseModel
     private PluginInitContext? Context => ClipboardPlus.Context;
 
     private ClipboardData ClipboardData;
+    private readonly ClipboardDataPair? livePair;
+    private long explanationRefreshVersion;
 
     public PreviewViewModel(IClipboardPlus clipboardPlus, ClipboardData clipboardData)
+        : this(clipboardPlus, clipboardData, null) { }
+
+    public PreviewViewModel(IClipboardPlus clipboardPlus, ClipboardData clipboardData, ClipboardDataPair? pair)
     {
         ClipboardPlus = clipboardPlus;
         ClipboardData = clipboardData;
+        livePair = pair;
         _isTextPreviewEnabled = ClipboardData.DataType == DataType.Files || ClipboardData.DataType == DataType.Image;
     }
 
@@ -53,7 +59,27 @@ public class PreviewViewModel : BaseModel
             default:
                 break;
         }
-        Context.LogDebug(ClassName, $"Preview {ClipboardData.DataType} content: {ClipboardData.HashId}");
+        if (ClipboardData.DataType == DataType.Image) _ = RefreshDeduplicationExplanationAsync();
+        Context.LogDebug(ClassName, $"Preview {ClipboardData.DataType}");
+    }
+
+    private string deduplicationExplanation = string.Empty;
+    public string DeduplicationExplanation
+    {
+        get => deduplicationExplanation;
+        private set { deduplicationExplanation = value; OnPropertyChanged(); OnPropertyChanged(nameof(DeduplicationExplanationVisibility)); }
+    }
+
+    public Visibility DeduplicationExplanationVisibility => string.IsNullOrEmpty(DeduplicationExplanation) ? Visibility.Collapsed : Visibility.Visible;
+
+    public async System.Threading.Tasks.Task RefreshDeduplicationExplanationAsync()
+    {
+        var version = System.Threading.Interlocked.Increment(ref explanationRefreshVersion);
+        var explanation = livePair is null
+            ? await ClipboardPlus.GetImageDeduplicationExplanationAsync(ClipboardData)
+            : await ClipboardPlus.GetImageDeduplicationExplanationAsync(livePair);
+        if (version == System.Threading.Interlocked.Read(ref explanationRefreshVersion))
+            DeduplicationExplanation = explanation;
     }
 
     #region Dependency Properties

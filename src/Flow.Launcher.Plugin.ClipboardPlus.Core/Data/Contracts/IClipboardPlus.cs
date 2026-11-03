@@ -19,6 +19,13 @@ public interface IClipboardPlus
 
     public Task InitRecordsFromDatabaseAndSystemAsync(bool database, bool system);
 
+    public Task EnforceHistoryCapacityAsync() => Task.CompletedTask;
+
+    public Task RunRetentionExpiryAsync() => Task.CompletedTask;
+
+    public Task<string> GetImageDeduplicationExplanationAsync(ClipboardData data) => Task.FromResult(string.Empty);
+    public Task<string> GetImageDeduplicationExplanationAsync(ClipboardDataPair pair) => Task.FromResult(string.Empty);
+
     public void EnableWindowsClipboardHelper(bool load);
 
     public void DisableWindowsClipboardHelper(bool remove);
