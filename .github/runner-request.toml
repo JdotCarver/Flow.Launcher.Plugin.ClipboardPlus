@@ -1,5 +1,5 @@
 # runner-request.toml
 # Written by tools/github_actions_runner/request_run.sh.
-request_id = "ec02880f-4836-4426-88f4-96d5a9742c5d"
+request_id = "86f038ca-4803-447c-aaaf-0812e7f33431"
 target = "local-windows"
-job_name = "Review Synthetic Diagnostics"
+job_name = "Review Regression Retest"
