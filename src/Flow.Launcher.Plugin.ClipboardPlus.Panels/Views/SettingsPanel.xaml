@@ -817,11 +817,12 @@
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_automatic}"
             IsChecked="{Binding AutomaticCleanup, Mode=TwoWay}" />
-        <TextBlock Grid.Row="28" Grid.ColumnSpan="2"
+        <TextBlock Grid.Row="28" Grid.Column="0"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
+            VerticalAlignment="Center"
             Text="{DynamicResource flowlauncher_plugin_clipboardplus_verification_label}" />
-        <ComboBox ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_thorough}" ToolTipService.ShowOnDisabled="True" Grid.Row="29" Grid.ColumnSpan="2"
-            Margin="{StaticResource SettingPanelItemTopBottomMargin}"
+        <ComboBox ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_thorough}" ToolTipService.ShowOnDisabled="True" Grid.Row="28" Grid.Column="1"
+            Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
             HorizontalAlignment="Left"
             SelectedIndex="{Binding AutomaticCleanupVerificationIndex, Mode=TwoWay}"
             IsEnabled="{Binding AutomaticCleanup, Mode=OneWay}">
@@ -829,11 +830,11 @@
             <ComboBoxItem Content="{DynamicResource flowlauncher_plugin_clipboardplus_verification_thorough}" />
         </ComboBox>
 
-        <TextBlock Grid.Row="30" Grid.Column="0"
+        <TextBlock Grid.Row="29" Grid.Column="0"
             Margin="{StaticResource SettingPanelItemTopBottomMargin}"
             VerticalAlignment="Center"
             Text="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_windows_lifetime}" />
-        <ComboBox ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_suppression}" ToolTipService.ShowOnDisabled="True" Grid.Row="30" Grid.Column="1"
+        <ComboBox ToolTip="{DynamicResource flowlauncher_plugin_clipboardplus_tip_suppression}" ToolTipService.ShowOnDisabled="True" Grid.Row="29" Grid.Column="1"
             Margin="{StaticResource SettingPanelItemLeftTopBottomMargin}"
             HorizontalAlignment="Left" SelectedIndex="{Binding WindowsSuppressionLifetimeIndex, Mode=TwoWay}">
             <ComboBoxItem Content="{DynamicResource flowlauncher_plugin_clipboardplus_cleanup_windows_session}" />

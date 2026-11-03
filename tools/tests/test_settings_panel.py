@@ -33,10 +33,6 @@ class SettingsPanelTests(unittest.TestCase):
         self.assertLess(row('CleanupFeedback'), row('AutomaticCleanup'))
         self.assertLess(row('AutomaticCleanup'), row('AutomaticCleanupVerificationIndex'))
         self.assertLess(row('AutomaticCleanupVerificationIndex'), row('WindowsSuppressionLifetimeIndex'))
-        checkbox = self.control_with_binding('AutomaticCleanup')
-        verification = self.control_with_binding('AutomaticCleanupVerificationIndex')
-        self.assertEqual(checkbox.attrib['Margin'], verification.attrib['Margin'])
-        self.assertEqual(checkbox.attrib.get('Grid.Column', '0'), verification.attrib.get('Grid.Column', '0'))
         feedback = self.control_with_binding('CleanupFeedback')
         triggers = [node for node in feedback.iter() if node.tag.endswith('DataTrigger')]
         self.assertEqual(1, len(triggers))
@@ -56,8 +52,12 @@ class SettingsPanelTests(unittest.TestCase):
         label = next(control for control in self.controls
                      if control.attrib.get('Text') == '{DynamicResource flowlauncher_plugin_clipboardplus_verification_label}')
         dropdown = self.control_with_binding('AutomaticCleanupVerificationIndex')
-        self.assertEqual(int(label.attrib['Grid.Row']) + 1, int(dropdown.attrib['Grid.Row']))
-        self.assertEqual(label.attrib['Margin'], dropdown.attrib['Margin'])
+        self.assertEqual(label.attrib['Grid.Row'], dropdown.attrib['Grid.Row'])
+        self.assertEqual('0', label.attrib['Grid.Column'])
+        self.assertEqual('1', dropdown.attrib['Grid.Column'])
+        self.assertEqual('Center', label.attrib['VerticalAlignment'])
+        self.assertEqual('{StaticResource SettingPanelItemTopBottomMargin}', label.attrib['Margin'])
+        self.assertEqual('{StaticResource SettingPanelItemLeftTopBottomMargin}', dropdown.attrib['Margin'])
         key = '{http://schemas.microsoft.com/winfx/2006/xaml}Key'
         for language in ('en', 'fr', 'zh-cn', 'zh-tw'):
             resources = ET.parse(LANGUAGES / (language + '.xaml')).getroot()
