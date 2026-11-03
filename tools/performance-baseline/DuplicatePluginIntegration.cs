@@ -282,6 +282,7 @@ internal static class DuplicatePluginIntegration
         if (list.Count != 1 || list.First!.Value.ClipboardData.HashId != "newest-first" ||
             !((IClipboardPlus)plugin).Database.GetAllRecordsAsync(false).GetAwaiter().GetResult().Any(record => record.HashId == "saved-old-pin" && !record.Pinned))
             throw new InvalidOperationException("Unpinning did not enforce loaded capacity while preserving the saved record");
+        ((IClipboardPlus)plugin).Database.DeleteOneRecordAsync(savedPin).GetAwaiter().GetResult();
     }
 
     private static void TestCapacityProtection(Plugin plugin)
