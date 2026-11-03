@@ -20,8 +20,9 @@ internal static class LocalPinProbe
             }
             Console.WriteLine(trusted ? "pin_probe_trusted" : "pin_probe_untrusted");
             Console.WriteLine(history.Items.Count == 0 ? "pin_probe_history_empty" : "pin_probe_history_nonempty");
-            Console.WriteLine(history.Items.Any(item => pinnedIds.Contains(item.Id))
-                ? "pin_probe_pinned_match" : "pin_probe_no_pinned_match");
+            if (trusted)
+                Console.WriteLine(history.Items.Any(item => pinnedIds.Contains(item.Id))
+                    ? "pin_probe_pinned_match" : "pin_probe_no_pinned_match");
         }
         catch (Exception)
         {
