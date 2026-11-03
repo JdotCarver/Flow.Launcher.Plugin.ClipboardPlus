@@ -119,6 +119,8 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_unpin_title">Clear unpinned records</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_unpin_subtitle">Clear unpinned records in both list and database</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_unpin_msg_subtitle">Clear {0} unpinned records in both list and database!</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_invalid_confirm">Clear invalid records? Pinned records and entries for temporarily unavailable files may be permanently deleted.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_invalid_confirm_title">Confirm invalid-record cleanup</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_invalid_title">Clear invalid records</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_invalid_subtitle">Clear empty text, unexisting files and empty records in both list and database</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_invalid_msg_subtitle">Clear {0} invalid records in both list and database!</system:String>

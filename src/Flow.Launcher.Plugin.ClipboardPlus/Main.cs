@@ -335,6 +335,10 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
                             AddSelectedCount = false,
                             Action = (c) =>
                             {
+                                if (Context.ShowMsgBox(Localize.flowlauncher_plugin_clipboardplus_invalid_confirm(),
+                                    Localize.flowlauncher_plugin_clipboardplus_invalid_confirm_title(),
+                                    MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
+                                    return false;
                                 _ = Task.Run(async () =>
                                 {
                                     var number = await DeleteInvalidRecordsFromListDatabaseAsync();

@@ -119,6 +119,8 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_unpin_title">清除未釘選記録</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_unpin_subtitle">從列表和資料庫中清除所有未釘選記録</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_unpin_msg_subtitle">從列表和資料庫中清除了{0}條未釘選記録！</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_invalid_confirm">清除無效記錄？釘選記錄及暫時無法使用的檔案記錄可能會被永久刪除。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_invalid_confirm_title">確認清除無效記錄</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_invalid_title">清除無效記録</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_invalid_subtitle">從列表和資料庫中清除空文字，不存在的文件與空記錄</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_invalid_msg_subtitle">從列表和資料庫中清除了{0}條無效記録！</system:String>

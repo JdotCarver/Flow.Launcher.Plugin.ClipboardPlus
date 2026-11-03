@@ -119,6 +119,8 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_unpin_title">清除未固定记录</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_unpin_subtitle">从列表和数据库中清除所有未固定记录</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_unpin_msg_subtitle">从列表和数据库中清除了{0}条未固定记录！</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_invalid_confirm">清除无效记录？固定记录和暂时不可用的文件记录可能被永久删除。</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_invalid_confirm_title">确认清除无效记录</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_invalid_title">清除无效记录</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_invalid_subtitle">从列表和数据库中清除空文字，不存在的文件与空记录</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_invalid_msg_subtitle">从列表和数据库中清除了{0}条无效记录！</system:String>

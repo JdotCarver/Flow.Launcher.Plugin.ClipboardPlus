@@ -119,6 +119,8 @@
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_unpin_title">Effacer les entrées non épinglées</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_unpin_subtitle">Efface toutes les entrées non épinglées de la liste et la base de données.</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_unpin_msg_subtitle">Suppression de {0} entrées non épinglées de la liste et la base de données !</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_invalid_confirm">Effacer les entrées invalides ? Les éléments épinglés et les entrées de fichiers temporairement indisponibles peuvent être définitivement supprimés.</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_invalid_confirm_title">Confirmer le nettoyage des entrées invalides</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_invalid_title">Effacer les entrées non valables</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_invalid_subtitle">Supprime les textes vides, les fichiers inexistants et les entrées vides de la liste et la base de données.</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_clear_invalid_msg_subtitle">Suppression de {0} entrées non valables de la liste et la base de données !</system:String>
