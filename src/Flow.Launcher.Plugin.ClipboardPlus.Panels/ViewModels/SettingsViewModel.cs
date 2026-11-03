@@ -689,7 +689,10 @@ public class SettingsViewModel : BaseModel
                 Localize.flowlauncher_plugin_clipboardplus_pin_expiry_caption(),
                 MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)))
             {
+                // WPF may suppress a source notification during the binding's
+                // target-to-source update. Refresh again after that update ends.
                 base.OnPropertyChanged(nameof(ProtectPinsFromExpiry));
+                Application.Current?.Dispatcher.BeginInvoke(new Action(() => base.OnPropertyChanged(nameof(ProtectPinsFromExpiry))));
                 return;
             }
             Settings.ProtectPinsFromExpiry = value;
