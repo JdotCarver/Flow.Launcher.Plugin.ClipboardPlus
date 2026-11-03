@@ -13,7 +13,7 @@ internal static class LocalPinProbe
             var root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "Microsoft", "Windows", "Clipboard", "Pinned");
             var trusted = PinnedHistorySnapshotReader.TryRead(root, out var pinnedIds);
-            if (!trusted && HasUtf8Bom(root)) Console.WriteLine("pin_probe_utf8_bom");
+            if (!trusted) Console.WriteLine("pin_probe_encoding_" + DetectEncodingMarker(root));
             if (!trusted) Console.WriteLine("pin_probe_reason_" + ExplainUntrusted(root));
             var history = await Clipboard.GetHistoryItemsAsync();
             if (history.Status != ClipboardHistoryItemsResultStatus.Success)
@@ -31,18 +31,27 @@ internal static class LocalPinProbe
             Console.WriteLine("pin_probe_history_unavailable");
         }
     }
-    private static bool HasUtf8Bom(string root)
+    private static string DetectEncodingMarker(string root)
     {
         try
         {
             foreach (var directory in Directory.EnumerateDirectories(root))
             {
                 using var stream = File.OpenRead(Path.Combine(directory, "metadata.json"));
-                if (stream.ReadByte() == 0xef && stream.ReadByte() == 0xbb && stream.ReadByte() == 0xbf) return true;
+                var bytes = new byte[4];
+                var count = stream.Read(bytes);
+                if (count >= 4 && bytes[0] == 0xff && bytes[1] == 0xfe && bytes[2] == 0 && bytes[3] == 0) return "utf32le";
+                if (count >= 4 && bytes[0] == 0 && bytes[1] == 0 && bytes[2] == 0xfe && bytes[3] == 0xff) return "utf32be";
+                if (count >= 3 && bytes[0] == 0xef && bytes[1] == 0xbb && bytes[2] == 0xbf) return "utf8";
+                if (count >= 2 && bytes[0] == 0xff && bytes[1] == 0xfe) return "utf16le";
+                if (count >= 2 && bytes[0] == 0xfe && bytes[1] == 0xff) return "utf16be";
+                if (count >= 2 && bytes[0] == (byte)'{' && bytes[1] == 0) return "utf16le_unmarked";
+                if (count >= 2 && bytes[0] == 0 && bytes[1] == (byte)'{') return "utf16be_unmarked";
+                return "none";
             }
         }
         catch (Exception) { }
-        return false;
+        return "unavailable";
     }
 
     private static string ExplainUntrusted(string root)

@@ -644,7 +644,7 @@ jobs:
             if ($LASTEXITCODE -ne 0) { 'unavailable=true' | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8 }
             else {
               $lines = @(Get-Content $diagnostic)
-              foreach ($category in @('trusted','untrusted','history_empty','history_nonempty','pinned_match','no_pinned_match','history_unavailable','reason_root_files','reason_root_shape','reason_missing_items','reason_items_shape','reason_recovered','reason_directory_missing','reason_file_missing','reason_access','reason_json','reason_io','reason_other','utf8_bom')) {
+              foreach ($category in @('trusted','untrusted','history_empty','history_nonempty','pinned_match','no_pinned_match','history_unavailable','reason_root_files','reason_root_shape','reason_missing_items','reason_items_shape','reason_recovered','reason_directory_missing','reason_file_missing','reason_access','reason_json','reason_io','reason_other','encoding_utf32le','encoding_utf32be','encoding_utf8','encoding_utf16le','encoding_utf16be','encoding_utf16le_unmarked','encoding_utf16be_unmarked','encoding_none','encoding_unavailable')) {
                 if ($lines -ccontains "pin_probe_$category") { "$category=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8 }
               }
             }
@@ -728,10 +728,42 @@ jobs:
         shell: pwsh
         run: Write-Host 'Coarse read-only status'
 
-      - name: Local pin metadata has UTF8 BOM
-        if: ${{ always() && steps.local-pin-probe.outputs.utf8_bom == 'true' }}
+      - name: Local pin metadata encoding utf32le
+        if: ${{ always() && steps.local-pin-probe.outputs.encoding_utf32le == 'true' }}
         shell: pwsh
-        run: Write-Host 'Encoding marker present'
+        run: Write-Host 'Encoding category'
+      - name: Local pin metadata encoding utf32be
+        if: ${{ always() && steps.local-pin-probe.outputs.encoding_utf32be == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Encoding category'
+      - name: Local pin metadata encoding utf8
+        if: ${{ always() && steps.local-pin-probe.outputs.encoding_utf8 == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Encoding category'
+      - name: Local pin metadata encoding utf16le
+        if: ${{ always() && steps.local-pin-probe.outputs.encoding_utf16le == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Encoding category'
+      - name: Local pin metadata encoding utf16be
+        if: ${{ always() && steps.local-pin-probe.outputs.encoding_utf16be == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Encoding category'
+      - name: Local pin metadata encoding utf16le_unmarked
+        if: ${{ always() && steps.local-pin-probe.outputs.encoding_utf16le_unmarked == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Encoding category'
+      - name: Local pin metadata encoding utf16be_unmarked
+        if: ${{ always() && steps.local-pin-probe.outputs.encoding_utf16be_unmarked == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Encoding category'
+      - name: Local pin metadata encoding none
+        if: ${{ always() && steps.local-pin-probe.outputs.encoding_none == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Encoding category'
+      - name: Local pin metadata encoding unavailable
+        if: ${{ always() && steps.local-pin-probe.outputs.encoding_unavailable == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Encoding category'
       - name: Compare actual bulk method before and after
         if: success() || failure()
         shell: pwsh
