@@ -16,14 +16,16 @@ public class SettingsViewModel : BaseModel
     private static string ClassName => nameof(SettingsViewModel);
 
     private readonly IClipboardPlus ClipboardPlus;
+    private readonly Func<bool>? confirmPinExpiry;
 
     private PluginInitContext? Context => ClipboardPlus.Context;
 
     private ISettings Settings => ClipboardPlus.Settings;
 
-    public SettingsViewModel(IClipboardPlus clipboardPlus)
+    public SettingsViewModel(IClipboardPlus clipboardPlus, Func<bool>? confirmPinExpiry = null)
     {
         ClipboardPlus = clipboardPlus;
+        this.confirmPinExpiry = confirmPinExpiry;
         _cacheFormatPreview = StringUtils.FormatImageName(Settings.CacheFormat, DateTime.Now);
         if (string.IsNullOrWhiteSpace(ClearKeyword))
         {
@@ -682,19 +684,21 @@ public class SettingsViewModel : BaseModel
         set
         {
             if (retentionBusy || Settings.ProtectPinsFromExpiry == value) return;
-            if (!value && Context.ShowMsgBox(
+            if (!value && !(confirmPinExpiry?.Invoke() ?? (Context.ShowMsgBox(
                 Localize.flowlauncher_plugin_clipboardplus_pin_expiry_confirm(),
                 Localize.flowlauncher_plugin_clipboardplus_pin_expiry_caption(),
-                MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
+                MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)))
             {
                 base.OnPropertyChanged(nameof(ProtectPinsFromExpiry));
                 return;
             }
             Settings.ProtectPinsFromExpiry = value;
             OnPropertyChanged();
-            _ = ApplyRetentionSettingAsync();
+            RetentionCompletion = ApplyRetentionSettingAsync();
         }
     }
+
+    public Task RetentionCompletion { get; private set; } = Task.CompletedTask;
 
     private async Task ApplyRetentionSettingAsync()
     {

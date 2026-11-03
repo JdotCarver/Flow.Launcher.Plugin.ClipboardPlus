@@ -119,6 +119,7 @@ internal static class DuplicatePluginIntegration
             var settings = new Settings { TextKeepTime = KeepTime.Hour1, ProtectPinsFromExpiry = true };
             var plugin = new Plugin();
             SetField(plugin, "Settings", settings);
+            SetField(plugin, "Context", new PluginInitContext(null, Ioc.Default.GetRequiredService<IPublicAPI>()));
             SetField(plugin, "Database", database);
             SetField(plugin, "RecordsList", list);
             SetField(plugin, "ScoreHelper", new ScoreHelper(10000));
@@ -126,10 +127,24 @@ internal static class DuplicatePluginIntegration
             if (list.Count != 1 || !list.First!.Value.ClipboardData.Pinned ||
                 database.GetAllRecordsAsync(false).GetAwaiter().GetResult().Count != 1)
                 throw new InvalidOperationException("Protected expiry did not refresh synthetic history");
-            settings.ProtectPinsFromExpiry = false;
-            plugin.RunRetentionExpiryAsync().GetAwaiter().GetResult();
+            var confirmed = false;
+            var viewModel = new SettingsViewModel(plugin, () => confirmed);
+            viewModel.ProtectPinsFromExpiry = false;
+            if (!settings.ProtectPinsFromExpiry || list.Count != 1)
+                throw new InvalidOperationException("Cancelling synthetic confirmation did not protect the pin");
+            confirmed = true;
+            viewModel.ProtectPinsFromExpiry = false;
+            viewModel.RetentionCompletion.GetAwaiter().GetResult();
             if (list.Count != 0 || database.GetAllRecordsAsync(false).GetAwaiter().GetResult().Count != 0)
                 throw new InvalidOperationException("Unprotected expiry did not refresh synthetic history");
+            viewModel.ProtectPinsFromExpiry = true;
+            viewModel.RetentionCompletion.GetAwaiter().GetResult();
+            if (!settings.ProtectPinsFromExpiry) throw new InvalidOperationException("Re-enabling synthetic pin protection failed");
+            database.CloseAsync().GetAwaiter().GetResult();
+            viewModel.ProtectPinsFromExpiry = false;
+            viewModel.RetentionCompletion.GetAwaiter().GetResult();
+            if (settings.ProtectPinsFromExpiry || string.IsNullOrEmpty(viewModel.RetentionError))
+                throw new InvalidOperationException("Synthetic expiry failure did not retain setting and show inline feedback");
         }
         finally { database.DisposeAsync().AsTask().GetAwaiter().GetResult(); }
     }
