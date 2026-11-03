@@ -44,16 +44,22 @@ try {
             catch { $metadataUnreadable++; continue }
 
             try {
-                $document = $raw | ConvertFrom-Json -AsHashtable -ErrorAction Stop
+                $document = [System.Text.Json.JsonDocument]::Parse($raw)
             }
             catch { $metadataMalformed++; continue }
-            if ($document -isnot [System.Collections.IDictionary] -or
-                -not $document.Contains('Items') -or
-                $document['Items'] -isnot [System.Collections.IDictionary]) {
-                $metadataUnexpected++
-                continue
+            try {
+                if ($document.RootElement.ValueKind -ne [System.Text.Json.JsonValueKind]::Object) {
+                    $metadataUnexpected++
+                    continue
+                }
+                $items = @($document.RootElement.EnumerateObject() | Where-Object { $_.Name -ceq 'Items' -or $_.Name -ceq 'items' })
+                if ($items.Count -ne 1 -or $items[0].Value.ValueKind -ne [System.Text.Json.JsonValueKind]::Object) {
+                    $metadataUnexpected++
+                    continue
+                }
+                $listedPins += @($items[0].Value.EnumerateObject()).Count
             }
-            $listedPins += $document['Items'].Count
+            finally { $document.Dispose() }
         }
     }
 }
