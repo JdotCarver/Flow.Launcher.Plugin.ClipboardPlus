@@ -30,6 +30,7 @@
 
     <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_relationship">Déduplication : mêmes pixels qu’une autre entrée du {0} ; {1}.</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_reason_representation">les données d’image enregistrées diffèrent</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_reason_windows">l’état des épingles Windows ne peut pas être vérifié</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_reason_pin">une épingle est protégée</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_reason_persistence">les entrées enregistrées et temporaires sont conservées séparément</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_more">D’autres correspondances existent.</system:String>

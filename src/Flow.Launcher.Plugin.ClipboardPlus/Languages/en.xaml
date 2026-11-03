@@ -30,6 +30,7 @@
 
     <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_relationship">Deduplication: same pixels as another item from {0}; {1}.</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_reason_representation">stored image data differs</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_reason_windows">Windows pin status could not be verified</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_reason_pin">a pin is protected</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_reason_persistence">saved and temporary records are kept separately</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_more">Additional matches exist.</system:String>

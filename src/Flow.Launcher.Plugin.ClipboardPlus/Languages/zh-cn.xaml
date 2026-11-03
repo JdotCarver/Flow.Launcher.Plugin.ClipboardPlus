@@ -30,6 +30,7 @@
 
     <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_relationship">去重：与 {0} 的另一项像素相同；{1}。</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_reason_representation">保存的图像数据不同</system:String>
+    <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_reason_windows">无法验证 Windows 固定状态</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_reason_pin">固定项受到保护</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_reason_persistence">已保存和临时记录分别保留</system:String>
     <system:String x:Key="flowlauncher_plugin_clipboardplus_dedup_more">还有其他匹配项。</system:String>

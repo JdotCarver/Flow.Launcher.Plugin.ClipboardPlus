@@ -61,11 +61,14 @@ public partial class ClipboardPlus
                         var otherIndex = category.FirstOrDefault(index => index != targetIndex, -1);
                         if (otherIndex < 0) continue;
                         var right = snapshots[otherIndex].Original;
-                        if (left.DataMd5 == right.DataMd5 && !left.Pinned && !right.Pinned && left.Saved == right.Saved) continue;
+                        var windowsUntrusted = !WindowsClipboardHelper.IsPinStateTrusted &&
+                            (left.FromWindowsClipboardHistory() || right.FromWindowsClipboardHistory());
+                        if (left.DataMd5 == right.DataMd5 && !left.Pinned && !right.Pinned && left.Saved == right.Saved && !windowsUntrusted) continue;
                         if (ExactImagePixelComparer.Compare(left.Data as BitmapSource, right.Data as BitmapSource) != ClipboardContentComparison.Equal) continue;
                         var representation = ClipboardContentComparer.Compare(left, right, true);
                         string? reason = representation == ClipboardContentComparison.Different ? "representation" :
                             representation == ClipboardContentComparison.Equal && (left.Pinned || right.Pinned) ? "pin" :
+                            representation == ClipboardContentComparison.Equal && windowsUntrusted ? "windows" :
                             representation == ClipboardContentComparison.Equal && left.Saved != right.Saved &&
                                 !left.FromWindowsClipboardHistory() && !right.FromWindowsClipboardHistory() ? "persistence" : null;
                         if (reason is null) continue;
@@ -117,7 +120,8 @@ public partial class ClipboardPlus
         try
         {
             if (Settings.AutomaticCleanup != imageRelationshipAutomatic || Settings.AutomaticCleanupThorough != imageRelationshipThorough) return string.Empty;
-            var matches = imageRelationships.Where(item => item.Target.List == RecordsList && item.Other.List == RecordsList &&
+            var matches = imageRelationships.Where(item => (item.Reason != "windows" || !WindowsClipboardHelper.IsPinStateTrusted) &&
+                item.Target.List == RecordsList && item.Other.List == RecordsList &&
                 item.Target.Value.ClipboardData.HashId == data.HashId && item.TargetSnapshot.Matches(data) &&
                 item.TargetSnapshot.Matches(item.Target.Value.ClipboardData) && item.OtherSnapshot.Matches(item.Other.Value.ClipboardData)).ToArray();
             if (matches.Length == 0) return string.Empty;
@@ -125,6 +129,7 @@ public partial class ClipboardPlus
             var reason = first.Reason switch
             {
                 "pin" => Localize.flowlauncher_plugin_clipboardplus_dedup_reason_pin(),
+                "windows" => Localize.flowlauncher_plugin_clipboardplus_dedup_reason_windows(),
                 "persistence" => Localize.flowlauncher_plugin_clipboardplus_dedup_reason_persistence(),
                 _ => Localize.flowlauncher_plugin_clipboardplus_dedup_reason_representation()
             };
