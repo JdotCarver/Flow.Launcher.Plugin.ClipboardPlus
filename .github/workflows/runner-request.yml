@@ -148,21 +148,15 @@ jobs:
             if ($LASTEXITCODE -ne 0) {
               $codes = @(Get-Content "$env:RUNNER_TEMP\clipboardplus-build.log" | Select-String -Pattern 'error (CS[0-9]+)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
               if ($codes.Count -gt 0) { Write-Host ("Compiler error codes: " + ($codes -join ', ')) }
-              Get-Content "$env:RUNNER_TEMP\clipboardplus-build.log" | ForEach-Object {
-                if ($_ -match '([A-Za-z0-9_.]+\.cs)\(([0-9]+),[0-9]+\): error (CS[0-9]+)') {
-                  Write-Host "::error::Synthetic build error $($Matches[3]) in $($Matches[1]) line $($Matches[2])"
-                }
-              }
               throw "Build failed"
             }
             dotnet test Flow.Launcher.Plugin.ClipboardPlus.sln --configuration Release --no-build *> "$env:RUNNER_TEMP\clipboardplus-build.log"
             if ($LASTEXITCODE -ne 0) {
               $names = @(Get-Content "$env:RUNNER_TEMP\clipboardplus-build.log" | Select-String -Pattern 'Failed (Flow\.Launcher\.Plugin\.ClipboardPlus\.[A-Za-z0-9_.]+)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
               if ($names.Count -gt 0) { Write-Host ("Failed synthetic test names: " + ($names -join ', ')) }
-              foreach ($testClass in @('SerialAsyncQueueTests', 'VerifiedDuplicateDatabaseTests', 'BulkInsertTests', 'ImagePersistenceTests', 'ImagePinTests', 'DatabaseHelperTest', 'RetentionExpiryTests', 'VerifiedEmptyTextTests')) {
+              foreach ($testClass in @('SerialAsyncQueueTests', 'VerifiedDuplicateDatabaseTests', 'BulkInsertTests', 'ImagePersistenceTests', 'ImagePinTests', 'DatabaseHelperTest')) {
                 dotnet test Flow.Launcher.Plugin.ClipboardPlus.sln --configuration Release --no-build --filter "FullyQualifiedName~$testClass" *> "$env:RUNNER_TEMP\clipboardplus-filtered.log"
                 Write-Host "Synthetic test class $testClass exit code: $LASTEXITCODE"
-                if ($LASTEXITCODE -ne 0) { Write-Host "::error::Synthetic test class failed: $testClass" }
               }
               Remove-Item "$env:RUNNER_TEMP\clipboardplus-filtered.log" -ErrorAction SilentlyContinue
               throw "Tests failed (details suppressed for privacy)"
