@@ -133,6 +133,187 @@ jobs:
 
       # A short temporary drive avoids MAX_PATH failures in native SQLite and
       # WPF image URIs under the runner's deeply nested checkout directory.
+      # Read only the approved pin metadata and WhisperWriter source on the
+      # local runner. Only predefined non-sensitive category flags leave the PC.
+      - name: Inspect local interoperability signals
+        id: local-signals
+        if: needs.select-runner.outputs.target == 'local-windows'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $shape = 'unavailable'
+          $known = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+          try {
+            $root = Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'Microsoft\Windows\Clipboard\Pinned'
+            $containers = @(Get-ChildItem -LiteralPath $root -Directory -Force -ErrorAction Stop)
+            $shapes = [System.Collections.Generic.HashSet[string]]::new()
+            foreach ($container in $containers) {
+              $text = [System.IO.File]::ReadAllText((Join-Path $container.FullName 'metadata.json'))
+              $doc = [System.Text.Json.JsonDocument]::Parse($text)
+              try {
+                if ($doc.RootElement.ValueKind -ne [System.Text.Json.JsonValueKind]::Object) {
+                  [void]$shapes.Add('root-not-object'); continue
+                }
+                $found = $false
+                foreach ($property in $doc.RootElement.EnumerateObject()) {
+                  if ($property.Name -cin @('Items', 'items')) {
+                    $found = $true
+                    $kind = $property.Value.ValueKind.ToString().ToLowerInvariant()
+                    if ($kind -in @('object','array','null','string','number','true','false')) { [void]$shapes.Add('items-' + $kind) }
+                    else { [void]$shapes.Add('items-other') }
+                  }
+                  foreach ($allowed in @('Version','version','Records','records','Entries','entries','Pinned','pinned','Data','data','History','history','metadata','Metadata','FormatVersion','formatVersion')) {
+                    if ($property.Name -ceq $allowed) { [void]$known.Add($allowed.ToLowerInvariant()) }
+                  }
+                }
+                if (-not $found) { [void]$shapes.Add('items-absent') }
+              } finally { $doc.Dispose() }
+            }
+            if ($containers.Count -eq 0) { $shape = 'empty' }
+            elseif ($shapes.Count -eq 1) { $shape = @($shapes)[0] }
+            else { $shape = 'mixed' }
+          } catch { $shape = 'unavailable' }
+          "shape=$shape" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          foreach ($name in @('version','records','entries','pinned','data','history','metadata','formatversion')) {
+            if ($known.Contains($name)) { "$name=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8 }
+          }
+          $source = 'unavailable'
+          try {
+            # Do not read configuration, replacement rules, or arbitrary files.
+            $code = [System.IO.File]::ReadAllText((Join-Path 'W:\STREAM\SOFTWARE\Portable - WhisperWriter' 'src\input_simulation.py'))
+            $source = 'available'
+            $checks = @{
+              clipboard = 'SetClipboardText|SetClipboardData|pyperclip|clipboard\.copy'
+              exclude = 'ExcludeClipboardContentFromMonitorProcessing'
+              history = 'CanIncludeInClipboardHistory'
+              cloud = 'CanUploadToCloudClipboard'
+              restore = 'saved_formats|restore.*clipboard|clipboard.*restore|preserv.*clipboard'
+              threshold = 'clipboard_threshold|char_threshold'
+              sleep = 'time\.sleep|sleep\('
+            }
+            foreach ($key in $checks.Keys) {
+              if ($code -match $checks[$key]) { "$key=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8 }
+            }
+          } catch { $source = 'unavailable' }
+          "source=$source" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Pin metadata shape unavailable
+        if: ${{ always() && steps.local-signals.outputs.shape == 'unavailable' }}
+        shell: pwsh
+        run: Write-Host 'Coarse metadata category'
+      - name: Pin metadata shape empty
+        if: ${{ always() && steps.local-signals.outputs.shape == 'empty' }}
+        shell: pwsh
+        run: Write-Host 'Coarse metadata category'
+      - name: Pin metadata shape root-not-object
+        if: ${{ always() && steps.local-signals.outputs.shape == 'root-not-object' }}
+        shell: pwsh
+        run: Write-Host 'Coarse metadata category'
+      - name: Pin metadata shape items-object
+        if: ${{ always() && steps.local-signals.outputs.shape == 'items-object' }}
+        shell: pwsh
+        run: Write-Host 'Coarse metadata category'
+      - name: Pin metadata shape items-array
+        if: ${{ always() && steps.local-signals.outputs.shape == 'items-array' }}
+        shell: pwsh
+        run: Write-Host 'Coarse metadata category'
+      - name: Pin metadata shape items-null
+        if: ${{ always() && steps.local-signals.outputs.shape == 'items-null' }}
+        shell: pwsh
+        run: Write-Host 'Coarse metadata category'
+      - name: Pin metadata shape items-string
+        if: ${{ always() && steps.local-signals.outputs.shape == 'items-string' }}
+        shell: pwsh
+        run: Write-Host 'Coarse metadata category'
+      - name: Pin metadata shape items-number
+        if: ${{ always() && steps.local-signals.outputs.shape == 'items-number' }}
+        shell: pwsh
+        run: Write-Host 'Coarse metadata category'
+      - name: Pin metadata shape items-true
+        if: ${{ always() && steps.local-signals.outputs.shape == 'items-true' }}
+        shell: pwsh
+        run: Write-Host 'Coarse metadata category'
+      - name: Pin metadata shape items-false
+        if: ${{ always() && steps.local-signals.outputs.shape == 'items-false' }}
+        shell: pwsh
+        run: Write-Host 'Coarse metadata category'
+      - name: Pin metadata shape items-other
+        if: ${{ always() && steps.local-signals.outputs.shape == 'items-other' }}
+        shell: pwsh
+        run: Write-Host 'Coarse metadata category'
+      - name: Pin metadata shape items-absent
+        if: ${{ always() && steps.local-signals.outputs.shape == 'items-absent' }}
+        shell: pwsh
+        run: Write-Host 'Coarse metadata category'
+      - name: Pin metadata shape mixed
+        if: ${{ always() && steps.local-signals.outputs.shape == 'mixed' }}
+        shell: pwsh
+        run: Write-Host 'Coarse metadata category'
+      - name: Pin metadata has known key version
+        if: ${{ always() && steps.local-signals.outputs.version == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Known schema key present'
+      - name: Pin metadata has known key records
+        if: ${{ always() && steps.local-signals.outputs.records == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Known schema key present'
+      - name: Pin metadata has known key entries
+        if: ${{ always() && steps.local-signals.outputs.entries == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Known schema key present'
+      - name: Pin metadata has known key pinned
+        if: ${{ always() && steps.local-signals.outputs.pinned == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Known schema key present'
+      - name: Pin metadata has known key data
+        if: ${{ always() && steps.local-signals.outputs.data == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Known schema key present'
+      - name: Pin metadata has known key history
+        if: ${{ always() && steps.local-signals.outputs.history == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Known schema key present'
+      - name: Pin metadata has known key metadata
+        if: ${{ always() && steps.local-signals.outputs.metadata == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Known schema key present'
+      - name: Pin metadata has known key formatversion
+        if: ${{ always() && steps.local-signals.outputs.formatversion == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Known schema key present'
+      - name: WhisperWriter signal clipboard
+        if: ${{ always() && steps.local-signals.outputs.clipboard == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source signal present'
+      - name: WhisperWriter signal exclude
+        if: ${{ always() && steps.local-signals.outputs.exclude == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source signal present'
+      - name: WhisperWriter signal history
+        if: ${{ always() && steps.local-signals.outputs.history == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source signal present'
+      - name: WhisperWriter signal cloud
+        if: ${{ always() && steps.local-signals.outputs.cloud == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source signal present'
+      - name: WhisperWriter signal restore
+        if: ${{ always() && steps.local-signals.outputs.restore == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source signal present'
+      - name: WhisperWriter signal threshold
+        if: ${{ always() && steps.local-signals.outputs.threshold == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source signal present'
+      - name: WhisperWriter signal sleep
+        if: ${{ always() && steps.local-signals.outputs.sleep == 'true' }}
+        shell: pwsh
+        run: Write-Host 'Source signal present'
+      - name: WhisperWriter source unavailable
+        if: ${{ always() && steps.local-signals.outputs.source == 'unavailable' }}
+        shell: pwsh
+        run: Write-Host 'Source was unavailable'
+
       - name: Build and test ClipboardPlus
         shell: pwsh
         run: |
@@ -169,6 +350,7 @@ jobs:
           }
 
       - name: Synthetic performance baseline
+        id: synthetic-baseline
         if: success() || failure()
         shell: pwsh
         run: |
@@ -188,6 +370,14 @@ jobs:
               $_ -match '^(text create and display|image hashing only|image construct and serialize|two forced collections and finalizer wait|SQLite disk bulk insert and read|SQLite reopen and materialize|10000 live synthetic text records|plugin query|plugin synthetic text add|plugin repeated query managed heap delta|plugin capture lock wait during query|dedup planner|dedup database|dedup plugin|dedup integrated|dedup optout|dedup saved images|SQLite transaction experiment|image experiment|query experiment|image pin)[A-Za-z0-9 ,.;/():=+\-]*$'
             } | ForEach-Object { Write-Host $_ }
             if ($exitCode -ne 0) {
+              $diagnostic = Get-Content -Raw "$env:RUNNER_TEMP\clipboardplus-benchmark.log"
+              $fault = 'other'
+              foreach ($candidate in @('NullReferenceException','InvalidOperationException','ObjectDisposedException','IOException','UnauthorizedAccessException','ArgumentException','TimeoutException','AccessViolationException','OutOfMemoryException','StackOverflowException')) {
+                if ($diagnostic -match [regex]::Escape($candidate)) { $fault = $candidate; break }
+              }
+              if ($exitCode -eq -1073741571) { $fault = 'NativeStackOverflow' }
+              if ($exitCode -eq -1073741819) { $fault = 'NativeAccessViolation' }
+              "fault=$fault" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
               $codes = @(Get-Content "$env:RUNNER_TEMP\clipboardplus-benchmark.log" | Select-String -Pattern 'error (CS[0-9]+)' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Select-Object -Unique)
               if ($codes.Count -gt 0) { Write-Host ("Compiler error codes: " + ($codes -join ', ')) }
               throw "Baseline failed (details suppressed for privacy)"
@@ -197,6 +387,59 @@ jobs:
             Remove-Item "$env:RUNNER_TEMP\clipboardplus-benchmark.log" -ErrorAction SilentlyContinue
             subst "${drive}:" /d
           }
+
+      - name: Synthetic fault other
+        if: ${{ always() && steps.synthetic-baseline.outputs.fault == 'other' }}
+        shell: pwsh
+        run: Write-Host 'Synthetic fault category'
+      - name: Synthetic fault NullReferenceException
+        if: ${{ always() && steps.synthetic-baseline.outputs.fault == 'NullReferenceException' }}
+        shell: pwsh
+        run: Write-Host 'Synthetic fault category'
+      - name: Synthetic fault InvalidOperationException
+        if: ${{ always() && steps.synthetic-baseline.outputs.fault == 'InvalidOperationException' }}
+        shell: pwsh
+        run: Write-Host 'Synthetic fault category'
+      - name: Synthetic fault ObjectDisposedException
+        if: ${{ always() && steps.synthetic-baseline.outputs.fault == 'ObjectDisposedException' }}
+        shell: pwsh
+        run: Write-Host 'Synthetic fault category'
+      - name: Synthetic fault IOException
+        if: ${{ always() && steps.synthetic-baseline.outputs.fault == 'IOException' }}
+        shell: pwsh
+        run: Write-Host 'Synthetic fault category'
+      - name: Synthetic fault UnauthorizedAccessException
+        if: ${{ always() && steps.synthetic-baseline.outputs.fault == 'UnauthorizedAccessException' }}
+        shell: pwsh
+        run: Write-Host 'Synthetic fault category'
+      - name: Synthetic fault ArgumentException
+        if: ${{ always() && steps.synthetic-baseline.outputs.fault == 'ArgumentException' }}
+        shell: pwsh
+        run: Write-Host 'Synthetic fault category'
+      - name: Synthetic fault TimeoutException
+        if: ${{ always() && steps.synthetic-baseline.outputs.fault == 'TimeoutException' }}
+        shell: pwsh
+        run: Write-Host 'Synthetic fault category'
+      - name: Synthetic fault AccessViolationException
+        if: ${{ always() && steps.synthetic-baseline.outputs.fault == 'AccessViolationException' }}
+        shell: pwsh
+        run: Write-Host 'Synthetic fault category'
+      - name: Synthetic fault OutOfMemoryException
+        if: ${{ always() && steps.synthetic-baseline.outputs.fault == 'OutOfMemoryException' }}
+        shell: pwsh
+        run: Write-Host 'Synthetic fault category'
+      - name: Synthetic fault StackOverflowException
+        if: ${{ always() && steps.synthetic-baseline.outputs.fault == 'StackOverflowException' }}
+        shell: pwsh
+        run: Write-Host 'Synthetic fault category'
+      - name: Synthetic fault NativeStackOverflow
+        if: ${{ always() && steps.synthetic-baseline.outputs.fault == 'NativeStackOverflow' }}
+        shell: pwsh
+        run: Write-Host 'Synthetic fault category'
+      - name: Synthetic fault NativeAccessViolation
+        if: ${{ always() && steps.synthetic-baseline.outputs.fault == 'NativeAccessViolation' }}
+        shell: pwsh
+        run: Write-Host 'Synthetic fault category'
 
       - name: Compare actual bulk method before and after
         if: success() || failure()
