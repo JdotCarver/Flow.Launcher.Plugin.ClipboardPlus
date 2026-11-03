@@ -20,6 +20,40 @@ public class PinnedHistorySnapshotReaderTests
     }
 
     [Fact]
+    public void LowercaseItemsWithNoPinsIsTrusted()
+    {
+        var root = Path.Combine(Path.GetTempPath(), $"clipboardplus-pins-{Guid.NewGuid():N}");
+        try
+        {
+            var container = Path.Combine(root, "synthetic-container");
+            Directory.CreateDirectory(container);
+            File.WriteAllText(Path.Combine(container, "metadata.json"), "{\"items\":{}}");
+            Assert.True(PinnedHistorySnapshotReader.TryRead(root, out var ids));
+            Assert.Empty(ids);
+        }
+        finally { Directory.Delete(root, true); }
+    }
+
+    [Theory]
+    [InlineData("{}")]
+    [InlineData("{\"items\":null}")]
+    [InlineData("{\"items\":[]}")]
+    [InlineData("{\"items\":\"synthetic\"}")]
+    public void UnexpectedMetadataShapesRemainUntrusted(string metadata)
+    {
+        var root = Path.Combine(Path.GetTempPath(), $"clipboardplus-pins-{Guid.NewGuid():N}");
+        try
+        {
+            var container = Path.Combine(root, "synthetic-container");
+            Directory.CreateDirectory(container);
+            File.WriteAllText(Path.Combine(container, "metadata.json"), metadata);
+            Assert.False(PinnedHistorySnapshotReader.TryRead(root, out var ids));
+            Assert.Empty(ids);
+        }
+        finally { Directory.Delete(root, true); }
+    }
+
+    [Fact]
     public void MissingFolderAndMalformedOrMissingMetadataAreUntrusted()
     {
         var root = Path.Combine(Path.GetTempPath(), $"clipboardplus-pins-{Guid.NewGuid():N}");
