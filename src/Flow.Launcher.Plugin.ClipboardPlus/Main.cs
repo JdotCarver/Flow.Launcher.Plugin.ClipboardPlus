@@ -1898,13 +1898,7 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
             var clipboardData = clipboardDataPair.ClipboardData;
             if (IsWindowsSuppressed(clipboardDataPair)) return null;
 
-            // Get score
-            int score;
-            if (string.IsNullOrEmpty(querySearch))
-            {
-                score = clipboardData.GetScore(Settings.RecordOrder);
-            }
-            else
+            if (!string.IsNullOrEmpty(querySearch))
             {
                 var clipboardText = clipboardData.GetText(CultureInfo);
                 if (string.IsNullOrEmpty(clipboardText))
@@ -1912,13 +1906,14 @@ public partial class ClipboardPlus : IAsyncPlugin, IAsyncReloadable, IContextMen
                     return null;
                 }
 
-                // Check the fuzzy match
-                var match = Context.FuzzySearch(querySearch, clipboardData.GetText(CultureInfo));
-                if (!match.IsSearchPrecisionScoreMet())
+                // Keep Flow's fuzzy matching, but do not discard an exact
+                // substring merely because its precision score is too low.
+                var match = Context.FuzzySearch(querySearch, clipboardText);
+                if (!match.IsSearchPrecisionScoreMet() &&
+                    !clipboardText.Contains(querySearch.Trim(), StringComparison.OrdinalIgnoreCase))
                 {
                     return null;
                 }
-                score = match.Score;
             }
 
             // Return result

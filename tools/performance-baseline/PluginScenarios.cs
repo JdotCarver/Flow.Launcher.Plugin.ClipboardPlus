@@ -35,6 +35,7 @@ internal static class PluginScenarios
         SetField(plugin, "ScoreHelper", new ScoreHelper(10000));
 
         TestActionBookends(plugin);
+        TestLiteralAndFuzzySearch(plugin);
 
         foreach (int size in new[] { 100, 333, 334, 1000, 10000 })
         {
@@ -80,6 +81,68 @@ internal static class PluginScenarios
             if (record.IsNull()) throw new InvalidOperationException("Synthetic capture rejected");
             add.Invoke(plugin, [record]);
         });
+    }
+
+    private static void TestLiteralAndFuzzySearch(Plugin plugin)
+    {
+        ClipboardDataPair Pair(string id, string text, int score, bool rich = false)
+        {
+            var data = new ClipboardData(rich ? "synthetic rich text" : text, rich ? DataType.RichText : DataType.PlainText, false)
+            {
+                HashId = id, SenderApp = "synthetic", InitScore = score, CreateTime = new DateTime(2025, 1, 1),
+                Pinned = false, Saved = false, PlainText = rich ? text : string.Empty
+            };
+            return new ClipboardDataPair
+            {
+                ClipboardData = data,
+                PreviewPanel = new Lazy<UserControl>(() => throw new InvalidOperationException("Preview must remain lazy"))
+            };
+        }
+        var emails = new[]
+        {
+            Pair("short", "a@addy.io", 1),
+            Pair("medium", "longlocalpart@addy.io", 10001, true),
+            Pair("long", "averyveryveryverylonglocalpart@addy.io", 20001)
+        };
+        var mention = Pair("mention", "synthetic @ marker", 30001);
+        foreach (int size in new[] { 4, 334 })
+        {
+            var records = new LinkedList<ClipboardDataPair>(emails.Append(mention));
+            for (int i = 4; i < size; i++) records.AddLast(Pair("filler-" + i, "zzz", i));
+            SetField(plugin, "RecordsList", records);
+            foreach (var precision in new[] { SearchPrecisionScore.Regular, SearchPrecisionScore.Low })
+            {
+                SyntheticHost.Matcher.UserSettingSearchPrecision = precision;
+                foreach (var (query, expected) in new[]
+                {
+                    ("@", new[] { "short", "medium", "long", "mention" }),
+                    ("io", new[] { "short", "medium", "long" }),
+                    ("add", new[] { "short", "medium", "long" }),
+                    ("ADD", new[] { "short", "medium", "long" }),
+                    ("unmatched", Array.Empty<string>())
+                })
+                {
+                    var results = plugin.QueryAsync(CreateQuery(query), CancellationToken.None).GetAwaiter().GetResult();
+                    var ids = results.Select(result => ((ClipboardDataPair)result.ContextData).ClipboardData.HashId).OrderBy(id => id).ToArray();
+                    if (!ids.SequenceEqual(expected.OrderBy(id => id)))
+                        throw new InvalidOperationException("Synthetic literal search returned unexpected records");
+                    foreach (var result in results)
+                    {
+                        var data = ((ClipboardDataPair)result.ContextData).ClipboardData;
+                        if (result.Score != data.GetScore(RecordOrder.CreateTime))
+                            throw new InvalidOperationException("Synthetic search changed record ordering scores");
+                    }
+                }
+            }
+        }
+        SyntheticHost.Matcher.UserSettingSearchPrecision = SearchPrecisionScore.Regular;
+        var fuzzy = Pair("fuzzy", "Install Package", 1);
+        if (((string)fuzzy.ClipboardData.Data!).Contains("ip", StringComparison.OrdinalIgnoreCase) ||
+            !SyntheticHost.Matcher.FuzzyMatch("ip", (string)fuzzy.ClipboardData.Data!).IsSearchPrecisionScoreMet())
+            throw new InvalidOperationException("Synthetic fuzzy example is invalid");
+        SetField(plugin, "RecordsList", new LinkedList<ClipboardDataPair>([fuzzy]));
+        if (plugin.QueryAsync(CreateQuery("ip"), CancellationToken.None).GetAwaiter().GetResult().Count != 1)
+            throw new InvalidOperationException("Synthetic fuzzy-only search failed");
     }
 
     private static void TestActionBookends(Plugin plugin)
