@@ -35,6 +35,7 @@ internal static class PluginScenarios
         SetField(plugin, "ScoreHelper", new ScoreHelper(10000));
 
         TestActionBookends(plugin);
+        ProbeSyntheticEmailAtSearch(plugin);
 
         foreach (int size in new[] { 100, 333, 334, 1000, 10000 })
         {
@@ -80,6 +81,35 @@ internal static class PluginScenarios
             if (record.IsNull()) throw new InvalidOperationException("Synthetic capture rejected");
             add.Invoke(plugin, [record]);
         });
+    }
+
+    private static void ProbeSyntheticEmailAtSearch(Plugin plugin)
+    {
+        var values = new[] { "a@invalid.test", "longlocalpart@invalid.test",
+            "averyveryveryverylonglocalpart@invalid.test", "synthetic without symbol" };
+        var pairs = values.Select((text, index) => new ClipboardDataPair
+        {
+            ClipboardData = new ClipboardData(text, DataType.PlainText, false)
+            {
+                HashId = index.ToString(CultureInfo.InvariantCulture), SenderApp = "synthetic", InitScore = index,
+                CreateTime = new DateTime(2025, 1, 1), Pinned = false, Saved = false
+            },
+            PreviewPanel = new Lazy<UserControl>(() => throw new InvalidOperationException("Preview must remain lazy") )
+        }).ToArray();
+        SetField(plugin, "RecordsList", new LinkedList<ClipboardDataPair>(pairs));
+        var counts = new List<int>();
+        foreach (var precision in new[] { SearchPrecisionScore.Regular, SearchPrecisionScore.Low })
+        {
+            SyntheticHost.Matcher.UserSettingSearchPrecision = precision;
+            var expected = values.Count(value => SyntheticHost.Matcher.FuzzyMatch("@", value).IsSearchPrecisionScoreMet());
+            var results = plugin.QueryAsync(CreateQuery("@"), CancellationToken.None).GetAwaiter().GetResult();
+            if (results.Count != expected || results.Any(result => !((ClipboardDataPair)result.ContextData).ClipboardData.GetText(CultureInfo.InvariantCulture).Contains('@')))
+                throw new InvalidOperationException("Synthetic plugin query and matcher differed");
+            counts.Add(results.Count);
+        }
+        if (counts[0] != 1 || counts[1] != 2) throw new InvalidOperationException("Unexpected synthetic email precision results");
+        Console.WriteLine($"SyntheticAtSearch regular={counts[0]} low={counts[1]} total=3");
+        SyntheticHost.Matcher.UserSettingSearchPrecision = SearchPrecisionScore.Regular;
     }
 
     private static void TestActionBookends(Plugin plugin)
